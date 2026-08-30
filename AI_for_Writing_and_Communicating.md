@@ -5,6 +5,32 @@
 
 ---
 
+## 📑 目录
+
+### Module 1: Communicate with AI
+- [1.1 AI for writing and communicating](#11-ai-for-writing-and-communicating) 🎬 视频 5:14
+- [1.2 Automate notetaking to enhance teamwork](#12-automate-notetaking-to-enhance-teamwork) 📚 阅读 2分钟
+- [1.3 Build with AI: Meeting summary](#13-build-with-ai-meeting-summary) 🧪 实验室 12分钟
+
+### Module 2: Pressure test ideas in Gemini
+- [2.1 State your challenge and pressure test it in Gemini](#21-state-your-challenge-and-pressure-test-it-in-gemini) 📚 阅读 2分钟
+- [2.2 Build with AI: Pressure testing](#22-build-with-ai-pressure-testing) 🧪 实验室 12分钟
+
+### Module 3: Draft communications with Gemini Canvas
+- [3.1 Draft your communication with Gemini Canvas](#31-draft-your-communication-with-gemini-canvas) 📚 阅读 2分钟
+- [3.2 Build with AI: First draft](#32-build-with-ai-first-draft) 🧪 实验室 12分钟
+
+### Module 4: Get speech feedback from Gemini Live
+- [4.1 Practice for your presentation in Gemini Live](#41-practice-for-your-presentation-in-gemini-live) 📚 阅读 2分钟
+- [4.2 Build with AI: Speech rehearsal](#42-build-with-ai-speech-rehearsal) 🧪 实验室 12分钟
+
+### 课程完成
+- [Course Challenge](#course-challenge) 🏆 评分作业
+- [Claim your course completion badge](#claim-your-course-completion-badge) 📚 阅读 2分钟
+- [Get started on the next course](#get-started-on-the-next-course) 📚 阅读 2分钟
+
+---
+
 ## Module 1: Communicate with AI
 
 ### 1.1 AI for writing and communicating
@@ -44,3 +70,53 @@
 | You'll find that your emails actually get read, and people will follow through. Or your communication is clearer, reducing back-and-forth and getting to quicker decisions. | 你会发现你的电子邮件实际上被阅读了，人们会跟进。或者你的沟通更清晰，减少了来回交流，更快地做出决定。 |
 | And maybe your perspective is better understood by your teammates or clients, and as a result, you'll be more effective in informing or even changing their opinions. | 也许你的观点被队友或客户更好地理解了，因此，你将更有效地告知甚至改变他们的观点。 |
 | So let's get rid of those long, confusing email threads and start communicating more clearly. | 所以让我们摆脱那些冗长、令人困惑的电子邮件线程，开始更清晰地沟通。 |
+
+---
+
+### 1.2 Automate notetaking to enhance teamwork
+
+> 📚 **阅读时长**：2分钟
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| In the upcoming lab, Clara from Gemini Marketing will show you how to use Gemini in Google Meet to capture meeting notes and transform them into a structured action plan that clarifies decisions, assigns owners, and sets deadlines. | 在接下来的实验室中，来自Gemini Marketing的Clara将向你展示如何在Google Meet中使用Gemini捕获会议记录，并将其转化为结构化的行动计划，明确决策、分配责任人和设定截止日期。 |
+| **What you'll gain:** | **你将获得：** |
+| **Focused meetings:** Stay engaged in discussions without having to take detailed notes at the same time | **专注的会议：** 保持参与讨论，同时无需做详细笔记 |
+| **Actionable next steps:** Transform conversations into clear action plans with assigned owners and deadlines | **可行的后续步骤：** 将对话转化为清晰的行动计划，分配责任人和截止日期 |
+| **Better team alignment:** Give everyone a shared source of truth about what was decided and what happens next | **更好的团队协作：** 让每个人都能获得关于决策和后续行动的共同信息来源 |
+| **Apply what you learn:** | **应用你所学的：** |
+| In the lab, we'll demonstrate how to transform meeting notes into an action plan using a transcript from a vendor management meeting. However, to really get the most out of the lab, take a meeting transcript of your own and ask Gemini to help you create something new. | 在实验室中，我们将演示如何使用供应商管理会议的记录将会议记录转化为行动计划。但是，为了真正从实验室中获得最大收益，请使用你自己的会议记录，并要求Gemini帮助你创建新内容。 |
+| The goal isn't to copy our exact process, but to build a system that enables better communication and collaboration for you and your team. | 目标不是复制我们的确切流程，而是为你和你的团队建立一个能够实现更好沟通和协作的系统。 |
+| Ready to turn meeting chaos into clarity? Let's dive in. | 准备好将会议混乱转化为清晰了吗？让我们开始吧。 |
+
+---
+
+### 1.3 Build with AI: Meeting summary
+
+> 🧪 **实验室时长**：12分钟
+
+### 📝 实验室原文
+
+If the Gemini app fails to load, navigate to the URL bar in your browser and manually enter gemini.google.com.
+
+To use the features covered in this lab, sign into Gemini using your Google Account.
+
+As you follow the video instructions in this lab, customize the prompts below to fit your own work. Feel free to pause the video as needed.
+
+The skills you learn in this lab will help you have better, more focused meetings while increasing alignment and productivity to help you and your team get more done.
+
+### 📎 实验室材料链接
+
+| 材料名称 | 链接 |
+|----------|------|
+| Gemini | [Google Gemini](https://gemini.google.com) |
+| Example transcript | [Google Drive](https://drive.google.com/file/d/1mD9CHn3Ngpk1b8oJ-xTc7MlpEf7YV18F/view?usp=sharing) |
+
+### 🧪 实验室任务对照
+
+| 步骤 | 实验室任务（英文） | 实验室任务（中文） |
+|------|-------------------|-------------------|
+| Step 1 | **Generate an action item report from a transcript**<br>Click the "New chat" button on the left side menu to start a new chat with Gemini. Then, paste the prompt below and attach a meeting transcript. Replace the text in [brackets] with your own details. If you don't have your own transcript, include this example transcript. | **从记录生成行动项目报告**<br>点击左侧菜单中的"New chat"按钮开始与Gemini的新对话。然后，粘贴以下提示并附加会议记录。将[方括号]中的文本替换为你自己的详细信息。如果你没有自己的记录，请使用此示例记录。 |
+| | **Prompt：**<br>Acting as [a role that would excel at the task you want to accomplish, e.g. a senior project manager], generate a report based on the attached transcript. The report must have the following sections: [description of the sections you want in the report]. | **Prompt：**<br>作为[擅长你想要完成的任务的角色，例如高级项目经理]，根据附加的记录生成一份报告。报告必须包含以下部分：[你希望在报告中包含的部分描述]。 |
+| Step 2 | **Evaluate the report**<br>In the same chat with Gemini, paste the prompt below and replace the text in [brackets] with your own details. | **评估报告**<br>在与Gemini的同一对话中，粘贴以下提示并将[方括号]中的文本替换为你自己的详细信息。 |
+| | **Prompt：**<br>Evaluate the report using these criteria:<br>- [First criteria, e.g. Brevity]<br>- [Second criteria, e.g. Clear action items]<br>- [Third criteria, e.g. Clarity] | **Prompt：**<br>使用以下标准评估报告：<br>- [第一个标准，例如简洁性]<br>- [第二个标准，例如清晰的行动项目]<br>- [第三个标准，例如清晰度] |
