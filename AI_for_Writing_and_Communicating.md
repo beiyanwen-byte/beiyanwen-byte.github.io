@@ -345,12 +345,12 @@
 | You are an architect hosting a client presentation on Google Meet. You need a reliable way to document the meeting details, but you find that manual note-taking is distracting and results in incomplete notes. From the options below, what is the most effective way to capture the conversation for later analysis? | 你是一位建筑师，正在Google Meet上主持客户演示。你需要一种可靠的方式来记录会议详情，但你发现手动记笔记会分散注意力且导致笔记不完整。从以下选项中，哪种是最有效的方式来记录对话以便后续分析？ |
 
 ### 选项
-| 选项 | 内容 | 结果 |
-|------|------|------|
-| A | Record the meeting in Google Meet, then share the video of the meeting with your team in a follow up email. | ❌ |
-| B | Enable the note-taking feature in Google Meet, which will email you a full transcript after the call. You can then use the Gemini to generate a list of action items. | ✅ **正确** |
-| C | When the meeting starts, enable Gemini Live on your phone to record the meeting and then ask for a transcription. | ❌ |
-| D | Enable "Share your screen" during the Google Meet and type notes into a shared document so the client can contribute to the notes in real-time. | ❌ |
+| 选项 | English 🇺🇸 | 中文 🇨🇳 | 结果 |
+|------|------------|----------|------|
+| A | Record the meeting in Google Meet, then share the video of the meeting with your team in a follow up email. | 在Google Meet中录制会议，然后在后续电子邮件中与团队分享会议视频。 | ❌ |
+| B | Enable the note-taking feature in Google Meet, which will email you a full transcript after the call. You can then use the Gemini to generate a list of action items. | 启用Google Meet中的笔记功能，通话后会通过电子邮件向你发送完整转录稿。然后你可以使用Gemini生成待办事项列表。 | ✅ **正确** |
+| C | When the meeting starts, enable Gemini Live on your phone to record the meeting and then ask for a transcription. | 会议开始时，在手机上启用Gemini Live录制会议，然后请求转录。 | ❌ |
+| D | Enable "Share your screen" during the Google Meet and type notes into a shared document so the client can contribute to the notes in real-time. | 在Google Meet期间启用"共享屏幕"，并在共享文档中输入笔记，以便客户可以实时参与笔记记录。 | ❌ |
 
 ---
 
@@ -362,12 +362,12 @@
 | You are a project manager. You have a 20-page transcript from a project meeting. You need to send a follow-up email with an actionable plan for the team, ensuring everyone knows their specific next steps. From the options below, what is the most effective prompt to turn this dense transcript into a table with a clear, actionable plan? | 你是一位项目经理。你有一份20页的项目会议转录稿。你需要发送一封后续邮件，为团队提供可执行的计划，确保每个人都知道自己的具体下一步。从以下选项中，哪种是最有效的提示，可以将这份密集的转录稿转化为带有清晰、可执行计划的表格？ |
 
 ### 选项
-| 选项 | 内容 | 结果 |
-|------|------|------|
-| A | "Evaluate the attached transcript for brevity and accuracy. Then, format the transcript so it's easier to read and include a table of action items, specifically columns: Action item, Owner, and Deadline." | ❌ |
-| B | "Act as a senior project manager. Based on the attached transcript, generate a report with a summary and a detailed table of action items, specifically columns: Action item, Owner, and Deadline." | ✅ **正确** |
-| C | "Review the attached transcript and draft a follow-up email summarizing the meeting with the main takeaways and action items. Make sure to include all the details we discussed in a table so the team knows what to do." | ❌ |
-| D | "Act as a senior project manager. Review the attached transcript and bold every sentence that contains an action item or decision so the team can quickly scan the document." | ❌ |
+| 选项 | English 🇺🇸 | 中文 🇨🇳 | 结果 |
+|------|------------|----------|------|
+| A | "Evaluate the attached transcript for brevity and accuracy. Then, format the transcript so it's easier to read and include a table of action items, specifically columns: Action item, Owner, and Deadline." | "评估附带的转录稿的简洁性和准确性。然后，格式化转录稿使其更易于阅读，并包含一个待办事项表格，特别是列：待办事项、负责人和截止日期。" | ❌ |
+| B | "Act as a senior project manager. Based on the attached transcript, generate a report with a summary and a detailed table of action items, specifically columns: Action item, Owner, and Deadline." | "作为高级项目经理。根据附带的转录稿，生成一份包含摘要和详细待办事项表格的报告，特别是列：待办事项、负责人和截止日期。" | ✅ **正确** |
+| C | "Review the attached transcript and draft a follow-up email summarizing the meeting with the main takeaways and action items. Make sure to include all the details we discussed in a table so the team knows what to do." | "审查附带的转录稿并起草一封后续邮件，总结会议的主要要点和待办事项。确保在表格中包含我们讨论的所有细节，以便团队知道该做什么。" | ❌ |
+| D | "Act as a senior project manager. Review the attached transcript and bold every sentence that contains an action item or decision so the team can quickly scan the document." | "作为高级项目经理。审查附带的转录稿，并将每个包含待办事项或决策的句子加粗，以便团队可以快速浏览文档。" | ❌ |
 
 ---
 
@@ -379,12 +379,12 @@
 | You work at an ice cream shop. You are using Gemini to help you announce the new summer menu to local food bloggers and wholesale suppliers. You plan to send separate emails that are customized for each audience. In your main chat, Gemini correctly identified that food bloggers prioritize "aesthetic trends," while wholesale suppliers prioritize "unit pricing." When you switch to Canvas to draft the blogger email, the prompt "Draft the email to the food bloggers" results in a generic message that ignores these priorities. To generate a more effective, tailored output, what specific constraint is missing from your Canvas prompt? | 你在一家冰淇淋店工作。你正在使用Gemini帮助你向当地美食博主和批发供应商宣布新的夏季菜单。你计划为每个受众发送单独定制的电子邮件。在你的主聊天中，Gemini正确地识别出美食博主优先考虑"美学趋势"，而批发供应商优先考虑"单位价格"。当你切换到Canvas来起草博主邮件时，提示"为美食博主起草邮件"生成了一条忽略这些优先级的通用消息。为了生成更有效、更有针对性的输出，你的Canvas提示中缺少什么特定约束？ |
 
 ### 选项
-| 选项 | 内容 | 结果 |
-|------|------|------|
-| A | An instruction to specifically include a bulleted list template that you can then customize for each audience. | ❌ |
-| B | A request to re-analyze the menu so the AI's memory can be updated to include the new ice cream flavors. | ❌ |
-| C | An instruction to specifically include the prioritized points that Gemini identified in the previous step. | ✅ **正确** |
-| D | A command to simultaneously draft both the food blogger and wholesale supplier emails to increase efficiency, with instruction to specifically include the prioritized points that Gemini identified in the previous step. | ❌ |
+| 选项 | English 🇺🇸 | 中文 🇨🇳 | 结果 |
+|------|------------|----------|------|
+| A | An instruction to specifically include a bulleted list template that you can then customize for each audience. | 一个明确指示包含项目列表模板的指令，你可以为每个受众自定义该模板。 | ❌ |
+| B | A request to re-analyze the menu so the AI's memory can be updated to include the new ice cream flavors. | 一个请求重新分析菜单的指令，以便AI的记忆可以更新以包含新的冰淇淋口味。 | ❌ |
+| C | An instruction to specifically include the prioritized points that Gemini identified in the previous step. | 一个明确指示包含Gemini在上一步中识别的优先级要点的指令。 | ✅ **正确** |
+| D | A command to simultaneously draft both the food blogger and wholesale supplier emails to increase efficiency, with instruction to specifically include the prioritized points that Gemini identified in the previous step. | 一个同时起草美食博主和批发供应商邮件以提高效率的命令，并明确指示包含Gemini在上一步中识别的优先级要点。 | ❌ |
 
 ---
 
@@ -396,12 +396,12 @@
 | You are a route supervisor for a waste management service. You need to call an angry neighborhood association president because trash pickup has been missed for two consecutive weeks due to truck maintenance issues. You are anxious about the call and want to practice de-escalating the situation. From the options below, what is the most effective way to use Gemini to prepare for this difficult conversation? | 你是废物管理服务的路线主管。你需要给一位愤怒的社区协会主席打电话，因为卡车维护问题导致垃圾收集连续两周被错过。你对这次通话感到焦虑，想要练习缓和局势。从以下选项中，哪种是最有效的方式来使用Gemini为这次困难对话做准备？ |
 
 ### 选项
-| 选项 | 内容 | 结果 |
-|------|------|------|
-| A | Use Gemini Live to explain the scenario and verbally ask for a list of general customer service and de-escalation tips, which you can review before the call. | ❌ |
-| B | Use Gemini Live to explain the scenario and verbally role-play the call, then end the live session and ask for specific written feedback on your de-escalation techniques. | ✅ **正确** |
-| C | Write the neighborhood president's expected complaints into Gemini and ask it to generate a list of common de-escalation techniques, which you can then practice before the call. | ❌ |
-| D | Upload the truck maintenance reports to a text chat with Gemini and ask it to summarize the mechanical failures so you can better communicate the reason for the missing trash pickups. | ❌ |
+| 选项 | English 🇺🇸 | 中文 🇨🇳 | 结果 |
+|------|------------|----------|------|
+| A | Use Gemini Live to explain the scenario and verbally ask for a list of general customer service and de-escalation tips, which you can review before the call. | 使用Gemini Live解释场景并口头请求通用客户服务和缓和技巧列表，你可以在通话前查看。 | ❌ |
+| B | Use Gemini Live to explain the scenario and verbally role-play the call, then end the live session and ask for specific written feedback on your de-escalation techniques. | 使用Gemini Live解释场景并口头角色扮演通话，然后结束实时会话并请求关于你缓和技巧的具体书面反馈。 | ✅ **正确** |
+| C | Write the neighborhood president's expected complaints into Gemini and ask it to generate a list of common de-escalation techniques, which you can then practice before the call. | 将社区主席的预期投诉输入Gemini，并要求其生成常见缓和技巧列表，然后你可以在通话前练习。 | ❌ |
+| D | Upload the truck maintenance reports to a text chat with Gemini and ask it to summarize the mechanical failures so you can better communicate the reason for the missing trash pickups. | 将卡车维护报告上传到与Gemini的文本聊天中，并要求其总结机械故障，以便你能更好地传达错过垃圾收集的原因。 | ❌ |
 
 ---
 
@@ -413,12 +413,12 @@
 | You are an exterminator preparing a comprehensive pest control proposal for a large apartment complex. You will present the proposal to the property manager, who often cares most about safety protocols and treatment schedules. To prepare for the negotiation, you upload your proposal to Gemini along with the prompt, "Give me feedback on this proposal." Gemini replies with a positive summary and says the proposal is clear and well-written. However, you want more specific feedback to identify potential objections and anticipate questions from the property manager before the meeting. What is the most effective prompt to evaluate your proposal and anticipate stakeholder questions? | 你是一位害虫防治员，正在为一个大型公寓综合体准备一份全面的害虫防治提案。你将向物业经理展示该提案，他通常最关心安全协议和处理时间表。为了准备谈判，你将提案上传到Gemini，并附上提示"给我关于这份提案的反馈"。Gemini回复了一份积极的摘要，并表示提案清晰且写得很好。然而，你希望获得更多具体的反馈，以便在会议前识别潜在的异议并预判物业经理可能提出的问题。哪种是最有效的提示来评估你的提案并预判利益相关者的问题？ |
 
 ### 选项
-| 选项 | 内容 | 结果 |
-|------|------|------|
-| A | "Act as a property manager and provide a list of the top objections that managers have when hiring exterminators for large properties, particularly regarding safety protocols or treatment schedules." | ❌ |
-| B | "Act as a property manager and review the attached proposal. From your perspective, what questions and objections might a property manager have regarding safety protocols or treatment schedules?" | ✅ **正确** |
-| C | "Organize this proposal so that it answers common questions asked by property managers of large properties." | ❌ |
-| D | "Act as a property manager and review the text in this proposal, rewriting any sections that don't include answers to anticipated questions." | ❌ |
+| 选项 | English 🇺🇸 | 中文 🇨🇳 | 结果 |
+|------|------------|----------|------|
+| A | "Act as a property manager and provide a list of the top objections that managers have when hiring exterminators for large properties, particularly regarding safety protocols or treatment schedules." | "作为物业经理，提供物业经理在为大型物业聘请灭虫公司时最常见的异议列表，特别是关于安全协议或处理时间表的异议。" | ❌ |
+| B | "Act as a property manager and review the attached proposal. From your perspective, what questions and objections might a property manager have regarding safety protocols or treatment schedules?" | "作为物业经理并审查附带的提案。从你的角度来看，物业经理在安全协议或处理时间表方面可能会有什么问题和异议？" | ✅ **正确** |
+| C | "Organize this proposal so that it answers common questions asked by property managers of large properties." | "组织这份提案，使其回答大型物业物业经理常问的问题。" | ❌ |
+| D | "Act as a property manager and review the text in this proposal, rewriting any sections that don't include answers to anticipated questions." | "作为物业经理并审查这份提案中的文本，重写任何不包含预期问题答案的部分。" | ❌ |
 
 ---
 
