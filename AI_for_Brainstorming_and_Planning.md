@@ -150,7 +150,9 @@
 
 ### 📝 实验室原文
 
-To use the features covered in this lab, sign into Gemini using your Google Account. As you follow the video instructions in this lab, customize the prompts below to fit your own work. Feel free to pause the video as needed.
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| To use the features covered in this lab, sign into Gemini using your Google Account. As you follow the video instructions in this lab, customize the prompts below to fit your own work. Feel free to pause the video as needed. | 要使用本实验室中介绍的功能，请使用你的Google帐户登录Gemini。当你按照本实验室中的视频说明操作时，请自定义以下提示以适应你自己的工作。请随时根据需要暂停视频。 |
 
 ### 📎 实验室材料链接
 
@@ -226,7 +228,9 @@ To use the features covered in this lab, sign into Gemini using your Google Acco
 
 ### 📝 实验室原文
 
-NotebookLM is now Gemini Notebook. You can still follow the video and complete the lab. To use the features covered in this lab, sign into Gemini Notebook using your Google Account. As you follow the video instructions in this lab, customize the prompts below to fit your own work. Feel free to pause the video as needed.
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| NotebookLM is now Gemini Notebook. You can still follow the video and complete the lab. To use the features covered in this lab, sign into Gemini Notebook using your Google Account. As you follow the video instructions in this lab, customize the prompts below to fit your own work. Feel free to pause the video as needed. | NotebookLM现已更名为Gemini Notebook。你仍然可以按照视频操作并完成实验室。要使用本实验室中介绍的功能，请使用你的Google帐户登录Gemini Notebook。当你按照本实验室中的视频说明操作时，请自定义以下提示以适应你自己的工作。请随时根据需要暂停视频。 |
 
 ### 📎 实验室材料链接
 
