@@ -1,0 +1,27 @@
+# AI Fundamentals - Module 1: AI Fundamentals
+# Video: AI fundamentals
+# Duration: 3:02
+
+Hi, I'm Maya. I'm the Vice President of Strategy, Operations, and Outreach at Google Research. This means I spend my time exploring what's on the horizon and helping to make it real. That includes AI.
+
+You're probably already using AI yourself, even if you don't know it. It's the technology behind things like giving you optimized traffic routes or personalized suggestions for YouTube videos. AI is also creating new ways of working or running a business, and it has a lot of huge potential for you and your team.
+
+And like any new technology, it can be intimidating to know where to start or how to keep up, especially when it feels like there are new things happening every day. Don't worry though, we're here to help.
+
+In this course, you'll get AI skills employers are looking for. This includes important fundamentals about AI, how to apply AI to your own work, and how to be a responsible AI user. These skills will help expand the possibilities of what you can do with AI at work.
+
+We've brought in a team of AI experts and practitioners from across Google to serve as your guides. You'll explore different use cases that you can apply to your own work.
+
+We focus on getting you right into the tools. That's intentional. You wouldn't learn how to play the piano without touching the keys, would you? AI is no different. The best way to learn is by doing.
+
+Throughout your learning journey, you'll practice using AI with access to Google's most capable models. You'll start with the Gemini app as your home base. You can think of it as your all-purpose AI assistant. You can access it from desktop or on a mobile, and there's all sorts of stuff you can do from this one app. You'll also practice using other AI tools like AI Studio.
+
+What are some of the things you'll be able to do after completing this certificate? You'll learn how to look ahead and anticipate questions someone might ask before a big meeting, or how to understand a topic that's new to you. We'll show you how.
+
+You'll build project roadmaps, a compelling presentation, marketing imagery, and charts that tell a story. You'll see how AI can help turn rough ideas into clear communication to get your teammates on board, and you'll be able to transform raw data into visuals that everyone on your team can understand.
+
+By the end, you'll even be able to build your own custom apps, like an interactive dashboard or a media asset creator, and you'll do it by directing AI with natural language. No coding required.
+
+When you start applying your new AI skills to your day-to-day work, you'll be able to solve new problems and boost your impact. After you're done, you'll earn a certificate from Google demonstrating skills that employers are looking for, and you can add this credential to your resume and LinkedIn profile. You'll also have a portfolio of things you've built yourself using AI.
+
+So let's get started.

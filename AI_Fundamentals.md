@@ -1,0 +1,927 @@
+# 🎓 AI Fundamentals - 课程笔记
+
+> 📚 **课程**：Google AI Professional Certificate - AI Fundamentals
+> 👨‍🏫 **讲师**：Google Career Certificates
+> ⏱️ **时长**：约3小时 | 6个模块
+> ⭐ **评分**：4.8/5
+
+---
+
+## 📑 目录
+
+- [Module 1: Collaborate with AI](#module-1-collaborate-with-ai)
+  - [1.1 AI Fundamentals](#11-ai-fundamentals)
+  - [1.2 Adopt a collaborative mindset](#12-adopt-a-collaborative-mindset)
+  - [1.3 Three ways to collaborate with AI](#13-three-ways-to-collaborate-with-ai)
+  - [1.4 Maya's advice](#14-maya-what-advice-do-you-have-for-people-getting-started-with-ai)
+- [Module 2: Practice using AI](#module-2-practice-using-ai)
+  - [2.1 Get the most out of labs](#21-get-the-most-out-of-labs)
+  - [2.2 Complete labs with Google AI Pro](#22-complete-labs-with-google-ai-pro-at-no-cost)
+  - [2.3 Brainstorm ideas with Gemini（实验室）](#23-brainstorm-ideas-with-gemini实验室)
+  - [2.4 Carol, how has AI been blowing your mind](#24-carol-how-has-ai-been-blowing-your-mind-recently)
+- [Module 3: Learn how AI works](#module-3-learn-how-ai-works)
+  - [3.1 Learn foundational AI concepts](#31-learn-foundational-ai-concepts)
+  - [3.2 Fundamentals of machine learning](#32-fundamentals-of-machine-learning)
+  - [3.3 Understand AI limitations](#33-understand-ai-limitations)
+  - [3.4 Leverage AI features and capabilities for work](#34-leverage-ai-features-and-capabilities-for-work)
+- [Module 4: Design great prompts](#module-4-design-great-prompts)
+  - [4.1 Learn how to prompt AI to get helpful results](#41-learn-how-to-prompt-ai-to-get-helpful-results)
+  - [4.2 Prompting tips and tricks](#42-prompting-tips-and-tricks)
+  - [4.3 Apply the prompting framework in Gemini](#43-apply-the-prompting-framework-in-gemini)
+  - [4.4 Mahi, what is your go to prompting trick?](#44-mahi-what-is-your-go-to-prompting-trick)
+- [Module 5: Level up your prompts](#module-5-level-up-your-prompts)
+  - [5.1 Prompt chaining strategies](#51-prompt-chaining-strategies)
+  - [5.2 Practice prompt chaining in Gemini](#52-practice-prompt-chaining-in-gemini)
+  - [5.3 Mahi, what's a hack for giving Gemini context in a new chat?](#53-mahi-whats-a-hack-for-giving-gemini-context-in-a-new-chat)
+  - [5.4 Generate visuals with AI](#54-generate-visuals-with-ai)
+  - [5.5 Create custom images with Gemini](#55-create-custom-images-with-gemini)
+- [Module 6: Use AI responsibly](#module-6-use-ai-responsibly)
+  - [6.1 Responsible AI in practice](#61-responsible-ai-in-practice)
+  - [6.2 Mahi, what should you do if you get a bad response from Gemini?](#62-mahi-what-should-you-do-if-you-get-a-bad-response-from-gemini)
+  - [6.3 Responsible AI best practices](#63-responsible-ai-best-practices)
+  - [6.4 Learn about AI agents](#64-learn-about-ai-agents)
+- [Course Challenge](#-course-challenge)
+- [Claim your course completion badge](#claim-your-course-completion-badge)
+- [Get started on the next course](#get-started-on-the-next-course)
+
+---
+
+# 📖 Module 1: Collaborate with AI
+
+> 💡 **本模块目标**：将AI从任务完成工具转变为专业协作者
+
+---
+
+## 1.1 AI Fundamentals
+
+> 🎬 **视频时长**：3分02秒
+
+### 📝 字幕对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| Hi, I'm Maya. I'm the Vice President of Strategy, Operations, and Outreach at Google Research. This means I spend my time exploring what's on the horizon and helping to make it real. That includes AI. | 嗨，我是Maya。我是Google Research战略、运营和外展副总裁。这意味着我花时间探索未来趋势并帮助实现它们，包括AI。 |
+| You're probably already using AI yourself, even if you don't know it. It's the technology behind things like giving you optimized traffic routes or personalized suggestions for YouTube videos. AI is also creating new ways of working or running a business, and it has a lot of huge potential for you and your team. | 你可能已经在使用AI了，即使你自己不知道。它是那些技术背后的科技，比如为你提供优化的交通路线，或者YouTube视频的个性化推荐。AI也在创造新的工作方式和经营方式，它对你和你的团队有很大的潜力。 |
+| And like any new technology, it can be intimidating to know where to start or how to keep up, especially when it feels like there are new things happening every day. Don't worry though, we're here to help. | 像任何新技术一样，知道从哪里开始或如何跟上可能会令人望而生畏，尤其是当感觉每天都有新事物发生时。不过别担心，我们在这里帮忙。 |
+| In this course, you'll get AI skills employers are looking for. This includes important fundamentals about AI, how to apply AI to your own work, and how to be a responsible AI user. These skills will help expand the possibilities of what you can do with AI at work. | 在本课程中，你将获得雇主正在寻找的AI技能。这包括AI的重要基础知识、如何将AI应用到自己的工作中，以及如何成为一名负责任的AI用户。这些技能将帮助你在工作中扩展AI的可能性。 |
+| We've brought in a team of AI experts and practitioners from across Google to serve as your guides. You'll explore different use cases that you can apply to your own work. | 我们邀请了来自Google各地的AI专家和实践者作为你的向导。你将探索可以应用到自己工作中的不同用例。 |
+| We focus on getting you right into the tools. That's intentional. You wouldn't learn how to play the piano without touching the keys, would you? AI is no different. The best way to learn is by doing. | 我们专注于让你直接使用工具。这是有意为之的。你不会不碰琴键就学会弹钢琴，对吧？AI也是一样。最好的学习方式是实践。 |
+| Throughout your learning journey, you'll practice using AI with access to Google's most capable models. You'll start with the Gemini app as your home base. You can think of it as your all-purpose AI assistant. You can access it from desktop or on a mobile, and there's all sorts of stuff you can do from this one app. You'll also practice using other AI tools like AI Studio. | 在学习过程中，你将练习使用AI，并获得Google最强大模型的访问权限。你将从Gemini应用开始作为大本营。你可以把它看作你的多功能AI助手。你可以从桌面或手机访问它，从这一个应用可以做各种事情。你还将练习使用其他AI工具，如AI Studio。 |
+| What are some of the things you'll be able to do after completing this certificate? You'll learn how to look ahead and anticipate questions someone might ask before a big meeting, or how to understand a topic that's new to you. We'll show you how. You'll build project roadmaps, a compelling presentation, marketing imagery, and charts that tell a story. | 完成这个证书后你能做什么？你将学会如何在重要会议前预见并准备可能被问到的问题，或者如何理解一个对你来说新的话题。我们会教你怎么做。你将构建项目路线图、引人注目的演示文稿、营销图像和讲述故事的图表。 |
+| You'll see how AI can help turn rough ideas into clear communication to get your teammates on board, and you'll be able to transform raw data into visuals that everyone on your team can understand. By the end, you'll even be able to build your own custom apps, like an interactive dashboard or a media asset creator, and you'll do it by directing AI with natural language. No coding required. | 你将看到AI如何帮助将粗略的想法转化为清晰的沟通，让你的团队成员理解，你还能将原始数据转化为团队每个人都能理解的可视化内容。最后，你甚至能够构建自己的自定义应用，如交互式仪表板或媒体资产创建器，而且你将通过自然语言指导AI来完成。无需编码。 |
+| When you start applying your new AI skills to your day-to-day work, you'll be able to solve new problems and boost your impact. After you're done, you'll earn a certificate from Google demonstrating skills that employers are looking for, and you can add this credential to your resume and LinkedIn profile. You'll also have a portfolio of things you've built yourself using AI. So let's get started. | 当你开始将新的AI技能应用到日常工作中时，你将能够解决新问题并提升影响力。完成后，你将获得Google颁发的证书，证明你拥有雇主正在寻找的技能，并且你可以将这个证书添加到你的简历和LinkedIn个人资料中。你还将拥有自己使用AI构建的作品集。那么，让我们开始吧。 |
+
+---
+
+## 1.2 Adopt a collaborative mindset
+
+> 🎬 **视频时长**：1分50秒
+
+### 📝 字幕对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| There are lots of ways AI can help you at work. Sure, it can help you come up with a catchy name for your next product, but to get the most out of AI, it takes a bit of a mindset shift. What do I mean? Well, imagine the following scenario. You're faced with a high stakes goal of growing your business unit's revenue by the end of the year. | AI有很多方式可以帮助你在工作中。当然，它可以帮你为下一个产品想出一个吸引人的名字，但要充分发挥AI的作用，需要一点思维转变。我是什么意思呢？想象一下以下场景。你面临着一个高风险目标：在年底前增加业务部门的收入。 |
+| Instead of just using AI to draft a note to your team announcing your project, try using AI as a collaborator. Ask it to help you build your forecast and generate options for increasing sales. Have it help you pressure-test assumptions and identify risks. Then explore different revenue scenarios. See the difference? | 与其只是用AI给团队起草一个项目通知，不如尝试把AI当作协作者。让它帮你建立预测，生成增加销售的方案。让它帮你压力测试假设并识别风险。然后探索不同的收入场景。看到区别了吗？ |
+| The real benefit isn't just in solving one-off tasks. It's in collaborating to help you solve a problem, navigating across various steps, and enlisting its help to set you up for making better decisions. But to really get the most out of AI, you'll have to use your unique expertise and judgment to guide your collaboration with it. Your role is essential. | 真正的好处不只是解决一次性任务。而是通过协作帮助你解决问题，导航多个步骤，并借助它的帮助让你做出更好的决策。但要真正充分发挥AI的作用，你必须使用你独特的专业知识和判断力来指导与它的协作。你的角色至关重要。 |
+| You're the one with context and emotional intelligence. Yes, AI can help you create a presentation, but only you know your audience. AI can offer solutions to a customer service problem, but only you can be the final judge if those solutions should be presented to the customer. | 你是拥有背景知识和情商的人。是的，AI可以帮你制作演示文稿，但只有你知道你的观众是谁。AI可以提供客户服务问题的解决方案，但只有你能判断这些解决方案是否应该呈现给客户。 |
+| And there are times when AI might not be right for the job. It has limitations. For example, topics like financial, legal, and compliance advice may be too sensitive or risky for AI. Connect with a professional on these sensitive topics. | 有时候AI可能不适合这项工作。它有局限性。例如，财务、法律和合规建议等主题对AI来说可能太敏感或太冒险。请在这些敏感话题上咨询专业人士。 |
+| But in cases when AI is the right fit for the task, you should know how to get the most out of it. The idea is not to add to your to-do list, but to help with the things you're already doing and to help you do new things that previously may not have been possible. | 但在AI适合这项任务的情况下，你应该知道如何充分发挥它的作用。目的不是增加你的待办事项列表，而是帮助你完成正在做的事情，并帮助你做一些以前可能无法做到的新事情。 |
+
+---
+
+## 1.3 Three ways to collaborate with AI
+
+> ⏱️ **阅读时长**：4分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| The key to getting the most out of AI isn't just to use it as a tool that can assist with one-off tasks, like writing emails or brainstorming ideas. Instead, it's collaboration. Have a back-and-forth chat, bounce ideas around, and gradually improve your work with AI's help. | 充分利用AI的关键不仅仅是把它当作一个工具来完成一次性任务，比如写邮件或头脑风暴。相反，而是协作。进行来回对话，交流想法，并在AI的帮助下逐步改进你的工作。 |
+| But remember: While you can ask AI for options and perspectives, you remain in the driver's seat. Use your context and judgment to accept the suggestions that will best reach your ideal outcome. | 但请记住：虽然你可以向AI询问选项和观点，但你仍然是主导者。运用你的背景知识和判断力，接受那些能最好地帮助你达到理想结果的建议。 |
+| Here are three ways collaborating with AI can enhance the skills you use at work every day: | 以下是AI协作可以增强你日常工作中技能的三种方式： |
+| AI helps you organize and understand information. You can ask AI to break down complex information into digestible chunks, highlight important points, and reveal connections you might have missed. For example, to draft a project proposal, you can ask AI to summarize recent industry trends. | AI帮助你组织和理解信息。你可以让AI将复杂信息分解成易于消化的部分，突出重要观点，并揭示你可能错过的联系。例如，要起草项目提案，你可以让AI总结最近的行业趋势。 |
+| AI helps you create brand-new things. You can use AI as your creative partner to generate text, visualize complex data for a chart, generate a compelling image, or brainstorm different ways to phrase key ideas. For example, you can ask AI to help you produce a first draft of your project proposal. | AI帮助你创造全新事物。你可以把AI当作创意伙伴来生成文本、为图表可视化复杂数据、生成引人注目的图像，或头脑风暴表达关键想法的不同方式。例如，你可以让AI帮你制作项目提案的初稿。 |
+| AI helps you improve and refine your work. You can ask AI to review your writing for clarity, check your work for errors, or suggest ways to make your presentations more persuasive. For example, you can ask AI to review your sales pitch, which might help you realize that your pricing explanation is confusing. | AI帮助你改进和完善工作。你可以让AI检查你的写作是否清晰，检查工作中的错误，或建议让演示文稿更有说服力的方法。例如，你可以让AI审查你的销售演示，这可能帮助你意识到你的定价解释令人困惑。 |
+| The bottom line? Using AI isn't just about getting tasks done faster. It's about thinking more clearly, creating more confidently, and refining your work until it truly represents your best effort. All of that starts when you shift your mindset and view AI as your collaborator. So, the next time you use AI, practice having a conversation instead of making a single request. And remember: Effective collaboration means you're actively guiding the process with your expertise and judgment from start to finish. | 总结是什么？使用AI不仅仅是为了更快地完成任务。而是为了更清晰地思考、更自信地创造，并不断完善你的工作，直到它真正代表你最好的努力。所有这一切都始于你转变思维，将AI视为你的协作者。所以，下次使用AI时，练习进行对话而不是提出单一请求。请记住：有效的协作意味着你从始至终都在用你的专业知识和判断力积极引导这个过程。 |
+| Disclaimer: In order to use AI responsibly, always make sure you're not inputting any sensitive information into public AI tools, like credit card or social security numbers. Before chatting with AI, pause and ask yourself, "Am I including data that someone else might expect me to keep private?" | 免责声明：为了负责任地使用AI，请确保不要将任何敏感信息输入到公共AI工具中，如信用卡号或社会安全号码。在与AI聊天之前，停下来问问自己："我是否包含了其他人可能期望我保密的数据？" |
+
+---
+
+## 1.4 Maya, what advice do you have for people getting started with AI?
+
+> 🎬 **视频时长**：1分钟
+
+### 📝 字幕对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| The first is you have to start using the tools, right? And then the second is I'm starting to train my mind to use AI for helping me get over the hump in my most gnarly problems. | 第一是你必须开始使用这些工具，对吧？然后第二是我开始训练我的思维，用AI帮助我克服最棘手问题的难关。 |
+| So usually when you feel, when you feel that sense of, "Ugh, I don't wanna do that," that usually for me is a signal like, "Hey, hey, hey, how about some AI," right? | 所以通常当你感觉到，当你感觉到那种"呃，我不想做那个"的感觉时，对我来说这通常是一个信号，比如"嘿，嘿，嘿，用AI怎么样？"对吧？ |
+| Because I don't expect it to complete the whole task, but I always find that when I feel like, "Ugh, why do I have to do that?" And then I think, "Hey, wait a minute, is there some way to make this easier, to make this more palatable, to get myself through that initial horrible feeling of, like, I don't wanna do that", with AI and then it gets the ball rolling. | 因为我不指望它完成整个任务，但我总是发现，当我感觉"呃，为什么我要做那个？"然后我想"嘿，等等，有没有什么办法让它更容易，让它更容易接受，让我度过那个最初的糟糕感觉，就是我不想做那个"，用AI，然后就开始了。 |
+
+---
+
+# Module 2: Practice using AI
+
+> 💡 **本模块目标**：学习使用AI工具进行实践
+
+---
+
+## 2.1 Get the most out of labs
+
+> 📚 **阅读时长**：4分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| To learn AI, you need to use AI. In this certificate, you'll practice using AI across 20+ hands-on labs designed to mirror real, workplace tasks. Each lab includes an expert-led video tutorial, and written instructions that you can follow at your own pace. | 要学习AI，你需要使用AI。在这个证书中，你将在20多个实践实验室中练习使用AI，这些实验室旨在模拟真实的工作任务。每个实验室包括专家主导的视频教程和书面说明，你可以按照自己的节奏学习。 |
+| Note: Use a desktop or laptop computer to access the labs. Labs cannot be accessed on a mobile phone or tablet. | 注意：请使用台式机或笔记本电脑访问实验室。无法通过手机或平板电脑访问实验室。 |
+| How to launch a lab: When you reach a lab, click the "Launch lab" button from a desktop or laptop computer. The "Launch lab" button will open a new browser tab inviting you to choose how you want to learn. | 如何启动实验室：当您到达实验室时，请从台式机或笔记本电脑单击"启动实验室"按钮。"启动实验室"按钮将打开一个新的浏览器选项卡，邀请您选择学习方式。 |
+| Seamless login: This option opens a new browser tab pre-loaded with the AI tool so you can practice. Toggle back to the original tab to access the video tutorial and written lab instructions. | 无缝登录：此选项会打开一个预加载了AI工具的新浏览器选项卡，以便您可以练习。切换回原始选项卡以访问视频教程和书面实验说明。 |
+| Side-by-side learning: This option takes you to a split screen allowing you to practice using AI side-by-side with the video tutorial and written lab instructions below. This is the recommended option. | 并排学习：此选项将您带到分屏，允许您在下方与视频教程和书面实验说明并排练习使用AI。这是推荐的选项。 |
+| Which option you choose is up to you, each lab can be completed using either. Just be sure to log into your Google account before you prompt Gemini to save your work. | 选择哪个选项取决于您，每个实验室都可以使用任一选项完成。只需确保在提示Gemini保存您的工作之前登录您的Google帐户。 |
+| How to complete a lab using side-by-side learning: Left side - A virtual browser with Gemini loaded will open. This is where you will practice using AI. Right side - You'll find a video tutorial where your Google AI instructor will take you through each step of the lab. And, below the video tutorial, you'll find written lab instructions. | 如何使用并排学习完成实验室：左侧 - 将打开一个加载了Gemini的虚拟浏览器。这是您练习使用AI的地方。右侧 - 您将找到一个视频教程，其中您的Google AI讲师将引导您完成实验室的每个步骤。在视频教程下方，您将找到书面实验说明。 |
+| The written lab instructions include sample prompts, these are highlighted in grey. To use a sample prompt: Copy the prompt, Paste the prompt into Gemini, Edit the text in brackets to personalize your prompt. | 书面实验说明包括示例提示，这些提示以灰色突出显示。要使用示例提示：复制提示，将提示粘贴到Gemini中，编辑括号中的文本以个性化您的提示。 |
+| How to finish a lab: After you complete every step of the lab, scroll to the end of the written lab instructions and select "Mark as completed." Once you have completed the lab, close the browser tab to return to the "Launch lab" page. From there, progress to the next item in the course by selecting, "Go to next item." | 如何完成实验室：完成实验室的每个步骤后，滚动到书面实验说明的末尾并选择"标记为已完成"。完成实验室后，关闭浏览器选项卡以返回"启动实验室"页面。从那里，通过选择"转到下一项"继续课程中的下一项内容。 |
+| Put it to work: Get the most out of each lab by applying what you learn to your own work. | 学以致用：通过将所学内容应用到自己的工作中，充分利用每个实验室。 |
+
+---
+
+## 2.2 Complete labs with Google AI Pro at no cost
+
+> 📚 **阅读时长**：4分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| Overview: In this certificate, you'll do more than just learn about AI. You'll actually build with it. You'll be taught by a team of Google AI experts and practitioners who use these tools everyday. | 概述：在这个证书中，你不仅仅学习AI。你将实际用它来构建。你将由一群每天使用这些工具的Google AI专家和实践者授课。 |
+| But before you can build like an AI professional, you'll need professional-grade tools. Get 3 months of Google AI Pro at no cost. | 但在我能像AI专业人士一样构建之前，你需要专业级的工具。免费获得3个月的Google AI Pro。 |
+| To help you get the most out of the labs and build a robust portfolio of work, we're providing a complimentary three month trial subscription to Google AI Pro. While optional and not required to complete your labs, or earn your certificate, it gives you higher access to a suite of our most capable AI models and features. | 为了帮助你充分利用实验室并建立强大的作品集，我们提供三个月免费试用Google AI Pro。虽然这是可选的，不需要完成实验室或获得证书，但它让你更高级地访问我们最强大的AI模型和功能套件。 |
+| How to access the extended trial: Proceed to the next item, Select "I agree to use this app responsibly", Click on the "Launch App" button, A new browser window will open and a unique link will populate, Click on your unique link, Click on start trial. | 如何访问扩展试用：转到下一项，选择"我同意负责任地使用此应用"，单击"启动应用"按钮，将打开一个新的浏览器窗口并生成一个唯一链接，单击您的唯一链接，单击开始试用。 |
+| Eligibility requirements: The trial is only available in countries where Google AI Pro is offered, can only be redeemed once, and has an age requirement. | 资格要求：试用仅在提供Google AI Pro的国家/地区可用，只能兑换一次，并有年龄要求。 |
+| Google account requirement: The promotional code is designed for personal Google Accounts. If you are currently signed into a Google Workspace account, please switch to your personal account to redeem the offer. | Google帐户要求：促销代码专为个人Google帐户设计。如果您当前登录的是Google Workspace帐户，请切换到您的个人帐户以兑换优惠。 |
+| Using AI at work: Always remember to follow your organization's AI guidance when using these tools for work related tasks. | 在工作中使用AI：使用这些工具执行工作任务时，请务必遵循组织的AI指导。 |
+| Using AI at school: Before using Google AI Pro or other generative AI tools to complete your labs, check your institution's AI policy and ensure your use of AI aligns with your school's data privacy and compliance guidelines. Do not input institutional data or private records into AI tools unless they are part of your university's approved data ecosystem. | 在学校使用AI：在使用Google AI Pro或其他生成式AI工具完成实验室之前，请检查您所在机构的AI政策，并确保您使用AI符合学校的隐私和合规准则。除非是大学批准的数据生态系统的一部分，否则不要将机构数据或私人记录输入到AI工具中。 |
+
+---
+
+## 2.3 Brainstorm ideas with Gemini（实验室）
+
+> 🧪 **实验时长**：12分钟
+> ⚠️ **状态**：待补做（网络原因）
+
+---
+
+### 📋 实验概览
+
+| 项目 | 内容 |
+|------|------|
+| **实验目标** | 在Gemini中进行头脑风暴 |
+| **使用工具** | Google Gemini |
+| **实验时长** | 12分钟 |
+| **状态** | 待补做 |
+
+---
+
+### 🎯 准备工作
+
+> [!IMPORTANT]
+> - 建议使用Google帐户登录Gemini以使用额外功能并保存活动
+> - 可以随时暂停视频
+> - 如果Gemini无法加载，请在浏览器URL栏手动输入 gemini.google.com
+
+---
+
+### 🔧 Lab Tasks 实验步骤
+
+| 步骤 | 任务 | 说明 |
+|------|------|------|
+| **Step 1** | Brainstorm presentation structures | 头脑风暴演示结构 |
+| **Step 2** | Find a "hook" statistic | 寻找"钩子"统计数据 |
+| **Step 3** | Draft your first paragraph | 起草第一段 |
+
+---
+
+### 📝 Step 1: Brainstorm presentation structures（头脑风暴演示结构）
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| Click the "New chat" button on the left side menu to start a new chat with Gemini. Then, paste the prompt below and replace the text in [brackets] with your own details. | 单击左侧菜单中的"新建聊天"按钮，开始与Gemini的新对话。然后，粘贴下面的提示并将[方括号]中的文本替换为您自己的详细信息。 |
+
+> [!TIP]
+> **提示词模板：**
+>
+> I'm preparing a presentation on **[your topic, e.g. AI]**. My primary goal is to **[your main objective, e.g. show how AI can be useful at work]**. Help me brainstorm **[number]** compelling ways to structure my presentation for an audience of **[your specific audience, e.g. professionals]**.
+
+> [!EXAMPLE]
+> **示例 Example（Java开发者场景）：**
+>
+> **English:** I'm preparing a presentation on **Spring Boot microservices architecture**. My primary goal is to **show how our team can migrate from monolithic to microservices**. Help me brainstorm **5** compelling ways to structure my presentation for an audience of **senior developers and tech leads**.
+>
+> **中文：** 我正在准备一个关于**Spring Boot微服务架构**的演示。我的主要目标是**展示我们团队如何从单体架构迁移到微服务**。请帮助我头脑风暴**5**种引人注目的方式来为**高级开发者和技术负责人**构建演示。
+
+---
+
+### 📝 Step 2: Find a "hook" statistic（寻找"钩子"统计数据）
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| In the same chat with Gemini, paste the prompt below and replace the text in [brackets] with your own details. | 在与Gemini的同一对话中，粘贴下面的提示并将[方括号]中的文本替换为您自己的详细信息。 |
+
+> [!TIP]
+> **提示词模板：**
+>
+> I like **[your favorite option from step 1, e.g. the value of AI at work]**. Now I need a powerful hook for my introduction. What's a surprising statistic about **[your topic from step 1, e.g. the value of AI at work]**?
+
+> [!EXAMPLE]
+> **示例 Example（Java开发者场景）：**
+>
+> **English:** I like **the option about microservices scalability**. Now I need a powerful hook for my introduction. What's a surprising statistic about **microservices adoption in enterprise Java applications**?
+>
+> **中文：** 我喜欢**关于微服务可扩展性的选项**。现在我需要一个有力的开场钩子。关于**企业级Java应用中微服务的采用**有什么令人惊讶的统计数据？
+
+---
+
+### 📝 Step 3: Draft your first paragraph（起草第一段）
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| In the same chat with Gemini, paste the prompt below and replace the text in [brackets] with your own details. | 在与Gemini的同一对话中，粘贴下面的提示并将[方括号]中的文本替换为您自己的详细信息。 |
+
+> [!TIP]
+> **提示词模板：**
+>
+> I like **[your favorite hook from the previous step]**. Using that, draft an opening paragraph for my presentation. Generate **[number]** options that range in tone from **[one tone, e.g. casual]** to **[another tone, e.g. professional]**.
+
+> [!EXAMPLE]
+> **示例 Example（Java开发者场景）：**
+>
+> **English:** I like **the statistic that companies using microservices deploy 200% more frequently**. Using that, draft an opening paragraph for my presentation. Generate **3** options that range in tone from **technical and data-driven** to **business-focused and ROI-oriented**.
+>
+> **中文：** 我喜欢**使用微服务的公司部署频率提高200%的统计数据**。使用它，为我的演示起草一个开场段落。生成**3**个选项，语气从**技术性和数据驱动**到**业务导向和ROI导向**不等。
+
+---
+
+### 🚀 Next steps 后续步骤
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| Consider how you can use Gemini to brainstorm in other ways. You can use it to help prepare for a work project or create ideas for your business. | 考虑如何以其他方式使用Gemini进行头脑风暴。您可以使用它来帮助准备工作项目或为您的业务创建想法。 |
+| When you are satisfied with your outputs from this lab, you can close this page and return to the main screen of this course. | 当您对本次实验的输出满意时，可以关闭此页面并返回到本课程的主屏幕。 |
+
+---
+
+## 2.4 Carol, how has AI been blowing your mind recently?
+
+> 🎥 **视频时长**：42秒
+> 🎙️ **讲者**：Carol
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| So one way AI has been blowing my mind recently is the ability to pull in a bunch of information from disparate sources. | AI最近让我感到震惊的一种方式是从不同的来源获取大量信息的能力。 |
+| So I like to plan out my day. I find my best days start if I understand the meetings I have, what I wanna accomplish in each of those meetings. | 所以我喜欢规划我的一天。我发现如果我了解我有哪些会议，以及我想在每个会议中完成什么，我的一天就会过得最好。 |
+| And Gemini has increasingly been really good at saying, "Okay, Carol, here's the eight meetings you have today. Looking at all of the things you've been working on recently, here's the open questions you need to handle in those meetings. Here's some good discussion topics." | 而Gemini越来越擅长这样说："好的，Carol，这是你今天的八个会议。看看你最近一直在处理的所有事情，这是你需要在这些会议中处理的开放性问题。这是一些好的讨论话题。" |
+| And it really helps me plan out my day and make the most of the meetings I'm in. | 它真的帮助我规划我的一天，并充分利用我参加的会议。 |
+
+---
+
+# Module 3: Learn how AI works
+
+> 💡 **本模块目标**：了解AI的工作原理
+
+---
+
+## 3.1 Learn foundational AI concepts
+
+> 🎥 **视频时长**：5分20秒
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| I remember one time coming out of a complex meeting that had a lot of action items that I needed to capture and put into an email for the team. I was dreading it. And then I thought I should use AI for a first draft. It was great. | 我记得有一次从一个复杂的会议出来，有很多行动项需要记录并整理成邮件发给团队。我很不想做这件事。然后我想我应该用AI来起草初稿。结果非常好。 |
+| I didn't have to worry about capturing the action items. I didn't have to worry about the formatting, and once I put my own touches and reviewed carefully what AI had created, I sent off the email, and it saved me a lot of time. AI can sometimes feel like magic. | 我不必担心遗漏行动项，也不必担心格式，一旦我加入自己的修改并仔细审查AI创建的内容，我就发送了邮件，这为我节省了很多时间。AI有时感觉像魔法。 |
+| It is so much power to do amazing things in seconds. When I get an impressive AI result, I'm almost expecting to hear applause in the background, but of course, AI isn't magic. It's a computer program that, like others, has capabilities and limitations. | 它有如此强大的力量在几秒钟内完成惊人的事情。当我得到令人印象深刻的AI结果时，我几乎期待听到背景中的掌声，但当然，AI不是魔法。它是一个计算机程序，和其他程序一样，有能力也有局限性。 |
+| Understanding how AI works can help you get the most out of it. I'm gonna walk you through the top things you need to know about AI, and don't worry, I'll do without all the tech jargon. First things first. Let's get on the same page. | 了解AI的工作原理可以帮助你充分利用它。我将带你了解你需要知道的关于AI的最重要的事情，别担心，我会避免使用所有技术术语。首先。让我们达成共识。 |
+| When we say AI, what are we really talking about beyond the buzzword? You probably already know that AI stands for artificial intelligence. Artificial intelligence is the concept of building intelligent machines that can do things like reasoning through a problem and providing recommendations. | 当我们说AI时，我们真正谈论的是什么？你可能已经知道AI代表人工智能。人工智能是构建智能机器的概念，这些机器可以做诸如推理问题和提供推荐之类的事情。 |
+| But how does it do that? Well, within the world of AI, you have something called models. AI models are computer programs that are trained on tons of data, like articles, images, or videos. The model finds patterns in the data, and then is able to apply those patterns to new situations like making predictions or generating new content. | 但它是如何做到的呢？在AI世界中，有某种叫做模型的东西。AI模型是在大量数据（如文章、图片或视频）上训练的计算机程序。模型在数据中找到模式，然后能够将这些模式应用于新情况，如进行预测或生成新内容。 |
+| This process, called training, helps the model improve over time, and this isn't some futuristic technology. Think of your email spam filter. It uses massive amounts of data to help sort emails you want from the emails you don't want, you know, spam. Every time you mark something as spam, it learns from that and gets better and better over time. | 这个过程被称为训练，它帮助模型随时间改进，这不是什么未来技术。想想你的电子邮件垃圾邮件过滤器。它使用大量数据来帮助区分你想要的电子邮件和你不想要的垃圾邮件。每次你将某些内容标记为垃圾邮件时，它都会从中学习，并随时间变得越来越好。 |
+| But what happens when your spam filter gets it wrong and an important email gets lost? The answer may lie in the model's training data. This is the data that AI learns from. | 但当你的垃圾邮件过滤器出错并且一封重要邮件丢失时会发生什么？答案可能在于模型的训练数据。这是AI学习的数据。 |
+| Let's look at another example. Say, a food distributor trains an AI model to sort apples from other fruit. This model's training data includes thousands of images of apples, enabling the model to recognize, well, apples. But what happens if the training data only included images of red apples? This might make the model less accurate at identifying other types of apples, like green or yellow. | 让我们看另一个例子。假设一家食品分销商训练一个AI模型来将苹果与其他水果分开。该模型的训练数据包含数千张苹果图像，使模型能够识别苹果。但如果训练数据只包含红苹果的图像呢？这可能会使模型在识别其他类型的苹果（如绿色或黄色）时准确性降低。 |
+| As a result, the food distributor might end up sorting apples incorrectly, causing them to lose money and waste perfectly good apples. A model's training data shapes what it does. | 结果，食品分销商可能会错误地分拣苹果，导致他们损失金钱并浪费完好的苹果。模型的训练数据决定了它的行为。 |
+| It's also one reason why one model may produce different results from another. A second reason is the model architecture itself. How a model is programmed and the rules it applies to its data and learning may vary from model to model. | 这也是一个模型可能产生与另一个不同结果的原因之一。第二个原因是模型架构本身。模型的编程方式以及它应用于数据和学习的规则可能因模型而异。 |
+| Some AI models, like Gemini, learn from massive amounts of data that go way beyond images of fruit alone. With more data and training, a model can start doing some pretty amazing things. It can understand a request and respond to it, even if it's the first time it's encountering that type of request. This advanced type of model is called a large language model or an LLM for short. | 一些AI模型，如Gemini，从大量数据中学习，这些数据远远超出了水果图像的范围。随着更多的数据和训练，模型可以开始做一些相当惊人的事情。它可以理解请求并做出响应，即使这是它第一次遇到这种类型的请求。这种高级模型被称为大型语言模型或LLM。 |
+| LLMs can learn so much and get so good at predicting based on patterns that they can create entirely new content like blog posts or birthday haiku. AI's ability to create something new is called Generative AI or GenAI for short. | LLM可以学到很多东西，并且在基于模式进行预测方面变得如此出色，以至于它们可以创建全新的内容，如博客文章或生日俳句。AI创造新事物的能力被称为生成式AI或GenAI。 |
+| It gets even more amazing. Some GenAI assistants are multimodal, which is just a fancy way of saying they can work with more than just text. They can understand and create images, videos, audio, and more. So you could upload a photo of a chart and ask for a text summary of it or submit an audio recording of a meeting and have it turned into a list of action items. | 它变得更加令人惊叹。一些GenAI助手是多模态的，这只是说它们可以处理不仅仅是文本的花哨方式。它们可以理解和创建图像、视频、音频等。所以你可以上传一张图表的照片并要求文本摘要，或者提交会议录音并将其转换为行动项列表。 |
+| Or you could easily create compelling visuals for your website or client presentation. | 或者你可以轻松地为你的网站或客户演示创建引人注目的视觉效果。 |
+| Let's look at another way AI is evolving. You may have heard about AI Agents. What's that all about? Well, think of agents as systems that combine the intelligence of advanced AI models with access to tools like your calendar or email. Instead of giving an agent a single task, you can give it a broader goal. Then the agent can break that goal down into smaller steps and take action on your behalf, all under your control. | 让我们看看AI进化的另一种方式。你可能听说过AI Agent。那是什么？好吧，可以把Agent看作是将高级AI模型的智能与访问你的日历或电子邮件等工具相结合的系统。与其给Agent一个单一任务，你可以给它一个更广泛的目标。然后Agent可以将该目标分解为更小的步骤，并代表你采取行动，所有这些都在你的控制之下。 |
+| For example, imagine telling an AI agent, "Organize a kickoff meeting for the Q3 marketing project with the design and sales teams for next week." | 例如，想象告诉AI Agent："为第三季度营销项目组织一次与设计和销售团队的下周启动会议。" |
+| An AI agent could then check everyone's calendars for a free slot, book a meeting room, draft a welcome email with the project brief attached, and send out the calendar invitation. It can handle all the tedious coordination, freeing the team to focus on the actual strategy for the meeting. | 然后AI Agent可以检查每个人的空闲时间，预订会议室，起草附有项目简介的欢迎电子邮件，并发送日历邀请。它可以处理所有繁琐的协调工作，让团队专注于会议的实际策略。 |
+| The opportunity there is not just answering your questions, but actively helping you to accomplish your goals. Okay, great, we've talked about what AI is, how it works, and some emerging capabilities. This is crucial for you to be an informed user. It allows you to make the most of AI's possibilities while understanding its limitations. Let's keep going. | 这里的机会不仅仅是回答你的问题，而是积极帮助你实现目标。好的，我们已经讨论了AI是什么、它是如何工作的，以及一些新兴能力。这对于你成为一个知情的用户至关重要。它让你在了解AI局限性的同时充分利用AI的可能性。让我们继续。 |
+
+---
+
+## 3.2 Fundamentals of machine learning
+
+> 📚 **阅读时长**：4分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| As you start working with AI, you might hear people use the terms artificial intelligence (AI) and machine learning interchangeably. While these concepts are closely related, there are significant differences between them. So, what are those differences and why do they matter? | 当你开始使用AI时，你可能会听到人们互换使用人工智能（AI）和机器学习这些术语。虽然这些概念密切相关，但它们之间有显著差异。那么，这些差异是什么，为什么它们很重要？ |
+| **Understand artificial intelligence** | **理解人工智能** |
+| When we say artificial intelligence (AI), we're referring to a broad field focused on creating tools that can complete tasks usually associated with human intelligence. These tasks can range from writing emails to suggesting driving routes. | 当我们说人工智能（AI）时，我们指的是一个广泛的领域，专注于创建能够完成通常与人类智能相关的任务的工具。这些任务可以从写电子邮件到建议驾驶路线。 |
+| While AI may seem smart, it's important to recognize that its knowledge comes from the specific data it was trained on. This is where Machine Learning comes in. | 虽然AI可能看起来很聪明，但重要的是要认识到它的知识来自它所训练的特定数据。这就是机器学习的用武之地。 |
+| **Understand machine learning** | **理解机器学习** |
+| One of the most common ways of training AI models is with machine learning, a technique that enables a tool to find patterns and learn from data on its own. It doesn't even need to be programmed for every possible scenario. | 训练AI模型最常见的方法之一是使用机器学习，这是一种使工具能够自行发现模式并从数据中学习的技术。它甚至不需要为每种可能的情况编程。 |
+| For example, let's say someone wants to use AI to sort zebras from horses. For this to work, they must first train a machine learning program so it can distinguish zebras from horses. They provide the machine learning program with thousands of images depicting both zebras and horses. As the machine learning program processes these images, it eventually learns to identify features of zebras, like stripes. | 例如，假设有人想要使用AI将斑马与马分开。为此，他们必须首先训练机器学习程序，使其能够区分斑马和马。他们为机器学习程序提供数千张描绘斑马和马的图像。随着机器学习程序处理这些图像，它最终学会识别斑马的特征，比如条纹。 |
+| After being trained with machine learning, AI can then identify zebras from photos that weren't in its training set. This process is called inference. | 经过机器学习训练后，AI可以从不在其训练集中的照片中识别斑马。这个过程被称为推理。 |
+| Understanding the role machine learning plays helps you recognize that AI's performance is a direct result of the data it was trained on. | 理解机器学习的作用有助于你认识到AI的性能是其训练数据的直接结果。 |
+| **Approaches to machine learning** | **机器学习方法** |
+| There are three common machine learning approaches used to develop AI: | 有三种常见的机器学习方法用于开发AI： |
+| **Supervised learning** is used to train AI from a large dataset that has been labeled by people. This technique is often used when there is a specific, known output in mind. | **监督学习**用于从人们标记的大型数据集训练AI。当有特定的、已知的输出时，通常使用这种技术。 |
+| For example, a model is trained on millions of pictures that a person has explicitly labeled zebra or horse. AI learns the specific characteristics of each animal so it can automatically sort new images into those predefined categories. | 例如，一个模型在数百万张被人明确标记为斑马或马的图片上进行训练。AI学习每种动物的特定特征，以便自动将新图像分类到这些预定义类别中。 |
+| **Unsupervised learning** is used to train AI from a dataset that has not been labeled by people. This technique is used to identify patterns and structures in data when there isn't a specific, known output in mind. | **无监督学习**用于从未被人们标记的数据集训练AI。当没有特定的、已知的输出时，这种技术用于识别数据中的模式和结构。 |
+| For example, a model analyzes a large, unlabeled dataset of photos containing horses and zebras. Without being told what a zebra is, the AI discovers patterns on its own, like striped or solid, and clusters images with similar features together. | 例如，一个模型分析包含马和斑马的大型未标记照片数据集。在没有被告知什么是斑马的情况下，AI自行发现模式，比如条纹或纯色，并将具有相似特征的图像聚类在一起。 |
+| **Reinforcement learning** is used to train AI through a trial-and-error process that is guided by a reward system. This technique is used to continuously refine how AI approaches a specific task or goal. | **强化学习**通过由奖励系统引导的试错过程来训练AI。这种技术用于持续改进AI处理特定任务或目标的方式。 |
+| For example, a model is tasked with identifying zebras in a video. It has not received any training, so it has to make a guess. Each time the model guesses correctly, it receives a "positive reward." If the guess is wrong, it receives a "penalty." Over many attempts, AI learns to adjust its strategy to maximize its total reward, gradually mastering the task through experience. | 例如，一个模型被赋予在视频中识别斑马的任务。它没有接受过任何训练，所以必须进行猜测。每次模型猜对时，它都会收到"正面奖励"。如果猜错了，它会收到"惩罚"。经过多次尝试，AI学会调整其策略以最大化总奖励，通过经验逐渐掌握这项任务。 |
+| Today, many AI models use a combination of all three machine learning approaches to create text, images, video, and more. | 今天，许多AI模型结合使用所有三种机器学习方法来创建文本、图像、视频等。 |
+
+---
+
+## 3.3 Understand AI limitations
+
+> 📚 **阅读时长**：8分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| A key part of being a responsible AI user is knowing how AI works and where it can fall short. AI has limitations, such as potential biases, knowledge cutoffs, and drift in output. Recognizing these limitations can help you evaluate outputs more effectively and use AI in a way that's fair, accurate, and responsible. | 成为负责任AI用户的关键部分是了解AI的工作原理以及它的不足之处。AI有局限性，如潜在的偏见、知识截止日期和输出漂移。认识到这些局限性可以帮助你更有效地评估输出，并以公平、准确和负责任的方式使用AI。 |
+| **Understand biases in AI** | **理解AI中的偏见** |
+| Data bias can be a foundational challenge for AI. This can happen when the data used to train an AI model is skewed, incomplete, or reflects historical or societal biases. Because the model's output is directed by its training data, it can sometimes reproduce existing biases in its response, like connecting specific activities with certain age groups. | 数据偏见可能是AI的一个基本挑战。当用于训练AI模型的数据有偏差、不完整或反映历史或社会偏见时，就会发生这种情况。因为模型的输出受其训练数据指导，它有时会在响应中重现现有偏见，比如将特定活动与某些年龄组联系起来。 |
+| Part of following a responsible AI approach is being aware that AI models may create stereotypes or bias in their outputs. For example, if you ask AI to generate an image of an office, it might consistently produce an image of a high-rise building. This may occur because its training data comes from urban business hubs. As a result, it may struggle to generate images of creative workspaces, home offices, or rural business settings. Your role is to guide the model toward a fair and impartial output. | 遵循负责任AI方法的一部分是意识到AI模型可能在其输出中产生刻板印象或偏见。例如，如果你要求AI生成办公室的图像，它可能始终生成高层建筑的图像。这可能是因为其训练数据来自城市商业中心。因此，它可能难以生成创意工作空间、家庭办公室或农村商业环境的图像。你的角色是引导模型走向公平和公正的输出。 |
+| To avoid unfair bias in outputs, you can use these techniques in your prompts: Be specific about the output you want: Add important context about your intended audience and their needs. You can also provide fair and balanced references for the model to follow. | 为了避免输出中的不公平偏见，你可以在提示中使用这些技术：明确你想要的输出：添加有关目标受众及其需求的重要上下文。你还可以提供公平和平衡的参考供模型遵循。 |
+| Use follow-up prompts to correct outputs that seem biased or inaccurate: If AI provides a biased response, point out the stereotype when you iterate on your prompt and ask the model to correct the bias. | 使用后续提示来纠正看似有偏见或不准确的输出：如果AI提供有偏见的响应，在迭代提示时指出刻板印象，并要求模型纠正偏见。 |
+| **The constraint of knowledge cutoff** | **知识截止日期的限制** |
+| Knowledge cutoff is the point in time when a model's training data ends. This means the model lacks information on events, discoveries, or data that occurred after that date. | 知识截止日期是模型训练数据结束的时间点。这意味着模型缺乏该日期之后发生的事件、发现或数据的信息。 |
+| You might notice that a model can provide information about very recent events. Some may do this by performing a live web search to find current information that they can supplement their answer with. It's helpful to think of this as the difference between what the model knows from its training versus what it can look up in the moment. The model's core knowledge is not continuously updated, which is why the concept of a knowledge cutoff remains a critical limitation to bear in mind. | 你可能注意到模型可以提供有关最新事件的信息。有些可能通过执行实时网络搜索来查找可以补充其答案的当前信息。将其视为模型从训练中知道的内容与它可以立即查找的内容之间的区别会很有帮助。模型的核心知识不是持续更新的，这就是为什么知识截止日期的概念仍然是需要牢记的关键限制。 |
+| Responsible AI use requires you to verify time-sensitive information. Always use a search engine or other reliable sources to fact-check statistics, news, or any information about recent events. | 负责任的AI使用要求你验证时间敏感的信息。始终使用搜索引擎或其他可靠来源来核实统计数据、新闻或有关最新事件的任何信息。 |
+| To work effectively with a model's knowledge cutoff, you can use these techniques: Look up the cutoff: You can search online for the knowledge cutoff date of a specific AI tool. This helps you understand the boundary of its internal knowledge. | 要有效地处理模型的知识截止日期，你可以使用以下技术：查找截止日期：你可以在线搜索特定AI工具的知识截止日期。这有助于你了解其内部知识的边界。 |
+| Verify time-sensitive information: For any statistics, breaking news, or details about recent events, always cross-reference AI's answer with a reliable external source, like a search engine or an official report. | 验证时间敏感的信息：对于任何统计数据、突发新闻或有关最新事件的详细信息，始终将AI的答案与可靠的外部来源（如搜索引擎或官方报告）进行交叉引用。 |
+| Specify your timeframe: When asking about a topic that changes over time, state the timeframe for what you need. For example, instead of "What was the biggest song of the summer?" ask "What was the biggest song of the summer in 2025?" | 指定你的时间范围：当询问随时间变化的主题时，说明你需要的时间范围。例如，不要问"夏天最热门的歌曲是什么？"而是问"2025年夏天最热门的歌曲是什么？" |
+| Refine with follow-up prompts: If an answer seems outdated, like calling a product new when it is several years old, use a follow-up prompt to ask for more recent alternatives or clarification. | 使用后续提示进行完善：如果答案似乎过时，比如将一个已有几年历史的产品称为新产品，请使用后续提示要求提供更新的替代方案或澄清。 |
+| **Changes in AI's performance over time** | **AI性能随时间的变化** |
+| Drift is the gradual decline in a model's accuracy and relevance as the real world changes. You might observe drift in two ways: Factual drift: This is when AI becomes less accurate over time because of its knowledge cutoff. Behavioral drift: This refers to changes in AI's behavior over time. | 漂移是随着现实世界变化，模型准确性和相关性的逐渐下降。你可能以两种方式观察到漂移：事实漂移：这是由于知识截止日期，AI随时间变得不准确。行为漂移：这指的是AI行为随时间的变化。 |
+| Here are a few ways to manage and mitigate both kinds of drift: Provide accurate and up-to-date context in your prompts, especially for topics that change quickly, like market trends or technology. Keep chats focused by starting a new conversation for each specific task. Be explicit with clear and specific instructions in your prompts. | 以下是管理和减轻两种漂移的一些方法：在提示中提供准确和最新的上下文，特别是对于变化快速的主题，如市场趋势或技术。通过为每个特定任务开始新对话来保持聊天集中。在提示中明确使用清晰和具体的说明。 |
+| AI is powerful, which is why it's important to use it carefully and responsibly. That means being mindful of AI's limitations and accounting for biases. The best results come from a combination of human ingenuity and AI's capabilities. So keep asking insightful questions, refining your prompts, and above all, applying your critical-thinking skills to verify outputs before you use them. That way, you contribute to a future where AI serves everyone responsibly. | AI很强大，这就是为什么谨慎和负责任地使用它很重要。这意味着要注意AI的局限性并考虑到偏见。最好的结果来自人类独创性和AI能力的结合。所以继续提出有见地的问题，完善你的提示，最重要的是，在使用输出之前应用你的批判性思维技能来验证它们。这样，你就为AI负责任地服务于每个人的未来做出了贡献。 |
+
+---
+
+## 3.4 Leverage AI features and capabilities for work
+
+> 🎬 **视频时长**：4分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| I have AI conversations all the time. At the dinner table, at the grocery store. I'm only slightly exaggerating. It feels like everyone is talking about AI. You might feel like you need to become an expert overnight. But what if I told you that using AI effectively has less to do with being a tech genius, and more to do with understanding a few simple principles. | 我一直在和AI对话。在餐桌上，在杂货店里。我只是一点点夸张。感觉每个人都在谈论AI。你可能觉得需要一夜之间成为专家。但如果我告诉你，有效使用AI与成为技术天才关系不大，而更多是理解一些简单的原则呢？ |
+| Let's start with some of the things AI can do and how it can help you at work. First, AI can help you understand information. Think of summarizing multi-page reports in seconds, getting insights from a dense spreadsheet, or getting up to speed on a client's industry. | 让我们从AI能做的一些事情以及它如何在工作中帮助你开始。首先，AI可以帮助你理解信息。想想在几秒钟内总结多页报告，从密集的电子表格中获取洞察，或快速了解客户的行业。 |
+| AI can also create new things. It can help you draft communications, build the outline of a presentation, and even generate product images. And finally, AI can help you improve your work. It can poke holes in a project plan, or suggest ways to make a client proposal better. | AI也可以创造新事物。它可以帮助你起草沟通内容，构建演示文稿的大纲，甚至生成产品图片。最后，AI可以帮助你改进工作。它可以指出项目计划中的问题，或建议改进客户提案的方法。 |
+| The key to using AI well is giving clear and specific instructions, or prompts. Prompts are instructions you give to AI to get the results that you want. Everything you include in your prompt is called an input. What AI generates in return is called the output. | 使用AI的关键是给出清晰具体的指令，即提示。提示是你给AI的指令，以获得你想要的结果。你在提示中包含的所有内容都称为输入。AI生成的返回内容称为输出。 |
+| Think of the model as a car's engine under the hood. It's the technology that does the actual reasoning and generation. Even though the engine provides all the horsepower, you don't need to interact with it directly. That car is the AI app, and you're in the driver's seat. | 把模型想象成汽车引擎盖下的发动机。它是执行实际推理和生成的技术。尽管发动机提供所有动力，但你不需要直接与之交互。那辆车就是AI应用，而你是驾驶员。 |
+| Different AI models have different strengths, depending on how they were trained and how their learning was refined. Some models are really good at quickly providing all-around help. Other models might be best for advanced tasks like research, coding, or weighing the pros and cons of a complicated decision. | 不同的AI模型有不同的优势，取决于它们的训练方式和学习的完善程度。有些模型非常擅长快速提供全面帮助。其他模型可能最适合高级任务，如研究、编码或权衡复杂决策的利弊。 |
+| Temperature is about controlling the creativity in AI's output. A lower temperature setting means the output will likely be more predictable and consistent. A higher temperature means you'll get a more inventive output that could be less predictable. | 温度是关于控制AI输出的创造性。较低的温度设置意味着输出可能更可预测和一致。较高的温度意味着你将获得更具创造性的输出，但可能不那么可预测。 |
+
+---
+
+# Module 4: Design great prompts
+
+## 4.1 Learn how to prompt AI to get helpful results
+
+> 🎬 **视频时长**：6分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| Imagine you're stuck in a long meeting, and your coworker is taking everyone's lunch order. You say you'd like a sandwich, and they end up ordering you a tuna fish sandwich, which is not your thing. Since you didn't clearly communicate exactly what you wanted, you didn't get a great outcome despite your coworker's willingness to help. AI works similarly. | 想象一下，你被困在一个漫长的会议中，你的同事正在记录每个人的午餐订单。你说想要一个三明治，结果他们给你点了一个金枪鱼三明治，那不是你喜欢的。由于你没有清楚地沟通你想要什么，尽管你的同事愿意帮忙，但你没有得到很好的结果。AI的工作方式类似。 |
+| It's best when you communicate clearly to get what you want. You need to make sure you're giving it detailed instructions and asking good questions. This is called prompting. | 当你清楚地沟通以获得你想要的东西时，效果最好。你需要确保给它详细的指令并提出好的问题。这被称为提示。 |
+| When you prompt AI, there are many ways to go about it, but the key principles are being clear and providing context. We'll start with a framework you can use to make sure your prompts have clear directions and relevant information. | 当你提示AI时，有很多方法可以做到，但关键原则是清晰和提供上下文。我们将从一个框架开始，你可以用它来确保你的提示有清晰的方向和相关的信息。 |
+| First, describe the persona that you want Gemini to take on. That means decide what expertise or knowledge you want Gemini to draw from before explaining what you want. | 首先，描述你希望Gemini扮演的角色。这意味着在解释你想要什么之前，决定你希望Gemini借鉴什么专业知识或知识。 |
+| Then describe a task you want AI to help you with. "Give me some tips for running more effective meetings." Next, specify the format by telling Gemini what the output should look like. | 然后描述你希望AI帮助你完成的任务。"给我一些召开更有效会议的建议。"接下来，通过告诉Gemini输出应该是什么样子来指定格式。 |
+| Now you need to set the context. Ask yourself, what does AI need to know in order to get this right? For starters, AI doesn't know how large your company is or how teams work together. | 现在你需要设置上下文。问自己，AI需要知道什么才能正确完成这项任务？首先，AI不知道你的公司有多大，也不知道团队如何合作。 |
+| Make sure to check the output AI gives you before you use it. This is a crucial step. In some cases, the first response you receive may have room for improvement. | 确保在使用AI提供的输出之前检查它。这是关键的一步。在某些情况下，你收到的第一个回复可能还有改进的空间。 |
+| Provide an example or a reference. Just like seeing an example helps you understand a task, giving one to AI helps it understand your needs. | 提供一个例子或参考。就像看到例子有助于你理解任务一样，给AI一个例子有助于它理解你的需求。 |
+| You may need to use several prompts to keep on improving your output. This process is called iteration. First, you can edit your initial prompt. Another option, you can break up your prompt into smaller parts. | 你可能需要使用多个提示来不断改进你的输出。这个过程被称为迭代。首先，你可以编辑你的初始提示。另一个选择是，你可以将你的提示分解成更小的部分。 |
+| Finally, you can add constraints into your prompt. Constraints are requirements that the AI should meet. For example, "Provide solutions that can be implemented within a week." | 最后，你可以在提示中添加约束条件。约束是AI应该满足的要求。例如，"提供可以在一周内实施的解决方案。" |
+| Remember to use one chat per topic. That's because everything you enter into a single chat becomes context for AI. When changing topics, always start a new chat. | 记住每个主题使用一个聊天。这是因为你在单个聊天中输入的所有内容都会成为AI的上下文。更改主题时，始终开始新的聊天。 |
+
+---
+
+## 4.2 Prompting tips and tricks
+
+> 📚 **阅读时长**：8分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| While anyone can start using Gemini right away, knowing how to structure your prompts gives you a significant advantage in unlocking its full potential. This guide highlights best practices that help you get the best possible results from any AI tool. | 虽然任何人都可以立即开始使用Gemini，但知道如何构建提示可以给你带来显著的优势，充分发挥其全部潜力。本指南重点介绍了帮助你从任何AI工具获得最佳结果的最佳实践。 |
+| **Follow the three C's when writing your prompts** | **编写提示时遵循三个C原则** |
+| **Be concise**: Keep prompts simple and avoid overly long or complex requests in a single prompt. A prompt that is short and to the point generally requires less processing from AI. | **简洁**：保持提示简单，避免在单个提示中使用过长或复杂的请求。简短而直接的提示通常需要AI处理较少的内容。 |
+| **Be clear**: Be precise and avoid contradictory or ambiguous instructions. Vague prompts, like "Make this better," give AI too many possible paths and require it to make assumptions. Instead, give clear and specific directions to guide AI toward your intended output. | **清晰**：精确，避免矛盾或模糊的指令。模糊的提示，如"让它更好"，给AI太多可能的路径，需要它做出假设。相反，给出清晰具体的指导，引导AI朝着你期望的输出方向前进。 |
+| **Be consistent**: Use the same vocabulary for the same concepts throughout your conversation with AI. For example, if you refer to a "spreadsheet" in your initial prompt, continue to say "spreadsheet" throughout the rest of your conversation. | **一致**：在整个与AI的对话中，对相同的概念使用相同的词汇。例如，如果你在初始提示中提到"电子表格"，在对话的其余部分继续说"电子表格"。 |
+| **Always evaluate the output** | **始终评估输出** |
+| It's important to evaluate the quality of AI output before using or sharing it, as it may have errors. After receiving an AI output, always read through the response to make sure it's factually correct and fulfills your request. | 在使用或分享AI输出之前评估其质量很重要，因为它可能有错误。收到AI输出后，始终阅读回复以确保其事实正确并满足你的请求。 |
+| When evaluating AI output, focus on factors such as: Accuracy, Bias, Relevancy, Consistency. | 评估AI输出时，关注以下因素：准确性、偏见、相关性、一致性。 |
+| **Improve your results through iteration** | **通过迭代改进结果** |
+| AI outputs should serve as a starting point, not a final product. If an output isn't what you need, iterate. Use the following techniques to iterate on your prompts and get better outputs. | AI输出应该作为起点，而不是最终产品。如果输出不是你需要的，请迭代。使用以下技术来迭代你的提示并获得更好的输出。 |
+| **Revisit the prompting framework**: If your prompt is not giving you the results you need, try editing it by adding more detail to your persona, task, format, or context. | **重新审视提示框架**：如果你的提示没有给你需要的结果，尝试通过添加更多细节到你的角色、任务、格式或上下文来编辑它。 |
+| **Break up complex tasks**: Don't ask for everything at once. Ask for smaller pieces of your task, one at a time. This helps AI process each step and lets you check in along the way. | **分解复杂任务**：不要一次性要求所有内容。一次询问任务的一个小部分。这有助于AI处理每个步骤，并让你随时检查。 |
+| **Add constraints**: Add the specific requirements that AI must meet to narrow the focus of the response. | **添加约束条件**：添加AI必须满足的具体要求，以缩小响应的焦点。 |
+| **Use references to model your desired result** | **使用参考来建模你期望的结果** |
+| References provide examples or resources that illustrate what you want AI to produce. They specify details about your desired output, such as the style, tone, and format. Depending on what AI model you are using, you might be able to include text, images, audio, or even video as a reference. | 参考提供示例或资源，说明你希望AI生成的内容。它们指定有关所需输出的详细信息，如样式、语气和格式。根据你使用的AI模型，你可以包含文本、图像、音频甚至视频作为参考。 |
+| **Use new chats for new topics** | **为新主题使用新聊天** |
+| A context window is the limit of how much information AI can retain and refer back to within a single chat. It allows AI to refer back to earlier parts of your conversation so its answers stay consistent. Because of this, you should always start a new chat when changing topics. | 上下文窗口是AI在单个聊天中可以保留和引用多少信息的限制。它允许AI引用对话的早期部分，以便其答案保持一致。因此，更改主题时，你应该始终开始新的聊天。 |
+| **Save your best prompts in a prompt library** | **将最佳提示保存在提示库中** |
+| Like any skill, your prompting abilities will improve through experimentation and practice. As you get more experience, you can save time by noting which prompts work best and reusing them. | 像任何技能一样，你的提示能力将通过实验和实践得到提高。随着经验的积累，你可以通过记录哪些提示效果最好并重复使用它们来节省时间。 |
+| Effective prompting relies on using a clear framework of persona, task, format, and context, and combining it with an iterative process of refinement. By following the three C's and treating AI outputs as a starting point, you can consistently guide AI to deliver accurate and high-quality results. | 有效的提示依赖于使用清晰的角色、任务、格式和上下文框架，并将其与迭代改进过程相结合。通过遵循三个C原则并将AI输出视为起点，你可以持续引导AI提供准确和高质量的结果。 |
+
+---
+
+## 4.3 Apply the prompting framework in Gemini
+
+> 🧪 **实验室时长**：12分钟
+
+### 🧪 实验室任务对照
+
+| 步骤 | 实验室任务（英文） | 实验室任务（中文） |
+|------|-------------------|-------------------|
+| Step 1 | Click the "New chat" button to start a new chat with Gemini. Then, paste the prompt below and replace the text in [brackets] with your own details. Review Gemini's suggestions. You will refine these results in the next step. | 点击"New chat"按钮开始与Gemini的新对话。然后，粘贴以下提示并用你自己的细节替换[brackets]中的文本。查看Gemini的建议。你将在下一步中完善这些结果。 |
+| | **Prompt示例：**<br>I want to improve my Java development skills to [your high-level goal, e.g. become a better Spring Boot developer, pass a technical interview], but I'm not sure where to start. Help me brainstorm some ideas. | **Prompt示例：**<br>我想提高我的Java开发技能来[你的高级目标，例如成为更好的Spring Boot开发者，通过技术面试]，但我不确定从哪里开始。帮助我集思广益一些想法。 |
+| Step 2 | In the same chat with Gemini, paste the prompt below to ask Gemini how to improve its own suggestions. Read Gemini's questions. You will use them to provide more context in the next step. | 在与Gemini的同一对话中，粘贴以下提示以询问Gemini如何改进其自身的建议。阅读Gemini的问题。你将在下一步中使用它们来提供更多上下文。 |
+| | **Prompt示例：**<br>What questions can I answer to help you tailor your suggestions for a Java developer? | **Prompt示例：**<br>我可以回答哪些问题来帮助你为Java开发者调整建议？ |
+| Step 3 | In the same chat with Gemini, answer the questions from the previous step to provide additional context. Paste the prompt below and replace the text in [brackets] with your own details. | 在与Gemini的同一对话中，回答上一步的问题以提供额外上下文。粘贴以下提示并用你自己的细节替换[brackets]中的文本。 |
+| | **Prompt示例：**<br>Here are some more details about me as a Java developer:<br>- I have [number] years of experience with Java and Spring Boot<br>- I work with [technologies, e.g. MongoDB, Redis, Kafka]<br>- My current challenge is [challenge, e.g. understanding microservices architecture]<br>- I prefer [learning style, e.g. hands-on projects, video tutorials]<br>Based on this information, suggest [number, e.g. three] skills that would be relevant to me as a Java developer. | **Prompt示例：**<br>以下是一些关于我作为Java开发者的更多细节：<br>- 我有[数字]年的Java和Spring Boot经验<br>- 我使用[技术，例如MongoDB、Redis、Kafka]<br>- 我当前的挑战是[挑战，例如理解微服务架构]<br>- 我偏好[学习风格，例如实践项目、视频教程]<br>基于这些信息，建议[数字，例如三个]与我作为Java开发者相关的技能。 |
+| Step 4 | In the same chat, ask Gemini to adopt a specific persona to help analyze the previous suggestions. Paste the prompt below and replace the text in [brackets]. | 在同一对话中，要求Gemini采用特定角色来帮助分析之前的建议。粘贴以下提示并替换[brackets]中的文本。 |
+| | **Prompt示例：**<br>Now, act as a senior Java architect or hiring manager. Which of the skills above would you recommend I focus on first? Explain your reasoning for a Java developer. | **Prompt示例：**<br>现在，扮演一位资深Java架构师或招聘经理。你建议我首先专注于上述哪些技能？为Java开发者解释你的推理。 |
+| Step 5 | In the same chat with Gemini, paste the prompt below and replace the text in [brackets]. | 在与Gemini的同一对话中，粘贴以下提示并替换[brackets]中的文本。 |
+| | **Prompt示例：**<br>Suggest [number, e.g. three] actions I can take [timeframe, e.g. this week] to start learning that skill as a Java developer. Format this as a [output format, e.g. table] with [format details, e.g. column names]. | **Prompt示例：**<br>建议[数字，例如三个]我可以采取的[时间范围，例如本周]行动来作为Java开发者开始学习该技能。将其格式化为具有[格式细节，例如列名]的[输出格式，例如表格]。 |
+
+---
+
+## 4.4 Mahi, what is your go to prompting trick?
+
+> 🎬 **视频时长**：44秒
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| I've found that not only giving a bunch of context at the beginning is really helpful, but I always like to add, at the end, "Please ask me any follow-up or clarifying questions before you continue doing work." | 我发现不仅在开头提供大量上下文非常有帮助，而且我总是喜欢在最后添加"在继续工作之前，请问我任何后续或澄清问题。" |
+| And that has been really helpful, because when it's coming up with an end-to-end plan for whatever task I've given it, if it pauses and says, "Okay, well, actually what about this task do I not know and I need to ask me, the user?" | 这真的非常有帮助，因为当它为我给出的任何任务制定端到端计划时，如果它停下来问"好吧，实际上关于这个任务我不知道什么，需要问问我（用户）？" |
+| I can then answer those proactively and make sure the output is something that I'm happy with, rather than, you know, Gemini does a bunch of work, and then I review it, and then I'm not super happy with it, and we have keep iterating. | 我可以主动回答这些问题，并确保输出是我满意的结果，而不是Gemini做了一堆工作，然后我审查，结果我不太满意，然后我们继续迭代。 |
+
+---
+
+# Module 5: Level up your prompts
+
+## 5.1 Prompt chaining strategies
+
+> 📚 **阅读时长**：8分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| You've already learned the prompting framework (persona, task, context, and format) for writing a good prompt. Now, we'll build on that foundation with two advanced techniques that can help you tackle more complex work: | 你已经学习了编写良好提示的提示框架（角色、任务、上下文和格式）。现在，我们将在此基础上构建两种高级技术，帮助你处理更复杂的工作： |
+| **Powerful prompt phrases**: This is about using specific, precise language inside a single prompt to improve the quality and depth of AI's response. | **强大的提示短语**：这是关于在单个提示中使用特定、精确的语言来提高AI响应的质量和深度。 |
+| **Prompt chaining**: This is about using a series of smaller, connected prompts to structure an entire conversation and break down a massive project. | **提示链接**：这是关于使用一系列较小的、相互关联的提示来构建整个对话并分解庞大的项目。 |
+| **Guide AI with powerful prompt phrases** | **用强大的提示短语引导AI** |
+| Think of this as leveling up the communication within every prompt you write. While there are no true magic words to use with AI, certain phrases can be more effective in getting you the outputs you need. | 将此视为提升你编写的每个提示中的沟通水平。虽然没有真正的魔法词汇可以与AI一起使用，但某些短语可以更有效地获得你需要的输出。 |
+| **Give AI a process to follow**: Think step-by-step. First, [action 1]. Second, [action 2]. Finally, [action 3]. | **给AI一个遵循的过程**：逐步思考。首先，[动作1]。其次，[动作2]。最后，[动作3]。 |
+| **Define the audience and tone**: Write this for an audience of [audience type, e.g., executives]. The tone should be [tone, e.g., professional]. | **定义受众和语气**：为[受众类型，例如高管]的受众撰写此内容。语气应该是[语气，例如专业]。 |
+| **Set hard constraints**: Write a one paragraph summary. Focus exclusively on [topic A, e.g. revenue] and do not mention [topic B, e.g., costs]. | **设置硬约束**：写一段摘要。只关注[主题A，例如收入]，不要提及[主题B，例如成本]。 |
+| **Request a critique**: Critique this text from the perspective of a [role, e.g., potential customer]. Play devil's advocate. What is the strongest counterargument to this? | **请求批评**：从[角色，例如潜在客户]的角度批评此文本。唱反调。对此最强有力的反驳是什么？ |
+| **Generate alternatives**: Give me 3 different versions of this. What's an alternative approach to solving this problem? | **生成替代方案**：给我3个不同的版本。解决这个问题的替代方法是什么？ |
+| **Deepen or expand on the initial output**: Elaborate on point 2. Provide more detail and specific examples for the section about [section]. | **深化或扩展初始输出**：详细阐述第2点。为有关[部分]的部分提供更多详细信息和具体示例。 |
+| **Manage more complex tasks with prompt chaining** | **使用提示链接管理更复杂的任务** |
+| Some tasks are too big for a single prompt. Prompt chaining helps you tackle large tasks by breaking them into a series of smaller, connected steps that are all in the same chat. It works like a factory assembly line: The output from one prompt is used as the input for the next, linking all your steps together like a chain. | 有些任务对于单个提示来说太大了。提示链接通过将大型任务分解为一系列较小的、相互关联的步骤来帮助你处理这些任务，所有这些步骤都在同一对话中。它的工作原理就像工厂装配线：一个提示的输出用作下一个提示的输入，将你的所有步骤像链条一样连接在一起。 |
+| By breaking the task into logical, digestible steps and using the output of one prompt as the specific input for the next, you transform AI from a simple answer generator into a structured collaborator. | 通过将任务分解为逻辑上可消化的步骤，并将一个提示的输出用作下一个提示的特定输入，你将AI从简单的答案生成器转变为结构化的协作者。 |
+| **Unlock the power of prompt chaining** | **释放提示链接的力量** |
+| What you'll gain: Strategic collaboration, Complex problem solving, Stronger outputs. | 你将获得：战略协作、复杂问题解决、更强的输出。 |
+| Apply what you learn: Experiment with examples relevant to your role. If you work in marketing, try generating a campaign concept and then asking for a timeline to launch it. If you work in sales, try asking for a list of potential clients and then drafting a tailored outreach email for your top choice. | 应用你所学的内容：尝试与你的角色相关的示例。如果你从事营销工作，尝试生成一个活动概念，然后要求提供启动时间表。如果你从事销售工作，尝试要求提供潜在客户列表，然后为你首选的客户起草定制的外展电子邮件。 |
+| Go from viewing AI as a task completer to collaborating with it as a brainstorming partner, using conversation to turn abstract thoughts into concrete plans. | 从将AI视为任务完成者转变为与其作为头脑风暴合作伙伴进行协作，使用对话将抽象思想转化为具体计划。 |
+
+---
+
+## 5.2 Practice prompt chaining in Gemini
+
+> 🧪 **实验室时长**：12分钟
+
+### 🧪 实验室任务对照
+
+| 步骤 | 实验室任务（英文） | 实验室任务（中文） |
+|------|-------------------|-------------------|
+| Step 1 | Click the "New chat" button to start a new chat with Gemini. Then, paste the prompt below and replace the text in [brackets] with your own details. | 点击"New chat"按钮开始与Gemini的新对话。然后，粘贴以下提示并用你自己的细节替换[brackets]中的文本。 |
+| | **Prompt示例：**<br>I want to improve my Java development workflow by [your high-level goal, e.g. implementing microservices, optimizing database queries]. Act as my technical advisor and list 3 complementary improvements we could make to our current system. Keep in mind: [context and constraints, e.g. we have a team of 4 Java developers, a Spring Boot application, and MongoDB database]. | **Prompt示例：**<br>我想通过[你的高级目标，例如实现微服务、优化数据库查询]来改进我的Java开发工作流程。担任我的技术顾问，并列出我们可以对当前系统进行的3项互补改进。请记住：[上下文和约束，例如我们有4名Java开发人员、一个Spring Boot应用程序和MongoDB数据库]。 |
+| Step 2 | In the same chat with Gemini, ask questions to evaluate the options Gemini provided in the previous step. You can ask about specific criteria or potential challenges. For example: | 在与Gemini的同一对话中，询问问题以评估Gemini在上一步中提供的选项。你可以询问特定标准或潜在挑战。例如： |
+| | **Prompt示例：**<br>Which of these Java improvements can we implement within 6 months given our current Spring Boot architecture and team size? | **Prompt示例：**<br>考虑到我们当前的Spring Boot架构和团队规模，这些Java改进中哪些可以在6个月内实施？ |
+| Step 3 | In the same chat with Gemini, paste the prompt below and replace the text in [brackets] with your own details. | 在与Gemini的同一对话中，粘贴以下提示并用你自己的细节替换[brackets]中的文本。 |
+| | **Prompt示例：**<br>If I want to move forward with [1 option from Gemini's response in the previous step], what tasks should I complete this week as a Java developer? | **Prompt示例：**<br>如果我想继续进行[上一步Gemini响应中的1个选项]，作为Java开发者，我本周应该完成哪些任务？ |
+
+---
+
+## 5.3 Mahi, what's a hack for giving Gemini context in a new chat?
+
+> 🎬 **视频时长**：1分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| Generally, we see that as chats get longer, just the amount of context Gemini has to keep track of gets bigger. And so you may see some of the quality start to deteriorate, you know, many, many, many turns later. | 通常，我们看到随着聊天变长，Gemini需要跟踪的上下文量变得更大。所以你可能会看到质量开始下降，你知道，在很多很多轮之后。 |
+| That could be a good time for you to kind of restart the chat. The way... You know, one way you could do that is actually just ask Gemini, like, "Can you summarize this thread? I'm gonna start another thread," and get an output of, like, what has happened in this thread, what you have tried. | 那可能是你重新开始聊天的好时机。方法...你知道，一种方法就是直接问Gemini，比如"你能总结一下这个对话线程吗？我要开始另一个线程"，然后获取这个对话中发生了什么、你尝试了什么的输出。 |
+| I would still upload, if you, you know, had any attachments in that original thread, I would re-upload them again. But you can do that same format of, like, "I was working on this problem. Here are the relevant docs attached again. I have already done this much," like, paste in that summarized content, and then ask your next query of what to do. | 如果你在原始线程中有任何附件，我仍然会重新上传它们。但你可以使用相同的格式，比如"我正在处理这个问题。这是相关的文档再次附加。我已经完成了这么多"，粘贴总结的内容，然后询问你的下一个问题。 |
+
+---
+
+## 5.4 Generate visuals with AI
+
+> 📚 **阅读时长**：4分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| You can accomplish a lot with text-only prompts and outputs, but incorporating other formats like images, audio, and video can unlock a new world of possibilities. | 你可以通过纯文本提示和输出完成很多工作，但结合图像、音频和视频等其他格式可以释放新的可能性世界。 |
+| With Gemini, you can create a video from a single sentence, draft an email based on pictures of your products, and build entire presentations based on audio recordings. This capability is referred to as multimodality. | 使用Gemini，你可以从单个句子创建视频，根据产品图片起草电子邮件，并根据音频录音构建完整的演示文稿。这种能力被称为多模态。 |
+| **What is multimodality?** | **什么是多模态？** |
+| To break it down, modalities are different types of formats, like text, image, or audio. Multimodality is useful because it allows you to give Gemini more detailed and richer context when prompting it. Instead of telling it what you want using only words, you can enrich your instructions with images, video, and audio. | 分解来说，模态是不同类型的格式，如文本、图像或音频。多模态很有用，因为它允许你在提示Gemini时提供更多详细和丰富的上下文。你可以用图像、视频和音频来丰富你的指令，而不是只用文字告诉它你想要什么。 |
+| **Practice using Gemini's multimodal capabilities** | **练习使用Gemini的多模态能力** |
+| In the upcoming lab, we'll demonstrate multimodality in action by creating images from text prompts, as well as showing how you can incorporate images into your prompts themselves. | 在即将进行的实验室中，我们将通过从文本提示创建图像来演示多模态的实际应用，并展示如何将图像融入你的提示中。 |
+| To do this, you will use Nano Banana Pro, an image-generation and editing model available in the Gemini app. You can prompt it with text or images to create and edit high-quality visuals. | 为此，你将使用Nano Banana Pro，这是Gemini应用中可用的图像生成和编辑模型。你可以用文本或图像提示它来创建和编辑高质量的视觉效果。 |
+| What you'll gain: Visual storytelling, Multimodal fluency, Streamlined workflow. | 你将获得：视觉叙事能力、多模态流畅性、简化的工作流程。 |
+| Apply what you learn: If you work in marketing, try generating a social media image for a new product launch. If you work in sales, try generating visuals to make a slide deck more engaging. If you're an educator, try creating visual aids for a lesson plan. | 应用你所学的内容：如果你从事营销工作，尝试为新产品发布生成社交媒体图片。如果你从事销售工作，尝试生成视觉效果使幻灯片更具吸引力。如果你是教育工作者，尝试为课程计划创建视觉辅助工具。 |
+
+---
+
+## 5.5 Create custom images with Gemini
+
+> 🧪 **实验室时长**：12分钟
+
+### 🧪 实验室任务对照
+
+| 步骤 | 实验室任务（英文） | 实验室任务（中文） |
+|------|-------------------|-------------------|
+| Step 1 | First, we will ask Gemini for some help generating and organizing ideas for our image. Click the "New chat" button to start a new chat with Gemini, and select the Pro model. | 首先，我们将请求Gemini帮助生成和组织图像的想法。点击"New chat"按钮开始与Gemini的新对话，并选择Pro模型。 |
+| | **Prompt示例：**<br>I need some ideas for a food photography card to share my homemade pasta recipe. The style should be appetizing and rustic, the mood should be delicious and homey. Please give me 3 different creative concepts. For each concept, provide a: Description (A brief explanation of the visual layout), Color Palette (A set of colors that fit the mood). | **Prompt示例：**<br>我需要一些美食摄影卡片的想法，用来分享我的自制意大利面食谱。风格应该是诱人的和质朴的，情绪应该是美味的和温馨的。请给我3个不同的创意概念。对于每个概念，请提供：描述（视觉布局的简要说明）、色彩搭配（适合情绪的一组颜色）。 |
+| Step 2 | In the same chat, you can ask Gemini for some ideas for any text that you might want to go with your image. | 在同一对话中，你可以询问Gemini关于可能想要与图像一起使用的文本的想法。 |
+| | **Prompt示例：**<br>Generate 3 options for text for a food photography card about my homemade pasta recipe. For context, it's a family recipe passed down for generations, using fresh ingredients and slow-cooked tomato sauce. The tone of the writing should be warm and inviting in order to make people feel hungry and want to try cooking it. | **Prompt示例：**<br>为我的自制意大利面食谱美食摄影卡片生成3个文本选项。作为上下文，这是代代相传的家庭食谱，使用新鲜食材和慢煮番茄酱。写作语气应该是温暖和诱人的，以便让人们感到饥饿并想尝试烹饪它。 |
+| Step 3 | Now, it's time to bring everything together to generate your final image. In the same chat, use the prompt below to combine your favorite visual concept and the text you just generated. | 现在是时候将所有内容结合在一起来生成最终图像了。在同一对话中，使用以下提示将你最喜欢的视觉概念和刚刚生成的文本结合起来。 |
+| | **Prompt示例：**<br>Based on the [chosen creative concept] and the text '[insert your favorite headline/text here]', generate a detailed image. The image should feature a steaming bowl of homemade pasta with fresh basil and parmesan cheese in a [visual style, e.g. rustic Italian kitchen, overhead shot, or close-up food photography] style. Ensure the composition includes [layout requirements, e.g. wooden table background, natural lighting, or space for recipe text]. The overall mood should be warm, appetizing, and homey. | **Prompt示例：**<br>基于[选定的创意概念]和文本"[插入你最喜欢的标题/文本]"，生成详细的图像。图像应该以[视觉风格，例如质朴的意大利厨房、俯拍或特写美食摄影]风格展示一碗热气腾腾的自制意大利面，配有新鲜罗勒和帕尔马干酪。确保构图包括[布局要求，例如木桌背景、自然光线或食谱文本空间]。整体情绪应该是温暖、诱人和温馨的。 |
+| Step 4 | Often there will be some adjustments you'll want to make to the image to get it to be exactly what you want. You can repeat this step until you arrive at an image you like. | 通常你想要对图像进行一些调整，使其完全符合你的要求。你可以重复此步骤，直到获得满意的图像。 |
+| | **Prompt示例：**<br>This is great, but can you make the steam more visible to show the pasta is freshly cooked? Or: Can you add some [detail, e.g. crusty bread, a glass of red wine, or a checkered tablecloth] to make it feel more like an Italian dinner? Or: Can you change the lighting to [mood, e.g. warmer golden hour light] to make it feel more cozy? | **Prompt示例：**<br>这很好，但你能让蒸汽更明显一些，以显示意大利面是刚煮好的吗？或者：你能添加一些[细节，例如脆皮面包、一杯红酒或格子桌布]让它感觉更像意大利晚餐吗？或者：你能把光线改成[情绪，例如更温暖的黄金时段光线]让它感觉更温馨吗？ |
+
+---
+
+# Module 6: Use AI responsibly
+
+## 6.1 Responsible AI in practice
+
+> 🎬 **视频时长**：4分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| Imagine your boss says to you, "We need to talk." A little worrying, right? Now, imagine a coworker says, "We need to talk." Same words, different reaction. You can sense the difference between those situations because you understand nuance, context and consequences but AI can't understand those things, not on its own at least. | 想象一下你的老板对你说"我们需要谈谈"。有点担心，对吧？现在，想象一个同事说"我们需要谈谈"。同样的话，不同的反应。你能感觉到这些情况之间的差异，因为你理解细微差别、上下文和后果，但AI不能理解这些，至少不能自己理解。 |
+| It can be an amazing collaborator and help you enhance your work in all sorts of ways but AI doesn't live in the real world like we do. That means you need to exercise responsible AI use. | 它可以成为一个惊人的合作者，以各种方式帮助你提升工作，但AI不像我们一样生活在现实世界中。这意味着你需要负责任地使用AI。 |
+| **ACT框架：负责任地使用AI** | **ACT框架：负责任地使用AI** |
+| **A = Ask（询问）**：在做任何事情之前，问自己"这是我应该使用AI的情况吗？"例如，不要依赖响应作为医疗、法律、财务或其他专业建议。在这些主题上始终咨询专业人士。 | **A = Ask（询问）**：在做任何事情之前，问自己"这是我应该使用AI的情况吗？"例如，不要依赖响应作为医疗、法律、财务或其他专业建议。在这些主题上始终咨询专业人士。 |
+| If your task involves sensitive, confidential, personal or proprietary data, consider whether or not you should use AI. You should always consult your employer's policies on using AI at work and avoid inputting confidential data into a public AI tool. | 如果你的任务涉及敏感、机密、个人或专有数据，考虑是否应该使用AI。你应该始终咨询雇主关于在工作中使用AI的政策，避免将机密数据输入公共AI工具。 |
+| **C = Check（检查）**：在决定AI适合这项任务后，在使用前检查输出。首先，检查客观性。其次，检查准确性。还要注意偏见。你应该始终检查输出是否适合其预期用途。 | **C = Check（检查）**：在决定AI适合这项任务后，在使用前检查输出。首先，检查客观性。其次，检查准确性。还要注意偏见。你应该始终检查输出是否适合其预期用途。 |
+| **T = Tell（告知）**：负责任的AI用户需要披露你对AI的使用。始终对AI的使用保持透明。 | **T = Tell（告知）**：负责任的AI用户需要披露你对AI的使用。始终对AI的使用保持透明。 |
+| Remember, it's up to you to be the human-in-the-loop at each step. | 记住，在每一步中成为人在回路中的角色取决于你。 |
+
+---
+
+## 6.2 Mahi, what should you do if you get a bad response from Gemini?
+
+> 🎬 **视频时长**：46秒
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| So if you get a bad response or just one you're not happy with, give us a thumbs down. Like, it's okay. You know, our feelings won't be hurt. We actually want this feedback. | 如果你得到一个不好的响应，或者只是你不喜欢的响应，请给我们点踩。没关系，我们的感情不会受伤。我们实际上想要这种反馈。 |
+| Give us a thumbs down. And then every once in a while, there'll be a feedback box that pops up that says like, "What went wrong?" Or, "How can we make this better?" | 给我们点踩。然后偶尔会弹出一个反馈框，说"哪里出错了？"或者"我们如何改进？" |
+| And there are a few select options. So you can just select one of those or you can type in what went wrong. And what's really helpful there is not only saying what went wrong, but what you expected or what you would've wanted the response to look like. | 有几个选择选项。你可以选择其中一个，或者输入哪里出错了。真正有帮助的是不仅说出哪里出错了，还要说出你期望的响应是什么样子的。 |
+| And, yeah, this is data that we analyze all the time. We really wanna see where the model is struggling or failing and so we can just make it better in the next round. | 是的，这是我们一直分析的数据。我们真的很想看看模型在哪里挣扎或失败，这样我们就可以在下一轮中改进它。 |
+
+---
+
+## 6.3 Responsible AI best practices
+
+> 📖 **阅读时长**：8分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| AI can be a powerful collaborator, but it doesn't have your real-world experience, context, or common sense. Maintaining a human-in-the-loop approach enables you to catch issues early and deliver work you can stand behind. It's not about memorizing a rigid set of rules. Instead, it's about building the judgment that enables you to use AI responsibly. | AI可以成为一个强大的合作者，但它没有你的真实世界经验、上下文或常识。保持人在回路中的方法使你能够及早发现问题并交付你可以信赖的工作。这不是记住一套严格的规则，而是培养使你能够负责任地使用AI的判断力。 |
+| **保护敏感信息** | **保护敏感信息** |
+| Keeping information secure means safeguarding and preventing unauthorized access to personal information and private data. It's important to know what data is collected and how it might be used before you accept terms of service for a website or an app. Avoid entering confidential or sensitive information into publicly available tools. | 保护信息安全意味着保护个人数据免受未经授权的访问。在接受网站或应用的服务条款之前，了解收集了哪些数据以及如何使用这些数据非常重要。避免将机密或敏感信息输入公开可用的工具。 |
+| **保护机密信息的实用方法** | **保护机密信息的实用方法** |
+| - Use generic placeholders when referring to people, projects, or places | - 在提及人员、项目或地点时使用通用占位符 |
+| - Frame prompts around the task you need done, not the people involved | - 围绕需要完成的任务来设计提示，而不是涉及的人员 |
+| - Input only relevant context needed to complete the task, rather than entire documents | - 只输入完成任务所需的上下文，而不是整个文档 |
+| - Clear AI's memory to give it a clean slate, help protect privacy, and prevent bias from old prompts | - 清除AI的记忆以获得全新的开始，帮助保护隐私，并防止来自旧提示的偏见 |
+| **理解法规和合规边界** | **理解法规和合规边界** |
+| Some tasks can carry legal or compliance requirements that can limit or prohibit AI use, even when the technology seems capable. Industries such as finance, legal, and healthcare operate under strict regulations. AI is not a substitute for a qualified professional, sound judgment, and accountability. | 某些任务可能带有法律或合规要求，这些要求可能限制或禁止使用AI，即使技术似乎有能力。金融、法律和医疗等行业在严格的法规下运营。AI不能替代合格的专业人员、健全的判断力和问责制。 |
+| **使用AI之前问自己** | **使用AI之前问自己** |
+| - Does this task have regulatory requirements? | - 这项任务是否有监管要求？ |
+| - Are there licensing or credential requirements? | - 是否有执照或资质要求？ |
+| - Who is responsible? | - 谁负责？ |
+| **在流程中建立问责制** | **在流程中建立问责制** |
+| Creating a trail that shows how you used AI responsibly can help stakeholders and others follow your process. This isn't busy work meant to slow down your process. It's professional integrity. | 创建一条显示你如何负责任地使用AI的轨迹，可以帮助利益相关者和其他人了解你的流程。这不是为了减慢你的流程而做的繁忙工作，而是专业诚信。 |
+| **ACT清单** | **ACT清单** |
+| **A = Ask yourself（问自己）**：AI适合这项任务吗？数据安全吗？我遵守规则了吗？ | **A = Ask yourself（问自己）**：AI适合这项任务吗？数据安全吗？我遵守规则了吗？ |
+| **C = Check before you use the output（使用前检查）**：检查准确性、偏见和客观性、适当性、原创性和判断力。 | **C = Check before you use the output（使用前检查）**：检查准确性、偏见和客观性、适当性、原创性和判断力。 |
+| **T = Tell people when you use AI（使用时告知）**：透明披露、遵守公司指南。 | **T = Tell people when you use AI（使用时告知）**：透明披露、遵守公司指南。 |
+
+---
+
+## 6.4 Learn about AI agents
+
+> 📖 **阅读时长**：8分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| Some types of AI can do more than execute a single task. They can autonomously handle complex, multistep workflows with your guidance and oversight, helping you achieve broad goals. Unlike standard AI chatbots, you can choose to let these AI agents access the tools you use every day, like email, calendars, or documents, and take action on your behalf and under your control. | 某些类型的AI可以做更多事情，而不仅仅是执行单个任务。它们可以在你的指导和监督下自主处理复杂的多步骤工作流程，帮助你实现广泛的目标。与标准AI聊天机器人不同，你可以选择让这些AI代理访问你每天使用的工具，如电子邮件、日历或文档，并代表你在你的控制下采取行动。 |
+| **AI代理能为你做什么？** | **AI代理能为你做什么？** |
+| Think of an agent as an AI system that you can delegate complex, multistep tasks to. This shift helps free you so you can focus on activities that need your expertise, like strategic thinking. | 将代理视为你可以委派复杂多步骤任务的AI系统。这种转变有助于解放你，使你可以专注于需要你专业知识的活动，如战略思考。 |
+| **AI代理使用示例** | **AI代理使用示例** |
+| - Conduct market research: Analyze competitors, find key features, synthesize customer reviews into weekly emails | - 进行市场研究：分析竞争对手，查找关键功能，将客户评论综合成每周电子邮件 |
+| - Streamline sales and CRM: Go through inbox, identify leads, extract contact info, create CRM entries | - 简化销售和CRM：处理收件箱，识别潜在客户，提取联系信息，创建CRM条目 |
+| - Assist with forecasting demand: Analyze sales data, predict demand, order supplies | - 协助需求预测：分析销售数据，预测需求，订购供应品 |
+| **AI代理如何工作** | **AI代理如何工作** |
+| An AI agent operates using three core components: | AI代理使用三个核心组件运行： |
+| **Models（模型）**：在大量数据上训练的计算机程序，使它们能够识别模式。当你给AI代理一个目标时，模型使用其训练来预测实现该目标所需的任务以及如何使用可用工具来完成它。 | **Models（模型）**：在大量数据上训练的计算机程序，使它们能够识别模式。当你给AI代理一个目标时，模型使用其训练来预测实现该目标所需的任务以及如何使用可用工具来完成它。 |
+| **Permissions（权限）**：AI代理通过你授予的特定权限连接到其他软件和工具。这些设置充当护栏，控制代理如何在你设定的参数内执行任务。 | **Permissions（权限）**：AI代理通过你授予的特定权限连接到其他软件和工具。这些设置充当护栏，控制代理如何在你设定的参数内执行任务。 |
+| **Goals（目标）**：你提供给AI代理的广泛目标，例如"组织Q3启动会议"。一旦设定目标，代理就会在连续循环中运行，直到目标完成。 | **Goals（目标）**：你提供给AI代理的广泛目标，例如"组织Q3启动会议"。一旦设定目标，代理就会在连续循环中运行，直到目标完成。 |
+| **代理循环：分析→行动→观察** | **代理循环：分析→行动→观察** |
+| Analyze: The agent determines the necessary first task | 分析：代理确定必要的第一个任务 |
+| Act: The agent executes that task | 行动：代理执行该任务 |
+| Observe: The agent reviews the result and ensures it's aligned with the goal | 观察：代理审查结果并确保其与目标一致 |
+| **负责任地使用AI代理** | **负责任地使用AI代理** |
+| Risk: What's the impact of a mistake? | 风险：错误的影响是什么？ |
+| Reversibility: How easily can an action be undone? | 可逆性：操作可以撤销多容易？ |
+| For high-risk or irreversible goals, maintain tighter control through a human-in-the-loop approach. | 对于高风险或不可逆转的目标，通过人在回路中的方法保持更严格的控制。 |
+| **AI代理最佳实践** | **AI代理最佳实践** |
+| - Start with a clear, specific goal | - 从清晰、具体的目标开始 |
+| - Manage permissions wisely | - 明智地管理权限 |
+| - Always evaluate the work | - 始终评估工作 |
+| - Iterate and refine | - 迭代和改进 |
+
+---
+
+# 📝 Course Challenge
+
+> 📝 **评分作业**：已完成 ✅
+> 📊 **成绩**：100%
+> ⏱️ **时长**：10分钟
+> 📅 **截止时间**：9月4日 23:59 CST
+
+---
+
+### Q1: IT支持技术人员 - 敏感数据处理
+
+**题目：** You are an IT support technician using Gemini to help you draft a step-by-step troubleshooting guide for a recurring system error. To get the most accurate information, you consider adding the error log file that contains the employee IDs of the users who reported the error. Based on the ACT framework, which action best demonstrates responsible AI use when inputting this information?
+
+**中文：** 你是一名IT支持技术人员，使用Gemini帮助你起草一份针对重复系统错误的分步故障排除指南。为了获得最准确的信息，你考虑添加包含报告错误的用户员工ID的错误日志文件。根据ACT框架，在输入此信息时，哪种操作最能体现负责任的AI使用？
+
+| 选项 | 英文 | 中文 | 正确 |
+|------|------|------|------|
+| A | Remove the specific employee IDs from the log file, replacing them with generic placeholders like "[Internal IP]" and "[User ID]." | 从日志文件中删除特定员工ID，用通用占位符如"[Internal IP]"和"[User ID]"替换。 | ✅ |
+| B | Prompt Gemini to "Anonymize any sensitive data found in the following text" before you paste the log details. | 在粘贴日志详细信息之前，提示Gemini"匿名化以下文本中发现的任何敏感数据"。 | ❌ |
+| C | Prompt Gemini to "Not use any specific employee information in the output" before you paste the log details. | 在粘贴日志详细信息之前，提示Gemini"不要在输出中使用任何特定员工信息"。 | ❌ |
+| D | Proceed with pasting the full log file since the information is being used for an internal company task and not shared externally. | 继续粘贴完整的日志文件，因为信息用于公司内部任务，不会对外共享。 | ❌ |
+
+**💡 解析：** 根据ACT框架的**A = Ask（询问）**原则，在使用AI之前应该问自己"数据安全吗？"。即使数据用于内部任务，也不应该将包含员工ID的敏感信息输入公共AI工具。正确做法是在输入前手动移除或替换敏感数据，这是最安全的做法。
+
+---
+
+### Q2: AI模型工作原理
+
+**题目：** When using an AI model to help you generate new content, which description best explains what AI is actually doing with its training data?
+
+**中文：** 当使用AI模型帮助生成新内容时，以下哪种描述最能解释AI实际上对其训练数据做了什么？
+
+| 选项 | 英文 | 中文 | 正确 |
+|------|------|------|------|
+| A | Applies patterns learned from the data to predict and build a response | 应用从数据中学到的模式来预测和构建响应 | ✅ |
+| B | Ranks the data based on a fixed set of rules to find a consensus | 根据固定规则集对数据进行排序以找到共识 | ❌ |
+| C | Executes a pre-written script to find exact matches within the data | 执行预编写的脚本以在数据中找到精确匹配 | ❌ |
+| D | Accesses a live feed of the data to pull real-time answers | 访问实时数据源以获取实时答案 | ❌ |
+
+**💡 解析：** AI模型的核心工作原理是**应用从训练数据中学到的模式来预测和构建响应**。它不是简单地搜索或排序数据，而是通过模式识别和统计预测来生成新的内容。
+
+---
+
+### Q3: AI生态系统组件
+
+**题目：** You are a marketer using the Gemini app to help you brainstorm a new social media campaign. You enter a detailed prompt, and the app displays a list of creative themes. In this scenario, how do the components of the AI ecosystem work together to produce this result?
+
+**中文：** 你是一名营销人员，使用Gemini应用帮助你头脑风暴新的社交媒体活动。你输入一个详细的提示，应用显示一系列创意主题。在此场景中，AI生态系统的组件如何协同工作产生此结果？
+
+| 选项 | 英文 | 中文 | 正确 |
+|------|------|------|------|
+| A | The AI model serves as the user interface you interact with, while the app's server infrastructure performs the reasoning and generation. | AI模型作为你交互的用户界面，而应用的服务器基础设施执行推理和生成。 | ❌ |
+| B | The AI model provides the user interface, while the prompt performs the reasoning to generate the themes. | AI模型提供用户界面，而提示执行推理来生成主题。 | ❌ |
+| C | The app provides the user interface you interact with, while the underlying AI model performs the actual reasoning and generation of the creative themes for the social media campaign brainstorm. | 应用提供你交互的用户界面，而底层AI模型执行社交媒体活动头脑风暴创意主题的实际推理和生成。 | ✅ |
+| D | The app performs the reasoning and generation, while the AI model acts as the database that stores your previous prompts. | 应用执行推理和生成，而AI模型充当存储你之前提示的数据库。 | ❌ |
+
+**💡 解析：** AI生态系统包括三个部分：用户界面（App）、AI模型和提示。**App提供用户界面，AI模型负责实际的推理和生成**。提示是你与AI沟通的方式，但不执行推理。
+
+---
+
+### Q4: AI作为协作者
+
+**题目：** You are an event planner organizing an annual corporate retreat. You have drafted a preliminary schedule and selected potential venues, but you are concerned about unexpected logistical issues. Based on the "AI as a collaborator" mindset, how can you most effectively use Gemini as a partner in this process?
+
+**中文：** 你是一名活动策划人员，正在组织年度公司静修会。你已起草了初步时间表并选择了潜在场地，但担心意外的后勤问题。基于"AI作为协作者"的思维方式，你如何在此过程中最有效地将Gemini作为合作伙伴使用？
+
+| 选项 | 英文 | 中文 | 正确 |
+|------|------|------|------|
+| A | Rely solely on your past event experience to identify risks so you do not introduce potential errors or hallucinations into the planning process. | 完全依靠你过去的活动经验来识别风险，这样你就不会在规划过程中引入潜在错误或幻觉。 | ❌ |
+| B | Input your schedule into Gemini and ask the tool to make the final decision on which venue is best for the company based on your concerns. | 将你的时间表输入Gemini，并要求该工具根据你的 concerns 做出最终决定，选择对公司最好的场地。 | ❌ |
+| C | Ask Gemini to pressure-test your concerns about the schedule and help you identify potential logistical risks. | 要求Gemini对你的日程安排进行压力测试，并帮助你识别潜在的后勤风险。 | ✅ |
+| D | Ask Gemini to address your concerns, then finalize the schedule and book the venues. | 要求Gemini解决你的 concerns，然后最终确定时间表并预订场地。 | ❌ |
+
+**💡 解析：** AI作为协作者的价值在于**帮助你思考和验证**，而不是替你做决定。让Gemini帮你"压力测试"你的想法，可以发现你可能忽略的风险和问题，这是人机协作的最佳方式。
+
+---
+
+### Q5: ACT框架 - 检查准确性
+
+**题目：** You are a sales representative for a bike company. You use Gemini to help you draft a pitch email to a large chain of bike stores. Gemini generates the following output: "Our new carbon fiber road bike weighs only 3 pounds, making it the lightest in the industry." You know that standard carbon fiber road bikes weigh significantly more. Based on the ACT framework, what is the most responsible next step?
+
+**中文：** 你是一家自行车公司的销售代表。你使用Gemini帮助你起草一封给大型自行车连锁店的推销邮件。Gemini生成以下输出："我们的新款碳纤维公路自行车仅重3磅，是业界最轻的。"你知道标准碳纤维公路自行车的重量要重得多。根据ACT框架，最负责任的下一步是什么？
+
+| 选项 | 英文 | 中文 | 正确 |
+|------|------|------|------|
+| A | Send the email as is because Gemini likely has access to the latest technological advancements in bicycle manufacturing, which led to the mention of a different weight. | 直接发送邮件，因为Gemini可能掌握了自行车制造的最新技术进展，因此提到了不同的重量。 | ❌ |
+| B | Review and verify the statistic for accuracy, then edit the output to reflect the correct bicycle weight before you send the email. | 审查并验证统计数据的准确性，然后在发送邮件之前编辑输出以反映正确的自行车重量。 | ✅ |
+| C | Run your prompt multiple times until Gemini outputs an accurate email regarding the bicycle weight. | 多次运行你的提示，直到Gemini输出关于自行车重量的准确邮件。 | ❌ |
+| D | Increase the "human-in-the-loop" portion of your process by manually writing the emails. | 通过手动编写邮件来增加你流程中"人在回路中"的部分。 | ❌ |
+
+**💡 解析：** 根据ACT框架的**C = Check（检查）**原则，**必须验证AI输出的准确性**。即使AI听起来很自信，你也需要独立核实事实信息。发现错误后应该修正，而不是盲目相信或完全放弃使用AI。
+
+---
+
+### Q6: 改进提示以获得更好输出
+
+**题目：** You are a copywriter. You are using Gemini to help you draft a social media post announcing a new software update. You notice that the output is highly technical, dry, and lacks the engaging tone required for your brand's social media channels. From the options below, what is the best next step to apply your judgement to improve this output?
+
+**中文：** 你是一名文案撰稿人。你使用Gemini帮助你起草一篇宣布新软件更新的社交媒体帖子。你注意到输出非常技术性、枯燥，缺乏你品牌社交媒体渠道所需的吸引人语气。从以下选项中，应用你的判断来改进此输出的最佳下一步是什么？
+
+| 选项 | 英文 | 中文 | 正确 |
+|------|------|------|------|
+| A | Iterate on your prompt to request a more engaging tone that fits a social media audience. | 迭代你的提示，请求更适合社交媒体受众的更吸引人的语气。 | ✅ |
+| B | Prompt Gemini to act as an expert copywriter to improve the tone of the post. | 提示Gemini扮演专业文案撰稿人来改进帖子的语气。 | ❌ |
+| C | Use an image generation tool to create a vibrant graphic to liven up the dry text. | 使用图像生成工具创建生动的图形来活跃枯燥的文本。 | ❌ |
+| D | Iterate on your prompt to request a post that builds more excitement for the new software update and is formatted with bullet points. | 迭代你的提示，请求一篇能为新软件更新带来更多兴奋感并以项目符号格式呈现的帖子。 | ❌ |
+
+**💡 解析：** 当AI输出不符合你的需求时，**最好的做法是迭代你的提示**。明确告诉AI你想要什么样的语气和风格，而不是简单地要求它"做得更好"或添加其他元素。
+
+---
+
+### Q7: 检查客观性
+
+**题目：** You are a market researcher. You are using Gemini to help you summarize customer feedback about a newly released product. You notice that the output focuses only on the positive reviews and completely ignores the critical feedback. From the options below, what is the most responsible next step to increase the reliability of this output?
+
+**中文：** 你是一名市场研究人员。你使用Gemini帮助你总结关于新发布产品的客户反馈。你注意到输出只关注正面评论，完全忽略了批评性反馈。从以下选项中，提高此输出可靠性的最负责任的下一步是什么？
+
+| 选项 | 英文 | 中文 | 正确 |
+|------|------|------|------|
+| A | Use Gemini's multimodal capabilities to turn the summary into a visually appealing slide deck that highlights the positive reviews. | 使用Gemini的多模态功能将摘要转换为突出正面评论的视觉吸引力幻灯片。 | ❌ |
+| B | Prompt Gemini to generate hypothetical negative reviews to balance out the summary and make the report appear objective. | 提示Gemini生成假设的负面评论以平衡摘要并使报告显得客观。 | ❌ |
+| C | Submit the positive summary as your final report, assuming Gemini correctly identified the most important customer sentiments. | 提交正面摘要作为你的最终报告，假设Gemini正确识别了最重要的客户情绪。 | ❌ |
+| D | Evaluate the output for objectivity and iterate on your prompt to ensure the summary includes both positive and negative feedback. | 评估输出的客观性，并迭代你的提示以确保摘要包含正面和负面反馈。 | ✅ |
+
+**💡 解析：** AI可能会产生有偏见的输出。根据ACT框架的**C = Check（检查）**原则，你需要**评估输出的客观性**，并通过迭代提示来确保获得全面、平衡的信息。
+
+---
+
+### Q8: 4步提示框架
+
+**题目：** You are a communications specialist. Using technical notes from the engineering team, you prompt Gemini to help you draft a company-wide update email. You enter the prompt: "You are an expert communicator. Write a company update email based on these notes. Format your response as a short email." You notice that the generated email is far too technical for the broader company audience and includes unnecessary, confusing details. Based on the 4-step prompting framework, what is the most effective next step to improve this output?
+
+**中文：** 你是一名沟通专家。使用工程团队的技术笔记，你提示Gemini帮助你起草一封全公司范围的更新邮件。你输入提示："你是一名专业沟通者。根据这些笔记写一封公司更新邮件。将你的回复格式化为一封简短的邮件。"你注意到生成的邮件对于更广泛的公司受众来说过于技术化，并包含不必要的、令人困惑的细节。根据4步提示框架，改进此输出的最有效下一步是什么？
+
+| 选项 | 英文 | 中文 | 正确 |
+|------|------|------|------|
+| A | Start a new chat with the same prompt and see if the model generates a better version on the second try. | 使用相同的提示开始新对话，看看模型是否在第二次尝试时生成更好的版本。 | ❌ |
+| B | Input the generated email into a new AI tool specifically designed for grammar and style to see if it can simplify the technical language automatically. | 将生成的邮件输入专门设计用于语法和风格的新AI工具，看看它是否能自动简化技术语言。 | ❌ |
+| C | Upload a PDF of the company's style guidelines to the chat to help Gemini better understand the target audience. | 将公司风格指南的PDF上传到聊天中，以帮助Gemini更好地理解目标受众。 | ❌ |
+| D | Edit your initial prompt in the same chat to add context about the non-technical audience. | 在同一对话中编辑你的初始提示，添加关于非技术受众的上下文。 | ✅ |
+
+**💡 解析：** 根据4步提示框架（Task, Context, Format, Refine），当输出不符合预期时，应该**迭代并完善你的提示**。添加关于目标受众的上下文信息，可以帮助AI生成更合适的内容。
+
+---
+
+### Q9: 提示链策略
+
+**题目：** You are a restaurant manager using Gemini to help you plan for a busy holiday weekend. You notice that asking for a revised staff schedule, a list of daily specials using overstocked ingredients, and a draft for a social media post all in one single prompt yields a generic and disorganized response. Based on prompt chaining strategies, what is the most effective next step to manage this complex task?
+
+**中文：** 你是一名餐厅经理，使用Gemini帮助你计划繁忙的假日周末。你注意到在一个提示中同时要求修改员工时间表、使用库存过多食材的每日特色菜列表以及社交媒体帖子草稿，会产生通用且杂乱的响应。根据提示链策略，管理此复杂任务的最有效下一步是什么？
+
+| 选项 | 英文 | 中文 | 正确 |
+|------|------|------|------|
+| A | Break the task down within the same chat: first prompt for daily specials based on the overstocked ingredients, second prompt to draft a social media post promoting those specials, and a third prompt to create a staff schedule that accommodates the extra prep. | 在同一对话中将任务分解：首先根据库存过多的食材提示每日特色菜，其次提示起草宣传这些特色菜的社交媒体帖子，第三提示创建适应额外准备工作的员工时间表。 | ✅ |
+| B | Ask Gemini for a list of standard restaurant holiday templates, choose the best one, and manually fill out the schedule and social posts yourself. | 要求Gemini提供标准餐厅假日模板列表，选择最佳模板，然后自己手动填写时间表和社交帖子。 | ❌ |
+| C | Rewrite your single prompt using powerful prompt phrases like "Think step-by-step" to force Gemini to process all the project components at once. | 使用强大的提示短语如"Think step-by-step"重写你的单个提示，以强制Gemini一次处理所有项目组件。 | ❌ |
+| D | Start three separate chats for the specials, schedule, and social media post to keep the AI's context window small and efficient. | 为特色菜、时间表和社交媒体帖子启动三个单独的对话，以保持AI的上下文窗口小而高效。 | ❌ |
+
+**💡 解析：** **提示链**是将复杂任务分解为多个简单步骤的策略。在同一对话中按顺序执行相关任务，可以让AI保持上下文，同时避免单个提示过于复杂导致的混乱输出。
+
+---
+
+### Q10: 扩展想法
+
+**题目：** You are brainstorming presentation ideas using the Gemini app. You receive a set of options and want to expand on one of the suggestions. From the options below, what is the most effective way to continue towards your goal?
+
+**中文：** 你正在使用Gemini应用头脑风暴演示文稿想法。你收到一组选项，想要扩展其中一个建议。从以下选项中，继续实现目标的最有效方式是什么？
+
+| 选项 | 英文 | 中文 | 正确 |
+|------|------|------|------|
+| A | Start a new chat in the Gemini app and ask it to "tell me more about" a particular suggestion. | 在Gemini应用中开始新对话，要求它"告诉我更多关于"某个特定建议。 | ❌ |
+| B | Copy the original conversation and paste it into a different AI tool, asking it to elaborate with more detail. | 复制原始对话并粘贴到不同的AI工具中，要求它详细阐述。 | ❌ |
+| C | Open a new chat in the Gemini app and repeat the original prompt to test if the model generates a different output. | 在Gemini应用中打开新对话，重复原始提示以测试模型是否生成不同的输出。 | ❌ |
+| D | Build on the previous prompt in the same chat thread to ask for more detail on the specific suggestion. | 在同一对话线程中基于之前的提示，要求提供更多关于特定建议的详细信息。 | ✅ |
+
+**💡 解析：** **在同一对话中继续构建**是最有效的方式，因为AI可以保持之前的上下文。这样它可以基于之前的想法提供更深入、更相关的扩展内容，而不是从零开始。
+
+---
+
+## Claim your course completion badge
+
+> 📖 **阅读时长**：2分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| Congratulations on completing AI Fundamentals, you're on your way to becoming an AI Professional 🎉 | 恭喜完成AI基础课程，你正在成为AI专业人士的路上🎉 |
+| **Claim your course completion badge** | **领取你的课程完成徽章** |
+| Within one week of completing this course, you'll receive an email from Coursera with instructions on how to claim your badge. Once you've opted in, Credly (admin@credly.com) will send your badge. This certificate badge is a visual representation of a verified credential that you've earned. You can share your badge on platforms like LinkedIn® to draw the attention of potential employers. | 完成本课程后一周内，你将收到Coursera的电子邮件，说明如何领取徽章。选择加入后，Credly将发送你的徽章。此证书徽章是你获得的经验证凭证的视觉表示。你可以在LinkedIn等平台上分享你的徽章，以吸引潜在雇主的注意。 |
+| **分享你的成就** | **分享你的成就** |
+| Share your accomplishments on social media. Use these sample posts and prompts, and include #GrowWithGoogle to reach a wider audience. | 在社交媒体上分享你的成就。使用这些示例帖子和提示，并包含#GrowWithGoogle以覆盖更广泛的受众。 |
+| **添加到LinkedIn** | **添加到LinkedIn** |
+| Add the badge to your LinkedIn. You can follow the steps in this article or video tutorial. | 将徽章添加到你的LinkedIn。你可以按照这篇文章或视频教程中的步骤操作。 |
+| **激励他人** | **激励他人** |
+| Inspire others by sharing your story. Stories from graduates, like you, can inspire others to become AI-enabled. In addition, your feedback can help improve the course. Fill out this short questionnaire about your journey. | 通过分享你的故事来激励他人。像你这样的毕业生的故事可以激励他人成为AI赋能者。此外，你的反馈可以帮助改进课程。填写这份关于你旅程的简短问卷。 |
+| **继续推进你的职业** | **继续推进你的职业** |
+| Continue to advance your career. Subscribe to email updates from Grow with Google. You'll receive curated career resources, alerts on the latest courses, and professional tips on utilizing AI, building on the skills you've gained from this course. | 继续推进你的职业。订阅Grow with Google的电子邮件更新。你将收到精选的职业资源、最新课程提醒以及利用AI的专业提示，基于你从本课程中获得的技能。 |
+
+---
+
+## Get started on the next course
+
+> 📖 **阅读时长**：2分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| Congratulations on completing AI Fundamentals! You are one step closer to earning the AI credential that powers your career. | 恭喜完成AI基础课程！你离获得推动你职业发展的AI证书又近了一步。 |
+| **成为AI专业人士** | **成为AI专业人士** |
+| An AI professional moves beyond using AI as a simple task-completer to embracing it as a professional collaborator. By completing all courses in this learning program, you will achieve AI fluency and earn the Google AI Professional Certificate. | AI专业人士超越将AI用作简单的任务完成者，将其视为专业协作者。通过完成此学习计划中的所有课程，你将实现AI流利度并获得Google AI专业证书。 |
+| **学习旅程的下一步** | **学习旅程的下一步** |
+| Each course in this learning program is designed to fit your unique career goals. Enroll in another course to continue building functional, job-ready solutions you can use right away. | 此学习计划中的每门课程都旨在适合你独特的职业目标。注册另一门课程，继续构建你可以立即使用的功能性、就业就绪的解决方案。 |
+| **课程列表** | **课程列表** |
+| **AI Fundamentals** - Learn essential AI concepts and practice prompting effectively. | **AI基础** - 学习基本的AI概念并有效练习提示。 |
+| **AI for Brainstorming and Planning** - Use AI to brainstorm concepts, build detailed timelines, and organize a clear plan for any goal. | **AI用于头脑风暴和规划** - 使用AI进行概念头脑风暴，构建详细的时间表，并为任何目标组织清晰的计划。 |
+| **AI for Research and Insights** - Use AI as your research partner, leveraging Deep Research and Gemini Notebook to gain insights, generate summaries, and pressure test ideas for informed decision-making. | **AI用于研究和洞察** - 将AI作为你的研究合作伙伴，利用Deep Research和Gemini Notebook获取洞察、生成摘要，并对想法进行压力测试以做出明智的决策。 |
+| **AI for Writing and Communicating** - Turn rough notes into clear messages, easily adapt them for different stakeholders, and practice for presentations by anticipating questions and concerns. | **AI用于写作和沟通** - 将粗糙的笔记转化为清晰的信息，轻松地为不同的利益相关者进行调整，并通过预测问题和关注点来练习演示。 |
+| **AI for Content Creation** - Use AI as your creative partner to generate high-quality images, video, and presentations. | **AI用于内容创作** - 将AI作为你的创意合作伙伴，生成高质量的图像、视频和演示文稿。 |
+| **AI for Data Analysis** - Transform unstructured data into clear insights, master skills to analyze数据，并使用Gemini在Google Sheets中创建引人注目的可视化和公式。 | **AI用于数据分析** - 将非结构化数据转化为清晰的洞察，掌握分析数据的技能，并使用Gemini在Google Sheets中创建引人注目的可视化和公式。 |
+| **AI for App Building** - Master vibe coding and build your own custom app. Tackle the most tedious tasks, all without writing a single line of code. | **AI用于应用构建** - 掌握vibe编码并构建你自己的自定义应用程序。处理最繁琐的任务，无需编写一行代码。 |
+| **AI for App Deployment** - Take your vibe coding skills to the next level and adopt a builder mindset. You'll learn how to plan, prototype, test and debug your app before deploying for others to use. | **AI用于应用部署** - 将你的vibe编码技能提升到下一个水平并采用构建者思维。你将学习如何在部署给他人使用之前规划、原型设计、测试和调试你的应用程序。 |
+| Keep up the great work! | 继续保持出色的工作！ |
+
+---
+
+> 📅 **最后更新**：2026年8月29日
