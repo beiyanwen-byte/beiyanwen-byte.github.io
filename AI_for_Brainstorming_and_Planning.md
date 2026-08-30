@@ -22,6 +22,8 @@
   - [3.2 Build a knowledge hub to answer questions instantly](#32-build-a-knowledge-hub-to-answer-questions-instantly)
   - [3.3 Build with AI: Knowledge hub（实验室）](#33-build-with-ai-knowledge-hub实验室)
 - [Course Challenge](#-course-challenge)
+- [Claim your course completion badge](#claim-your-course-completion-badge)
+- [Get started on the next course](#get-started-on-the-next-course)
 
 ---
 
@@ -150,6 +152,13 @@
 
 To use the features covered in this lab, sign into Gemini using your Google Account. As you follow the video instructions in this lab, customize the prompts below to fit your own work. Feel free to pause the video as needed.
 
+### 📎 实验室材料链接
+
+| 材料名称 | 链接 |
+|----------|------|
+| Launch memo | [Google Drive](https://drive.google.com/file/d/1FHd0Or5Cp8Bmktipnvoj8AdGvP9GahAn/view?usp=sharing) |
+| Launch work-back schedule | [Google Drive](https://drive.google.com/file/d/177qj8ojXVDRVbSJ86-exuWngOXrD8Huk/view?usp=sharing) |
+
 ### 🧪 实验室任务对照
 
 | 步骤 | 实验室任务（英文） | 实验室任务（中文） |
@@ -183,9 +192,7 @@ To use the features covered in this lab, sign into Gemini using your Google Acco
 
 | English 🇺🇸 | 中文 🇨🇳 |
 |-------------|----------|
-| Yul highlights NotebookLM as a go-to AI tool. | Yul 强调 NotebookLM 是他的首选 AI 工具。 |
-| It helps track what to read and organize information. | 它帮助跟踪要阅读的内容并组织信息。 |
-| Extracts key insights to help you get things done. | 提取关键洞察，帮助你完成任务。 |
+| Yul highlights NotebookLM as a go-to AI tool to track what to read, organize and synthesize information, and extract key insights to help you get things done. | Yul 强调 NotebookLM 是他的首选 AI 工具，用于跟踪要阅读的内容、组织和综合信息，并提取关键洞察以帮助你完成任务。 |
 
 ---
 
@@ -197,9 +204,19 @@ To use the features covered in this lab, sign into Gemini using your Google Acco
 
 | English 🇺🇸 | 中文 🇨🇳 |
 |-------------|----------|
-| Learn how to set up a shareable project hub with NotebookLM. | 学习如何使用 NotebookLM 设置可共享的项目中心。 |
-| Upload sources and generate an overview. | 上传来源并生成概览。 |
-| Empower your team to ask questions and access critical project info instantly. | 赋能团队即时提问并访问关键项目信息。 |
+| In this lab, Owen from Google Marketing will show you how to use Gemini Notebook to create a centralized knowledge hub that's grounded in your specific sources. | 在本实验室中，来自Google营销的Owen将向你展示如何使用Gemini Notebook创建一个集中的知识中心，该中心基于你的特定来源。 |
+| Your team will be able to query it using natural language. | 你的团队将能够使用自然语言查询它。 |
+| Gemini Notebook is useful for when you need to create a shared knowledge hub where your team can instantly find accurate answers directly from your project documents. | 当你需要创建一个共享知识中心时，Gemini Notebook非常有用，你的团队可以直接从项目文档中即时找到准确的答案。 |
+| **你将获得什么** | **你将获得什么** |
+| Instant, accurate answers: Give your team a way to find information without waiting for a reply | 即时、准确的答案：为你的团队提供一种无需等待回复就能找到信息的方式 |
+| Reduced interruptions: Spend less time answering routine questions and more time on focused work | 减少干扰：减少回答日常问题的时间，更多时间专注于工作 |
+| A source of truth: Ensure everyone on the team is working from the same information, based only on the documents you provided | 真相来源：确保团队中的每个人都基于相同的信息工作，仅基于你提供的文档 |
+| **应用你所学的内容** | **应用你所学的内容** |
+| In the lab, we'll demonstrate how to build a hub for a specific project launch. | 在实验室中，我们将演示如何为特定项目发布构建一个中心。 |
+| However, you'll get the most impact when you apply these techniques to your own work. | 然而，当你将这些技术应用到自己的工作中时，你会获得最大的影响。 |
+| For example, you could use this to onboard a new team member with HR documents and team guides, or to give your sales team a virtual expert who will help them get up to speed quickly. | 例如，你可以使用这个来用HR文档和团队指南为新团队成员入职，或者为你的销售团队提供一个虚拟专家，帮助他们快速上手。 |
+| As you follow along, think about what documents you'd upload to unblock or support your team. | 当你跟着做的时候，考虑你会上传哪些文档来解锁或支持你的团队。 |
+| Let's build a hub that helps your team stay in sync and move faster! | 让我们构建一个帮助你的团队保持同步并更快前进的中心！ |
 
 ---
 
@@ -207,18 +224,175 @@ To use the features covered in this lab, sign into Gemini using your Google Acco
 
 > 🧪 **实验室时长**：12分钟
 
+### 📝 实验室原文
+
+NotebookLM is now Gemini Notebook. You can still follow the video and complete the lab. To use the features covered in this lab, sign into Gemini Notebook using your Google Account. As you follow the video instructions in this lab, customize the prompts below to fit your own work. Feel free to pause the video as needed.
+
+### 📎 实验室材料链接
+
+| 材料名称 | 链接 |
+|----------|------|
+| Memo | [Google Drive](https://drive.google.com/file/d/177qj8ojXVDRVbSJ86-exuWngOXrD8Huk/view?usp=sharing) |
+| Work-back plan | [Google Drive](https://drive.google.com/file/d/1FHd0Or5Cp8Bmktipnvoj8AdGvP9GahAn/view?usp=sharing) |
+| Packaging plan | [Google Drive](https://drive.google.com/file/d/1eneEgcyV6-xs3xcw7ZZ6jIBrTwjh28EZ/view?usp=sharing) |
+| Creative brief | [Google Drive](https://drive.google.com/file/d/1Je6vtv6wuuceTgLio1SK3RA1z3pOBxdV/view?usp=sharing) |
+
 ### 🧪 实验室任务对照
 
 | 步骤 | 实验室任务（英文） | 实验室任务（中文） |
 |------|-------------------|-------------------|
-| Step 1 | *实验室内容待获取* | *实验室内容待获取* |
+| Step 1 | **Ask questions about your project documents**<br>Go to Gemini Notebook, and select "Create a new notebook". You'll then be presented with a pop-up menu where you can upload all documents related to a project. You can also search the web or your Google Drive files for new sources. If you don't have any sources in mind, you can use these sample materials for a project: memo, work-back plan, packaging plan, and creative brief. After you add your files, the pop-up menu will disappear, and you will be taken to the main Gemini Notebook screen. | **询问关于你的项目文档的问题**<br>前往 Gemini Notebook，选择"Create a new notebook"。然后你会看到一个弹出菜单，可以上传与项目相关的所有文档。你也可以搜索网络或你的 Google Drive 文件来获取新的来源。如果你没有特定的来源，可以使用这些示例材料：备忘录、回溯计划、包装计划和创意简报。添加文件后，弹出菜单将消失，你将进入 Gemini Notebook 主屏幕。 |
+| | Once you've submitted your initial documents, you'll be brought to the main Gemini Notebook screen. In the text box at the bottom of the screen, ask a question about your project. | 提交初始文档后，你将进入 Gemini Notebook 主屏幕。在屏幕底部的文本框中，询问关于你的项目的问题。 |
+| | **Prompt：**<br>When are we starting [key phase in your project, e.g., full-scale packaging production]? | **Prompt：**<br>我们什么时候开始[项目中的关键阶段，例如全面包装生产]？ |
+| | Or: **Prompt：**<br>What are the key milestones of this project? | 或者：**Prompt：**<br>这个项目的关键里程碑是什么？ |
+| | Review the answer from Gemini Notebook. Notice the citations, which link back to the source documents you uploaded. You can continue asking questions as needed. | 查看 Gemini Notebook 的答案。注意引用链接回你上传的源文档。你可以根据需要继续提问。 |
+| | **📌 生活化例子：**<br>问："我们第一天的行程安排是什么？"或"有哪些推荐的当地美食？" | **📌 生活化例子：**<br>问："我们第一天的行程安排是什么？"或"有哪些推荐的当地美食？" |
+| | **Prompt（旅行计划版）：**<br>What are the top 3 must-visit attractions near our hotel, and what's the best way to get there? | **Prompt（旅行计划版）：**<br>我们酒店附近必去的3个景点是什么，以及到达那里的最佳方式是什么？ |
+| Step 2 | **Share your notebook with your team**<br>In the same notebook, click the "Share" button at the top of the page. Then, add team members by entering their email addresses. Additionally, you can create a "Welcome Note" for team members you are sharing this with, and you can adjust access levels as well. | **与你的团队分享笔记本**<br>在同一笔记本中，点击页面顶部的"Share"按钮。然后，通过输入团队成员的电子邮件地址来添加他们。此外，你可以为分享的团队成员创建"欢迎笔记"，并调整访问级别。 |
+| | When you are ready, leave the "Notify people" box checked and click "Save". Your teammates will receive an email with a link to the notebook. | 准备好后，保持"Notify people"复选框选中状态，然后点击"Save"。你的队友将收到一封包含笔记本链接的电子邮件。 |
+| | **📌 生活化例子：**<br>分享旅行计划笔记本，让同行的朋友也能查看行程和提问。 | **📌 生活化例子：**<br>分享旅行计划笔记本，让同行的朋友也能查看行程和提问。 |
 
 ---
 
 # 🏆 Course Challenge
 
 > 🎯 **课程挑战**：完成所有学习后进行测试
+> 📊 **成绩**：100% (5/5)
 
 ---
 
-> 📅 **最后更新**：2026年8月29日
+### Question 1
+
+**You work for a catering company and want to use Gemini to help you brainstorm 20 unique themes for a new line of corporate lunch packages. You provided Gemini with an initial prompt, but the results are too generic. Which of the following is the most effective way to help Gemini produce more creative and original concepts?**
+
+你在一家餐饮公司工作，想用 Gemini 为新的企业午餐套餐系列头脑风暴 20 个独特主题。你给 Gemini 提供了初始提示，但结果太泛泛。以下哪种方式最能帮助 Gemini 产生更有创意和原创性的概念？
+
+| 选项 | 答案 |
+|------|------|
+| A | Start a new, blank chat with Gemini to generate a different set of ideas. / 开始一个新的空白对话，让 Gemini 生成不同的想法。 |
+| B | Upload your current menu and ask Gemini to only generate ideas featuring new ingredients that haven't been used. / 上传当前菜单，让 Gemini 只生成使用新食材的想法。 |
+| **C** ✅ | **Instruct Gemini to use an expert persona that's relevant to the company's industry and target customer.** / **指示 Gemini 使用与公司行业和目标客户相关的专家角色。** |
+| D | Prompt Gemini to "Provide 50 more ideas" to increase the creativity and improve the results. / 提示 Gemini "再提供 50 个想法"以增加创意并改进结果。 |
+
+---
+
+### Question 2
+
+**A content team has brainstormed 20 potential blog post ideas but only has the budget to produce four. They need to select the topics that will generate the most website visits. From the options below, what is the most effective way to ask Gemini to help you evaluate these topics against a consistent framework?**
+
+一个内容团队头脑风暴了 20 个潜在的博客文章想法，但预算只够制作四篇。他们需要选择能带来最多网站访问量的主题。从以下选项中，要求 Gemini 帮助你根据一致的框架评估这些主题的最有效方式是什么？
+
+| 选项 | 答案 |
+|------|------|
+| **A** ✅ | **Ask Gemini to evaluate the topics in a table comparing them by search volume, competition, and relevance.** / **要求 Gemini 用表格评估这些主题，按搜索量、竞争度和相关性进行比较。** |
+| B | Ask Gemini to evaluate the topics and create a chart categorizing them by their overarching theme or target audience. / 要求 Gemini 评估主题并创建按主题或目标受众分类的图表。 |
+| C | Give Gemini the persona of an expert blogger and ask it to evaluate the topics and rank them on a scale of 1 to 10 for creativity. / 让 Gemini 扮演专业博主角色，评估主题并按创意打 1-10 分。 |
+| D | Ask Gemini to create a quick survey to send the team, then have everyone vote for their favorites. / 要求 Gemini 创建快速调查发给团队，让每个人投票选择最喜欢的主题。 |
+
+---
+
+### Question 3
+
+**You are a tennis tournament director reviewing the schedule for matches and their court assignments. You suspect there might be some hidden risks (e.g., overbooking courts, double booking players), but the plan is too lengthy to audit manually. Which of the following is the most effective prompt for Gemini to help identify these specific hidden risks?**
+
+你是一名网球锦标赛总监，正在审查比赛和球场分配的时间表。你怀疑可能存在一些隐藏风险（例如，球场超订、球员重复预订），但计划太长，无法手动审核。以下哪个提示最能有效帮助 Gemini 识别这些特定的隐藏风险？
+
+| 选项 | 答案 |
+|------|------|
+| A | "Evaluate past tournament schedules and identify the specific risks our team encountered so we can avoid these in the upcoming event." / "评估过去的锦标赛时间表，找出我们团队遇到的具体风险，以便在即将举行的赛事中避免。" |
+| B | "Act as a tennis tournament director and brainstorm a list of the most common types of scheduling risks that generally occur during a tournament." / "扮演网球锦标赛总监，头脑风暴锦标赛期间通常发生的最常见的日程安排风险类型列表。" |
+| **C** ✅ | **"Review the schedule for any logical conflicts in the timeline, such as players who are scheduled to play on two different courts at the same time."** / **"审查时间表中是否存在逻辑冲突，例如球员被安排在同一时间在两个不同球场上比赛。"** |
+| D | "Summarize the court allocation schedule into key bullet points so the primary scheduling risks are easier for a human to analyze." / "将球场分配时间表总结为关键要点，使主要的日程安排风险更容易被人分析。" |
+
+---
+
+### Question 4
+
+**A business owner is onboarding a new employee and has several key documents (e.g., HR guides, project plans). They want the new hire to find information independently. From the options below, what is the most effective way to set up a reliable, centralized information source?**
+
+一位企业主正在为新员工办理入职手续，有几份关键文件（如 HR 指南、项目计划）。他们希望新员工能独立查找信息。从以下选项中，设置可靠、集中信息源的最有效方式是什么？
+
+| 选项 | 答案 |
+|------|------|
+| **A** ✅ | **Upload all onboarding documents to a new Notebook and share it with the new hire.** / **将所有入职文档上传到新的 Notebook 并与新员工共享。** |
+| B | Ask Gemini to summarize all documents into a single new memo that includes a comprehensive bulleted list for the new hire to reference. / 要求 Gemini 将所有文档总结为一份新的备忘录，包含全面的要点列表供新员工参考。 |
+| C | Upload the documents to NotebookLM and ask it to create a new document that condenses information across the different sources. / 将文档上传到 NotebookLM，让它创建一份浓缩不同来源信息的新文档。 |
+| D | Upload the onboarding documents into a Gemini chat and share the output link with the new hire. / 将入职文档上传到 Gemini 对话中，并将输出链接与新员工共享。 |
+
+---
+
+### Question 5
+
+**You are a flower shop manager preparing to launch a new floral subscription service. You upload your new plans to Gemini, and it identifies a critical element you missed: securing a vendor for specialized delivery boxes. To use AI as a strategic collaborator, what is the most effective next step to manage this gap?**
+
+你是一名花店经理，准备推出新的花卉订阅服务。你将新计划上传给 Gemini，它发现你遗漏了一个关键要素：确保专业配送盒的供应商。要将 AI 作为战略合作者，管理这一差距的最有效下一步是什么？
+
+| 选项 | 答案 |
+|------|------|
+| A | Upload the response from Gemini to a centralized team hub so employees can read about the risk and brainstorm solutions as a group. / 将 Gemini 的回复上传到集中团队中心，让员工了解风险并集体头脑风暴解决方案。 |
+| B | Ask Gemini to draft an email to your suppliers explaining the missing dependency and ask them to adjust the final launch date. / 要求 Gemini 起草一封给供应商的邮件，解释缺失的依赖项并要求他们调整最终发布日期。 |
+| **C** ✅ | **Prompt Gemini to analyze how this missing step impacts the overall launch and create an updated timeline with new milestones.** / **提示 Gemini 分析这一缺失步骤如何影响整体发布，并创建包含新里程碑的更新时间表。** |
+| D | Ask Gemini to brainstorm a list of 10 potential packaging vendors in your region. / 要求 Gemini 头脑风暴你所在地区 10 个潜在包装供应商的列表。 |
+
+---
+
+### 📊 答案总结
+
+| 题号 | 正确答案 | 核心概念 |
+|------|----------|----------|
+| Q1 | C | 使用专家角色进行更好的头脑风暴 |
+| Q2 | A | 使用具有一致评估标准的结构化表格 |
+| Q3 | C | 给出清晰、具体的任务和明确的期望 |
+| Q4 | A | 设置集中的 Notebook 用于知识访问 |
+| Q5 | C | 使用 AI 进行战略分析和规划 |
+
+---
+
+## Claim your course completion badge
+
+> 📖 **阅读时长**：2分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| Congratulations on completing AI for Brainstorming and Planning, you're on your way to becoming an AI Professional 🎉 | 恭喜完成AI用于头脑风暴和规划课程，你正在成为AI专业人士的路上🎉 |
+| **Claim your course completion badge** | **领取你的课程完成徽章** |
+| Within one week of completing this course, you'll receive an email from Coursera with instructions on how to claim your badge. Once you've opted in, Credly (admin@credly.com) will send your badge. This certificate badge is a visual representation of a verified credential that you've earned. You can share your badge on platforms like LinkedIn® to draw the attention of potential employers. | 完成本课程后一周内，你将收到Coursera的电子邮件，说明如何领取徽章。选择加入后，Credly将发送你的徽章。此证书徽章是你获得的经验证凭证的视觉表示。你可以在LinkedIn等平台上分享你的徽章，以吸引潜在雇主的注意。 |
+| **分享你的成就** | **分享你的成就** |
+| Share your accomplishments on social media. Use these sample posts and prompts, and include #GrowWithGoogle to reach a wider audience. | 在社交媒体上分享你的成就。使用这些示例帖子和提示，并包含#GrowWithGoogle以覆盖更广泛的受众。 |
+| **添加到LinkedIn** | **添加到LinkedIn** |
+| Add the badge to your LinkedIn. You can follow the steps in this article or video tutorial. | 将徽章添加到你的LinkedIn。你可以按照这篇文章或视频教程中的步骤操作。 |
+| **激励他人** | **激励他人** |
+| Inspire others by sharing your story. Stories from graduates, like you, can inspire others to become AI-enabled. In addition, your feedback can help improve the course. Fill out this short questionnaire about your journey. | 通过分享你的故事来激励他人。像你这样的毕业生的故事可以激励他人成为AI赋能者。此外，你的反馈可以帮助改进课程。填写这份关于你旅程的简短问卷。 |
+| **继续推进你的职业** | **继续推进你的职业** |
+| Continue to advance your career. Subscribe to email updates from Grow with Google. You'll receive curated career resources, alerts on the latest courses, and professional tips on utilizing AI, building on the skills you've gained from this course. | 继续推进你的职业。订阅Grow with Google的电子邮件更新。你将收到精选的职业资源、最新课程提醒以及利用AI的专业提示，基于你从本课程中获得的技能。 |
+
+---
+
+## Get started on the next course
+
+> 📖 **阅读时长**：2分钟
+
+### 📝 内容对照
+
+| English 🇺🇸 | 中文 🇨🇳 |
+|-------------|----------|
+| Congratulations on completing AI for Brainstorming and Planning! You are one step closer to earning the AI credential that powers your career. | 恭喜你完成了《AI for Brainstorming and Planning》课程！你离获得助力职业发展的 AI 证书又近了一步。 |
+| **Become an AI professional** | **成为 AI 专业人士** |
+| An AI professional moves beyond using AI as a simple task-completer to embracing it as a professional collaborator. By completing all courses in this learning program, you will achieve AI fluency and earn the Google AI Professional Certificate. | AI 专业人士不再仅仅将 AI 作为简单的任务完成工具，而是将其视为专业协作者。通过完成本学习项目的所有课程，你将实现 AI 流利应用，并获得 Google AI 专业证书。 |
+| **Take the next step in your learning journey** | **在学习旅程中迈出下一步** |
+| Each course in this learning program is designed to fit your unique career goals. Enroll in another course to continue building your portfolio of AI-enhanced projects: | 本学习项目中的每门课程都旨在满足你独特的职业目标。注册其他课程，继续构建你的 AI 增强项目组合： |
+| **AI Fundamentals.** Learn essential AI concepts and practice prompting effectively. | **AI 基础。** 学习基本的 AI 概念，练习有效的提示词技巧。 |
+| **AI for Brainstorming and Planning.** Use AI to brainstorm concepts, build detailed timelines, and organize a clear plan for any goal. | **AI 用于头脑风暴和规划。** 使用 AI 进行概念头脑风暴、建立详细时间表，并为任何目标制定清晰的计划。 |
+| **AI for Research and Insights.** Use AI as your research partner, leveraging Deep Research and Gemini Notebook to gain insights, generate summaries, and pressure test ideas for informed decision-making. | **AI 用于研究和洞察。** 将 AI 作为你的研究合作伙伴，利用 Deep Research 和 Gemini Notebook 获取洞察、生成摘要，并对想法进行压力测试以做出明智的决策。 |
+| **AI for Writing and Communicating.** Turn rough notes into clear messages, easily adapt them for different stakeholders, and practice for presentations by anticipating questions and concerns. | **AI 用于写作和沟通。** 将粗糙的笔记转化为清晰的信息，轻松地为不同的利益相关者调整内容，并通过预判问题和顾虑来练习演讲。 |
+| **AI for Content Creation.** Use AI as your creative partner to generate high-quality images, video, and presentations. | **AI 用于内容创作。** 将 AI 作为你的创意合作伙伴，生成高质量的图像、视频和演示文稿。 |
+| **AI for Data Analysis.** Transform unstructured data into clear insights, master skills to analyze data, and create compelling visualizations and formulas with Gemini in Google Sheets. | **AI 用于数据分析。** 将非结构化数据转化为清晰的洞察，掌握数据分析技能，并在 Google Sheets 中使用 Gemini 创建引人注目的可视化图表和公式。 |
+| **AI for App Building.** Master vibe coding and build your own custom app. Tackle the most tedious tasks, all without writing a single line of code. | **AI 用于应用构建。** 掌握 vibe coding 技能，构建你自己的定制应用。处理最繁琐的任务，无需编写一行代码。 |
+| **AI for App Deployment.** Take your vibe coding skills to the next level and adopt a builder mindset. You'll learn how to plan, prototype, test and debug your app before deploying for others to use. | **AI 用于应用部署。** 将你的 vibe coding 技能提升到更高水平，培养构建者心态。你将学习如何在将应用部署给他人使用之前进行规划、原型设计、测试和调试。 |
+| Keep up the great work! | 继续保持出色的工作！ |
+
+---
+
+> 📅 **最后更新**：2026年8月30日
