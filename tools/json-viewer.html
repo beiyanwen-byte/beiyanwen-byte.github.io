@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Viewer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #333; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        
+        /* 顶部导航 */
+        .header-nav { display: flex; align-items: center; gap: 20px; padding: 10px 20px; background: #fff; border-bottom: 1px solid #e1e5eb; }
+        .home-btn { background: #f8f9fb; color: #333; padding: 6px 14px; border-radius: 4px; text-decoration: none; font-size: 13px; border: 1px solid #ddd; transition: all 0.2s; white-space: nowrap; }
+        .home-btn:hover { background: #e9ecef; border-color: #0066cc; }
+        .page-title { font-size: 16px; font-weight: 600; color: #0066cc; flex: 1; }
+        
+        .container { display: flex; flex: 1; overflow: hidden; }
+        
+        /* 左侧面板 */
+        .left-panel { width: 30%; display: flex; flex-direction: column; background: #fff; border-right: 1px solid #e1e5eb; }
+        .panel-header { padding: 12px 16px; background: #f8f9fb; border-bottom: 1px solid #e1e5eb; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .actions { display: flex; gap: 6px; }
+        .panel-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        textarea { flex: 1; padding: 16px; border: none; resize: none; font-family: 'Consolas', monospace; font-size: 13px; line-height: 1.5; background: #fff; }
+        textarea:focus { outline: none; }
+        .status-bar { padding: 8px 16px; background: #f8f9fb; border-top: 1px solid #e1e5eb; font-size: 12px; color: #666; }
+        
+        /* 中间面板 */
+        .center-panel { width: 70%; display: flex; flex-direction: column; background: #fff; }
+        .search-bar { padding: 10px 16px; background: #f8f9fb; border-bottom: 1px solid #e1e5eb; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .search-bar input { flex: 1; min-width: 100px; padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
+        .tree-container { flex: 1; padding: 16px; overflow: auto; font-family: 'Consolas', monospace; font-size: 13px; line-height: 1.6; }
+        
+        /* 树形结构 */
+        .tree-node { margin-left: 16px; }
+        .node-item { padding: 2px 0 2px 8px; margin: 1px 0; border-radius: 4px; transition: background 0.15s; cursor: pointer; }
+        .node-item:hover { background: #f0f7ff; }
+        .node-item.highlight { background: #fff3cd; border: 1px solid #ffc107; }
+        .children { border-left: 1px dashed #ddd; margin-left: 6px; padding-left: 8px; }
+        .toggle-btn { cursor: pointer; user-select: none; margin-right: 4px; color: #666; }
+        .node-key { color: #881391; }
+        .node-colon { color: #333; }
+        .node-bracket { color: #666; }
+        .node-count { color: #888; font-size: 12px; margin-left: 6px; }
+        .node-value.string { color: #0d7a0d; }
+        .node-value.number { color: #005cc5; }
+        .node-value.boolean { color: #d73a49; }
+        .node-value.null { color: #6a737d; font-style: italic; }
+        
+        /* 可点击复制 */
+        .copyable { cursor: pointer; padding: 2px 4px; border-radius: 3px; transition: background 0.2s; }
+        .copyable:hover { background: #e8f0fe; }
+        
+        /* 按钮 */
+        button { padding: 6px 12px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        button:hover { background: #f0f0f0; }
+        button.primary { background: #0066cc; color: #fff; border-color: #0066cc; }
+        button.primary:hover { background: #0052a3; }
+        
+        /* 消息 */
+        .message-area { position: fixed; top: 20px; right: 20px; z-index: 1000; }
+        .message { padding: 12px 20px; margin-bottom: 10px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s; }
+        .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .message.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .empty-hint { color: #999; text-align: center; margin-top: 50px; }
+    </style>
+</head>
+<body>
+    <div class="header-nav">
+        <a href="index.html" class="home-btn">← 返回工具中心</a>
+        <span class="page-title">智能 JSON 查看器</span>
+    </div>
+    
+    <div class="container">
+        <div class="left-panel">
+            <div class="panel-header">
+                <span>📄 JSON 数据</span>
+                <div class="actions">
+                    <button onclick="copyAll()">复制</button>
+                    <button onclick="formatJson()">格式化</button>
+                    <button onclick="removeSpaces()">压缩</button>
+                    <button onclick="removeSpacesAndEscape()">去除空格+转义</button>
+                    <button onclick="pasteText()">📋 粘贴</button>
+                </div>
+            </div>
+            <div class="panel-content">
+                <textarea id="jsonInput" placeholder="将 JSON 数据粘贴到这里..."></textarea>
+            </div>
+            <div class="status-bar" id="inputStatus">等待输入...</div>
+        </div>
+
+        <div class="center-panel">
+            <div class="panel-header">
+                <span>👁️ 视图</span>
+            </div>
+            <div class="search-bar">
+                <label>查找:</label>
+                <input type="text" id="searchInput" placeholder="搜索键或值...">
+                <button onclick="findNext()" class="primary">GO!</button>
+                <button onclick="findPrev()">◀ 上一个</button>
+                <button onclick="findNext()">下一个 ▶</button>
+                <button onclick="expandAll()">展开</button>
+                <button onclick="collapseAll()">收缩</button>
+            </div>
+            <div class="tree-container" id="treeView">
+                <p class="empty-hint">📋 在左侧粘贴 JSON 数据以查看</p>
+            </div>
+            <div class="status-bar" id="viewStatus">就绪</div>
+        </div>
+    </div>
+
+    <div class="message-area" id="messageArea"></div>
+
+    <script>
+        let jsonData = null;
+        let currentMatchIndex = 0;
+        let matchNodes = [];
+
+        const jsonInput = document.getElementById('jsonInput');
+        const treeView = document.getElementById('treeView');
+        const messageArea = document.getElementById('messageArea');
+        const searchInput = document.getElementById('searchInput');
+        const inputStatus = document.getElementById('inputStatus');
+        const viewStatus = document.getElementById('viewStatus');
+
+        // 保存到缓存
+        function saveToSession() {
+            const text = jsonInput.value;
+            if (text.trim()) {
+                try {
+                    localStorage.setItem('json-viewer-session', text);
+                } catch (e) {}
+            }
+        }
+
+        // 从缓存加载
+        function loadFromSession() {
+            const cached = localStorage.getItem('json-viewer-session');
+            if (cached) {
+                jsonInput.value = cached;
+                try {
+                    jsonData = JSON.parse(cached);
+                    renderTree();
+                } catch (e) {}
+            }
+        }
+
+        // JSON 输入事件
+        jsonInput.addEventListener('input', function() {
+            inputStatus.textContent = '字符数：' + this.value.length + ' | 行数：' + this.value.split('\n').length;
+            const text = this.value.trim();
+            if (text && (text.startsWith('{') || text.startsWith('['))) {
+                try {
+                    jsonData = JSON.parse(text);
+                    renderTree();
+                } catch (e) {}
+            }
+        });
+
+        // 粘贴事件 - 自动去除转义 + 格式化
+        jsonInput.addEventListener('paste', function(e) {
+            setTimeout(() => {
+                let text = this.value;
+                
+                // 尝试解析并格式化
+                try {
+                    const parsed = JSON.parse(text);
+                    jsonData = parsed;
+                    const formatted = JSON.stringify(parsed, null, 2);
+                    this.value = formatted;
+                    renderTree();
+                    saveToSession();
+                    showMessage('✅ 已去除转义并格式化', 'success');
+                    return;
+                } catch (e) {}
+                
+                // 不是有效 JSON，尝试去除转义后解析
+                try {
+                    let unescaped = text
+                        .replace(/\\"/g, '"')
+                        .replace(/\\n/g, '\n')
+                        .replace(/\\t/g, '\t')
+                        .replace(/\\r/g, '\r')
+                        .replace(/\\\\/g, '\\');
+                    this.value = unescaped;
+                    jsonData = JSON.parse(unescaped);
+                    renderTree();
+                    saveToSession();
+                    showMessage('✅ 已去除转义', 'success');
+                } catch (e2) {
+                    // 仍然无效
+                }
+            }, 50);
+        });
+
+        // 搜索回车
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') findNext();
+        });
+
+        // 格式化
+        function formatJson() {
+            try {
+                const raw = jsonInput.value.trim();
+                if (!raw) { showMessage('请输入 JSON', 'error'); return; }
+                jsonData = JSON.parse(raw);
+                const formatted = JSON.stringify(jsonData, null, 2);
+                jsonInput.value = formatted;
+                renderTree();
+                saveToSession();
+                showMessage('✅ 格式化成功!', 'success');
+            } catch (e) {
+                showMessage('❌ 解析失败: ' + e.message, 'error');
+            }
+        }
+
+        // 压缩
+        function removeSpaces() {
+            try {
+                const raw = jsonInput.value.trim();
+                if (!raw) { showMessage('请输入 JSON', 'error'); return; }
+                const parsed = JSON.parse(raw);
+                const compact = JSON.stringify(parsed);
+                jsonInput.value = compact;
+                saveToSession();
+                showMessage('✅ 已压缩 | ' + compact.length + ' 字符', 'success');
+            } catch (e) {
+                showMessage('❌ 解析失败', 'error');
+            }
+        }
+
+        // 去除空格并转义（用于 API 请求）
+        function removeSpacesAndEscape() {
+            try {
+                const raw = jsonInput.value.trim();
+                if (!raw) { showMessage('请输入 JSON', 'error'); return; }
+                const parsed = JSON.parse(raw);
+                const escaped = JSON.stringify(parsed)
+                    .replace(/"/g, '\\"')
+                    .replace(/\n/g, '\\n')
+                    .replace(/\r/g, '\\r')
+                    .replace(/\t/g, '\\t');
+                jsonInput.value = escaped;
+                saveToSession();
+                showMessage('✅ 已转义 | ' + escaped.length + ' 字符', 'success');
+            } catch (e) {
+                showMessage('❌ 解析失败', 'error');
+            }
+        }
+
+        // 复制
+        function copyAll() {
+            const text = jsonInput.value;
+            if (!text) { showMessage('没有内容', 'error'); return; }
+            navigator.clipboard.writeText(text).then(() => {
+                showMessage('✅ 已复制', 'success');
+            });
+        }
+
+        // 粘贴 - 自动去除转义 + 格式化
+        async function pasteText() {
+            try {
+                const text = await navigator.clipboard.readText();
+                
+                // 尝试解析并格式化
+                try {
+                    const parsed = JSON.parse(text);
+                    jsonData = parsed;
+                    const formatted = JSON.stringify(parsed, null, 2);
+                    jsonInput.value = formatted;
+                    renderTree();
+                    saveToSession();
+                    showMessage('✅ 已去除转义并格式化', 'success');
+                    return;
+                } catch (e) {}
+                
+                // 不是有效 JSON，尝试去除转义后解析
+                try {
+                    let unescaped = text
+                        .replace(/\\"/g, '"')
+                        .replace(/\\n/g, '\n')
+                        .replace(/\\t/g, '\t')
+                        .replace(/\\r/g, '\r')
+                        .replace(/\\\\/g, '\\');
+                    jsonInput.value = unescaped;
+                    jsonData = JSON.parse(unescaped);
+                    renderTree();
+                    saveToSession();
+                    showMessage('✅ 已去除转义', 'success');
+                } catch (e2) {
+                    // 仍然无效，直接粘贴
+                    jsonInput.value = text;
+                    showMessage('⚠️ 粘贴完成（非标准 JSON）', 'info');
+                }
+            } catch (e) {
+                showMessage('❌ 无法访问剪贴板', 'error');
+            }
+        }
+
+        // 复制文本
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showMessage('✅ 已复制: ' + text.substring(0, 30), 'success');
+            });
+        }
+
+        // 渲染树
+        function renderTree() {
+            if (!jsonData) {
+                treeView.innerHTML = '<p class="empty-hint">📋 在左侧粘贴 JSON 数据以查看</p>';
+                return;
+            }
+            matchNodes = [];
+            currentMatchIndex = 0;
+            try {
+                treeView.innerHTML = renderNode(jsonData, '', true);
+                viewStatus.textContent = '节点数：' + countNodes(jsonData);
+            } catch (e) {
+                treeView.innerHTML = '<p class="empty-hint">❌ 渲染失败</p>';
+            }
+        }
+
+        // 渲染节点
+        function renderNode(value, key, isRoot) {
+            const type = getType(value);
+            
+            if (type === 'object' || type === 'array') {
+                const isArray = type === 'array';
+                const entries = isArray ? value.map((v, i) => [i, v]) : Object.entries(value);
+                const nodeId = 'n' + Math.random().toString(36).substr(2, 9);
+                const openBracket = isArray ? '[' : '{';
+                const closeBracket = isArray ? ']' : '}';
+                
+                let html = '<div class="node-item' + (isRoot ? '' : '') + '">';
+                html += '<span class="toggle-btn" onclick="toggleNode(\'' + nodeId + '\', event)">▶</span>';
+                if (key !== '') html += '<span class="node-key">' + escapeHtml(key) + '</span><span class="node-colon">: </span>';
+                html += '<span class="node-bracket">' + openBracket + '</span>';
+                if (entries.length > 0) html += '<span class="node-count">(' + entries.length + ')</span>';
+                html += '</div><div class="children" id="' + nodeId + '">';
+                entries.forEach(([k, v]) => { html += renderNode(v, k); });
+                html += '</div><div class="node-item"><span class="node-bracket">' + closeBracket + '</span></div>';
+                return html;
+            } else {
+                let valueClass = 'string';
+                let displayValue = escapeHtml(String(value));
+                if (type === 'number') valueClass = 'number';
+                else if (type === 'boolean') valueClass = 'boolean';
+                else if (type === 'null') valueClass = 'null';
+                
+                let keyHtml = key !== '' 
+                    ? '<span class="node-key copyable" onclick="copyText(\'' + escapeHtml(key).replace(/'/g, "\\'") + '\')">' + escapeHtml(key) + '</span><span class="node-colon">: </span>'
+                    : '';
+                
+                return '<div class="node-item">'
+                    + '<span class="toggle-btn">&nbsp;</span>'
+                    + keyHtml
+                    + '<span class="node-value ' + valueClass + ' copyable" onclick="copyText(\'' + displayValue.replace(/'/g, "\\'") + '\')">"' + displayValue + '"</span>'
+                    + '</div>';
+            }
+        }
+
+        // 切换节点
+        function toggleNode(nodeId, event) {
+            event.stopPropagation();
+            const children = document.getElementById(nodeId);
+            const btn = event.target;
+            if (children.style.display === 'none') {
+                children.style.display = 'block';
+                btn.textContent = '▼';
+            } else {
+                children.style.display = 'none';
+                btn.textContent = '▶';
+            }
+        }
+
+        // 展开全部
+        function expandAll() {
+            document.querySelectorAll('.children').forEach(el => el.style.display = 'block');
+            document.querySelectorAll('.toggle-btn').forEach(btn => { if (btn.textContent !== ' ') btn.textContent = '▼'; });
+        }
+
+        // 收缩全部
+        function collapseAll() {
+            document.querySelectorAll('.children').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.toggle-btn').forEach(btn => { if (btn.textContent !== ' ') btn.textContent = '▶'; });
+        }
+
+        // 搜索 - 下一个
+        function findNext() {
+            const term = searchInput.value.trim();
+            if (!term) { showMessage('请输入关键词', 'error'); return; }
+            
+            document.querySelectorAll('.node-item').forEach(el => el.classList.remove('highlight'));
+            
+            if (!jsonData) { showMessage('请先加载数据', 'error'); return; }
+            
+            const termLower = term.toLowerCase();
+            matchNodes = [];
+            
+            document.querySelectorAll('.node-item').forEach(node => {
+                const keySpan = node.querySelector('.node-key');
+                const valueSpan = node.querySelector('.node-value');
+                const keyText = keySpan ? keySpan.textContent : '';
+                const valueText = valueSpan ? valueSpan.textContent.replace(/^"|"$/g, '') : '';
+                
+                if (keyText.toLowerCase().includes(termLower) || valueText.toLowerCase().includes(termLower)) {
+                    node.classList.add('highlight');
+                    matchNodes.push(node);
+                }
+            });
+            
+            if (matchNodes.length === 0) {
+                showMessage('未找到 "' + term + '"', 'error');
+                return;
+            }
+            
+            currentMatchIndex = (currentMatchIndex + 1) % matchNodes.length;
+            if (matchNodes[currentMatchIndex]) {
+                matchNodes[currentMatchIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            viewStatus.textContent = '结果: ' + (currentMatchIndex + 1) + '/' + matchNodes.length;
+        }
+
+        // 搜索 - 上一个
+        function findPrev() {
+            const term = searchInput.value.trim();
+            if (!term) { showMessage('请输入关键词', 'error'); return; }
+            
+            document.querySelectorAll('.node-item').forEach(el => el.classList.remove('highlight'));
+            
+            if (!jsonData) { showMessage('请先加载数据', 'error'); return; }
+            
+            const termLower = term.toLowerCase();
+            matchNodes = [];
+            
+            document.querySelectorAll('.node-item').forEach(node => {
+                const keySpan = node.querySelector('.node-key');
+                const valueSpan = node.querySelector('.node-value');
+                const keyText = keySpan ? keySpan.textContent : '';
+                const valueText = valueSpan ? valueSpan.textContent.replace(/^"|"$/g, '') : '';
+                
+                if (keyText.toLowerCase().includes(termLower) || valueText.toLowerCase().includes(termLower)) {
+                    node.classList.add('highlight');
+                    matchNodes.push(node);
+                }
+            });
+            
+            if (matchNodes.length === 0) {
+                showMessage('未找到 "' + term + '"', 'error');
+                return;
+            }
+            
+            currentMatchIndex = (currentMatchIndex - 1 + matchNodes.length) % matchNodes.length;
+            if (matchNodes[currentMatchIndex]) {
+                matchNodes[currentMatchIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            viewStatus.textContent = '结果: ' + (currentMatchIndex + 1) + '/' + matchNodes.length;
+        }
+
+        // 工具函数
+        function getType(value) {
+            if (value === null) return 'null';
+            if (Array.isArray(value)) return 'array';
+            return typeof value;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function countNodes(obj) {
+            let count = 1;
+            const type = getType(obj);
+            if (type === 'object') {
+                for (let key in obj) count += countNodes(obj[key]);
+            } else if (type === 'array') {
+                obj.forEach(item => { count += countNodes(item); });
+            }
+            return count;
+        }
+
+        function showMessage(text, type) {
+            const msg = document.createElement('div');
+            msg.className = 'message ' + type;
+            msg.textContent = text;
+            messageArea.appendChild(msg);
+            setTimeout(() => { msg.remove(); }, 3000);
+        }
+
+        // 页面加载
+        window.onload = function() {
+            loadFromSession();
+            if (jsonInput.value) {
+                showMessage('✅ 已加载缓存数据', 'info');
+            }
+        };
+    </script>
+</body>
+</html>

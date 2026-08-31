@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>工具中心 - Tools Center</title>
+  <style>
+    :root {
+      --bg-color: #f5f7fa;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --border-color: #ddd;
+      --primary-color: #4a90e2;
+      --hover-color: #357abd;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 40px; }
+    .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .tool-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 24px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .tool-card:hover { transform: translateY(-4px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-color: var(--primary-color); }
+    .tool-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+    .tool-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; color: var(--primary-color); }
+    .tool-desc { font-size: 0.95rem; color: #666; margin-bottom: 16px; }
+    .tool-link {
+      display: inline-block;
+      padding: 8px 16px;
+      background-color: var(--primary-color);
+      color: white;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      transition: background-color 0.2s;
+    }
+    .tool-card:hover .tool-link { background-color: var(--hover-color); }
+    .footer { text-align: center; margin-top: 40px; color: #888; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🛠️ 工具中心</h1>
+
+    <div class="tool-grid">
+      <a href="mermaid-viewer.html" class="tool-card">
+        <span class="tool-icon">🔀</span>
+        <div class="tool-title">Mermaid 流程图编辑器</div>
+        <div class="tool-desc">Mermaid 序列图编辑器，支持语法自动修复、缩放、导出 PNG/SVG、Rect 色块</div>
+        <span class="tool-link">打开工具 →</span>
+      </a>
+
+      <a href="xml-tool.html" class="tool-card">
+        <span class="tool-icon">📄</span>
+        <div class="tool-title">XML 工具</div>
+        <div class="tool-desc">格式化、压缩、转义 XML，支持复制和粘贴</div>
+        <span class="tool-link">打开工具 →</span>
+      </a>
+
+      <a href="json-viewer.html" class="tool-card">
+        <span class="tool-icon">📊</span>
+        <div class="tool-title">智能 JSON 查看器</div>
+        <div class="tool-desc">树形结构展示 JSON 数据，支持实时搜索、折叠/展开节点、格式化输出</div>
+        <span class="tool-link">打开工具 →</span>
+      </a>
+
+      <a href="outlook-table-compare.html" class="tool-card">
+        <span class="tool-icon">🔄</span>
+        <div class="tool-title">Outlook 表格数据对比</div>
+        <div class="tool-desc">对比两个表格数据，支持 5 种分隔符，高亮显示差异（仅A/仅B/值不同）</div>
+        <span class="tool-link">打开工具 →</span>
+      </a>
+
+      <a href="jenkins-env-compare.html" class="tool-card">
+        <span class="tool-icon">🚀</span>
+        <div class="tool-title">Jenkins 环境变量对比</div>
+        <div class="tool-desc">对比两个 Jenkins 环境的环境变量，高亮显示差异（A 独有/B 独有/值不同）</div>
+        <span class="tool-link">打开工具 →</span>
+      </a>
+    </div>
+
+    <div class="footer">© 2026 Tools Center | All tools run locally in your browser</div>
+  </div>
+</body>
+</html>

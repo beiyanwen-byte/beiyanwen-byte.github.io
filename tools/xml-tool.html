@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XML 工具 - Tools Center</title>
+  <script src="https://cdn.jsdelivr.net/npm/vkbeautify@0.99.3/vkbeautify.min.js" defer></script>
+  <style>
+    :root { --bg:#f5f7fa; --panel:#fff; --text:#1f2937; --muted:#6b7280; --border:#dbe3ee; --primary:#2563eb; --danger:#dc2626; --success:#059669; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; background:linear-gradient(180deg,#eef4ff 0%,var(--bg) 240px); color:var(--text); }
+    .app { max-width:1440px; margin:0 auto; padding:24px; }
+    .hero, .panel { background:var(--panel); border:1px solid var(--border); border-radius:18px; box-shadow:0 10px 30px rgba(15,23,42,.08); }
+    .hero { padding:24px; margin-bottom:20px; }
+    .top { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:flex-start; }
+    h1 { margin:0 0 8px; font-size:28px; }
+    .subtitle, .hint, .meta, .footer, .status { color:var(--muted); }
+    .status { min-width:220px; padding:14px 16px; border:1px solid var(--border); border-radius:14px; background:#f8fbff; line-height:1.55; }
+    .toolbar, .dialog-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+    button { border:0; border-radius:12px; padding:11px 16px; font-size:14px; cursor:pointer; }
+    .btn-primary { background:var(--primary); color:#fff; }
+    .btn-ghost { background:#eef2ff; color:#1e40af; }
+    .btn-light { background:#f3f4f6; color:#111827; }
+    .btn-danger { background:#fee2e2; color:var(--danger); }
+    .helper { margin-top:14px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; font-size:13px; }
+    .message { margin-top:12px; padding:12px 14px; border-radius:12px; border:1px solid transparent; min-height:48px; white-space:pre-wrap; }
+    .message.info { background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8; }
+    .message.success { background:#ecfdf5; border-color:#a7f3d0; color:var(--success); }
+    .message.error { background:#fef2f2; border-color:#fecaca; color:var(--danger); }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .panel { min-height:640px; display:flex; flex-direction:column; overflow:hidden; }
+    .panel-head { display:flex; justify-content:space-between; gap:12px; align-items:center; padding:16px 18px; border-bottom:1px solid var(--border); background:linear-gradient(180deg,#fff,#fbfcfe); }
+    .panel-head h2 { margin:0; font-size:16px; }
+    textarea, pre { width:100%; flex:1; border:0; outline:none; font:14px/1.6 Consolas,"SFMono-Regular",Menlo,Monaco,"Liberation Mono",monospace; padding:18px; resize:none; }
+    textarea { color:#0f172a; }
+    pre { margin:0; white-space:pre-wrap; word-break:break-word; background:#fbfdff; color:#0f172a; overflow:auto; }
+    .node-graph { background:#f8fbff; padding:12px 14px; overflow:auto; }
+    .node-tools { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 18px; border-bottom:1px solid var(--border); background:#fbfcff; }
+    .node-search { flex:1; min-width:200px; border:1px solid var(--border); border-radius:10px; padding:8px 10px; font-size:13px; outline:none; }
+    .node-filter { display:flex; align-items:center; gap:6px; color:var(--muted); font-size:13px; }
+    .node-graph mark { background:#fde68a; color:#111827; border-radius:2px; padding:0 1px; }
+    .tree-root, .tree-children { margin:0; padding:0 0 0 18px; list-style:none; }
+    .tree-root { padding-left:0; }
+    .tree-row { line-height:1.55; padding:2px 0; }
+    .tree-name { color:#1e40af; font-weight:600; }
+    .tree-value { color:#047857; }
+    .tree-attrs { color:#6b7280; font-size:12px; margin-left:6px; }
+    .tree-meta { color:#6b7280; font-size:12px; margin-left:6px; }
+    .tree-node > summary { cursor:pointer; list-style:disclosure-closed; }
+    .tree-node[open] > summary { list-style:disclosure-open; }
+    .tree-empty { color:#6b7280; padding:8px 0; }
+    .home-link { display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:#1e40af; background:#eef2ff; padding:11px 16px; border-radius:12px; }
+    .home-link:hover { background:#dbeafe; }
+    .dialog-mask { position:fixed; inset:0; background:rgba(15,23,42,.5); display:none; align-items:center; justify-content:center; padding:20px; z-index:20; }
+    .dialog-mask.show { display:flex; }
+    .dialog-card { width:min(760px,100%); background:#fff; border-radius:18px; border:1px solid var(--border); overflow:hidden; box-shadow:0 24px 80px rgba(15,23,42,.25); }
+    .dialog-card header { padding:18px 20px 10px; border-bottom:1px solid var(--border); }
+    .dialog-card h3 { margin:0 0 8px; font-size:18px; }
+    .dialog-card p { margin:0; color:var(--muted); font-size:13px; }
+    .dialog-card textarea { min-height:220px; border-top:0; border-bottom:1px solid var(--border); }
+    .footer { margin:18px 0 4px; text-align:center; font-size:12px; }
+    @media (max-width:1100px) { .grid { grid-template-columns:1fr; } .panel { min-height:520px; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="hero">
+      <div class="top">
+        <div>
+          <h1>XML 工具</h1>
+          <div class="subtitle">左侧编辑 XML，右侧查看节点路径并搜索</div>
+        </div>
+        <div class="status" id="statusBox">就绪。先粘贴 XML，再选择操作。</div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn-primary" id="formatBtn">格式化</button>
+        <button class="btn-primary" id="minifyBtn">压缩</button>
+        <button class="btn-ghost" id="escapeBtn">转义</button>
+        <button class="btn-ghost" id="unescapeBtn">去除转义</button>
+        <button class="btn-light" id="pasteBtn">粘贴到输入</button>
+        <button class="btn-light" id="copyInputBtn">复制输入</button>
+        <a class="home-link" href="index.html">← 返回工具中心</a>
+        <button class="btn-danger" id="clearBtn">清空</button>
+      </div>
+
+      <div class="helper">
+        <span class="hint">提示：粘贴时会自动去除常见转义并格式化（如 <code>\"</code>、<code>&amp;lt;</code>）。</span>
+        <span class="hint">快捷：Ctrl/⌘ + Enter 格式化，Ctrl/⌘ + Shift + Enter 压缩；右侧支持节点搜索。</span>
+      </div>
+      <div class="message info" id="messageBox">等待输入。</div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>输入 XML</h2>
+          <div class="meta"><span id="inputCount">0</span> 字符</div>
+        </div>
+        <textarea id="inputArea" spellcheck="false" placeholder="在这里粘贴 XML，例如：&lt;root&gt;&lt;item id=\"1\"&gt;demo&lt;/item&gt;&lt;/root&gt;"></textarea>
+      </div>
+
+      <div class="panel" id="nodePanel">
+        <div class="panel-head">
+          <h2>XML 节点视图</h2>
+          <div class="meta"><span id="nodeCount">0</span> 节点</div>
+        </div>
+        <div class="node-tools">
+          <input id="nodeSearchInput" class="node-search" type="text" placeholder="搜索节点路径或值，例如 segmentName 或 FP" />
+          <label class="node-filter"><input type="checkbox" id="nodeOnlyMatch" />仅看命中</label>
+          <div class="meta">命中 <span id="nodeMatchCount">0</span></div>
+        </div>
+        <div id="nodeGraph" class="node-graph">节点树会显示在这里。</div>
+      </div>
+    </section>
+
+    <div class="footer">本地静态页面 · 无需后端</div>
+  </div>
+
+  <div class="dialog-mask" id="pasteDialog" aria-hidden="true">
+    <div class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="pasteDialogTitle">
+      <header>
+        <h3 id="pasteDialogTitle">手动粘贴 XML</h3>
+        <p>剪贴板受限时，把 XML 粘贴到这里再导入，系统会自动去除常见转义并格式化。</p>
+      </header>
+      <textarea id="pasteArea" spellcheck="false" placeholder="在这里粘贴 XML"></textarea>
+      <div class="dialog-actions" style="justify-content:flex-end; padding:14px 20px 20px;">
+        <button class="btn-light" id="cancelPasteBtn">取消</button>
+        <button class="btn-primary" id="importPasteBtn">导入到输入框</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const inputArea = document.getElementById('inputArea');
+    const nodeGraph = document.getElementById('nodeGraph');
+    const nodeCount = document.getElementById('nodeCount');
+    const nodeSearchInput = document.getElementById('nodeSearchInput');
+    const nodeOnlyMatch = document.getElementById('nodeOnlyMatch');
+    const nodeMatchCount = document.getElementById('nodeMatchCount');
+    const messageBox = document.getElementById('messageBox');
+    const statusBox = document.getElementById('statusBox');
+    const inputCount = document.getElementById('inputCount');
+    const pasteDialog = document.getElementById('pasteDialog');
+    const pasteArea = document.getElementById('pasteArea');
+    let treeRoot = null;
+
+    function setMessage(text, type) {
+      messageBox.className = 'message ' + (type || 'info');
+      messageBox.textContent = text;
+    }
+
+    function setStatus(text) { statusBox.textContent = text; }
+    function updateCounts() { inputCount.textContent = inputArea.value.length; }
+    function normalizeInput(text) { return String(text || '').replace(/^\uFEFF/, '').trim(); }
+    function shortenText(text, max) { const trimmed = normalizeInput(text).replace(/\s+/g, ' '); return trimmed.length > max ? trimmed.slice(0, max) + '…' : trimmed; }
+    function escapeHtml(text) { return String(text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+    function escapeRegExp(text) { return String(text || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+    function looksLikeEscapedXml(text) {
+      const normalized = normalizeInput(text);
+      if (!normalized) return false;
+      if (/<[A-Za-z_][\w:.-]*[\s>]/.test(normalized)) return false;
+      return /&lt;\??[A-Za-z_\/!]/.test(normalized);
+    }
+    function decodeEscapes(text) {
+      const normalized = normalizeInput(text)
+        .replaceAll('\\"', '"')
+        .replaceAll('\\n', '\n')
+        .replaceAll('\\r', '\r')
+        .replaceAll('\\t', '\t')
+        .replaceAll('\\/', '/')
+        .replaceAll('\\\\', '\\');
+      if (!looksLikeEscapedXml(normalized)) return normalized;
+      return normalized
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/&amp;/g, '&');
+    }
+    function parserErrorMessage(errorNode) {
+      const fallback = 'XML 解析失败，请检查标签是否闭合、命名空间是否正确、实体是否已转义。';
+      const raw = normalizeInput(errorNode && errorNode.textContent);
+      if (!raw) return fallback;
+      const cleaned = raw
+        .replace(/^This page contains the following errors:\s*/i, '')
+        .replace(/\s*Below is a rendering of the page up to the first error\.\s*$/i, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      return cleaned || fallback;
+    }
+    function parseXmlDocument(text) {
+      const normalized = normalizeInput(text);
+      if (!normalized) throw new Error('请输入 XML 内容。');
+      const doc = new DOMParser().parseFromString(normalized, 'application/xml');
+      const errorNode = doc.getElementsByTagName('parsererror')[0];
+      if (errorNode) throw new Error(parserErrorMessage(errorNode));
+      return doc;
+    }
+    function parseXml(text) {
+      const doc = parseXmlDocument(text);
+      return { doc: doc, xml: new XMLSerializer().serializeToString(doc) };
+    }
+    function childElements(node) { return Array.prototype.filter.call(node.childNodes || [], function (child) { return child.nodeType === 1; }); }
+    function textChildren(node) {
+      return Array.prototype.filter.call(node.childNodes || [], function (child) {
+        return child.nodeType === 3 && normalizeInput(child.textContent);
+      });
+    }
+    function nodeText(node) {
+      return textChildren(node).map(function (child) { return shortenText(child.textContent, 80); }).join(' | ');
+    }
+    function attrsText(node) {
+      return Array.prototype.map.call(node.attributes || [], function (attr) {
+        return attr.name + '="' + shortenText(attr.value, 36) + '"';
+      }).join(', ');
+    }
+    function findBodyNode(node) {
+      if (!node || node.nodeType !== 1) return null;
+      const local = (node.localName || '').toLowerCase();
+      if (local === 'body') return node;
+      const children = childElements(node);
+      for (let i = 0; i < children.length; i += 1) {
+        const found = findBodyNode(children[i]);
+        if (found) return found;
+      }
+      return null;
+    }
+    function buildTreeNode(node, path) {
+      const currentPath = path ? path + '/' + node.nodeName : node.nodeName;
+      const children = childElements(node).map(function (child) { return buildTreeNode(child, currentPath); });
+      return {
+        name: node.nodeName,
+        path: currentPath,
+        text: nodeText(node),
+        attrs: attrsText(node),
+        children: children
+      };
+    }
+    function highlightText(text, query) {
+      if (!query) return escapeHtml(text);
+      const regex = new RegExp('(' + escapeRegExp(query) + ')', 'ig');
+      return String(text).split(regex).map(function (part, index) {
+        if (index % 2 === 1) return '<mark>' + escapeHtml(part) + '</mark>';
+        return escapeHtml(part);
+      }).join('');
+    }
+    function nodeSourceText(node) {
+      return [node.path, node.name, node.text, node.attrs].join(' ').toLowerCase();
+    }
+    function renderTreeNode(node, query, onlyMatch) {
+      const selfMatch = !query || nodeSourceText(node).includes(query);
+      const renderedChildren = [];
+      let matchedCount = selfMatch ? 1 : 0;
+      for (let i = 0; i < node.children.length; i += 1) {
+        const childResult = renderTreeNode(node.children[i], query, onlyMatch);
+        if (childResult.html) renderedChildren.push(childResult.html);
+        matchedCount += childResult.matchedCount;
+      }
+      const hasVisibleChild = renderedChildren.length > 0;
+      if (onlyMatch && !selfMatch && !hasVisibleChild) return { html: '', matchedCount: 0 };
+      const nameHtml = '<span class="tree-name">' + highlightText(node.name, query) + '</span>';
+      const attrsHtml = node.attrs ? ' <span class="tree-attrs">[' + highlightText(node.attrs, query) + ']</span>' : '';
+      const valueHtml = node.text ? ' : <span class="tree-value">"' + highlightText(node.text, query) + '"</span>' : '';
+      if (hasVisibleChild) {
+        const summaryHtml = '<summary class="tree-row">' + nameHtml + attrsHtml + ' <span class="tree-meta">(' + node.children.length + ')</span>' + valueHtml + '</summary>';
+        return { html: '<li><details class="tree-node" open>' + summaryHtml + '<ul class="tree-children">' + renderedChildren.join('') + '</ul></details></li>', matchedCount: matchedCount };
+      }
+      return { html: '<li class="tree-row">' + nameHtml + attrsHtml + valueHtml + '</li>', matchedCount: matchedCount };
+    }
+    function applyNodeFilter() {
+      if (!treeRoot) {
+        nodeGraph.innerHTML = '<div class="tree-empty">节点树会显示在这里。</div>';
+        nodeMatchCount.textContent = '0';
+        return;
+      }
+      const query = normalizeInput(nodeSearchInput.value).toLowerCase();
+      const onlyMatch = nodeOnlyMatch.checked;
+      const result = renderTreeNode(treeRoot, query, onlyMatch);
+      nodeMatchCount.textContent = String(result.matchedCount);
+      if (!result.html) {
+        nodeGraph.innerHTML = '<div class="tree-empty">没有匹配的节点。</div>';
+        return;
+      }
+      nodeGraph.innerHTML = '<ul class="tree-root">' + result.html + '</ul>';
+    }
+    function renderNodeGraph(doc) {
+      if (!doc || !doc.documentElement) {
+        treeRoot = null;
+        nodeCount.textContent = '0';
+        applyNodeFilter();
+        return;
+      }
+      const bodyNode = findBodyNode(doc.documentElement);
+      const startNode = bodyNode || doc.documentElement;
+      treeRoot = buildTreeNode(startNode, '');
+      let totalCount = 0;
+      (function countNodes(node) {
+        totalCount += 1;
+        for (let i = 0; i < node.children.length; i += 1) countNodes(node.children[i]);
+      })(treeRoot);
+      nodeCount.textContent = String(totalCount);
+      applyNodeFilter();
+    }
+    function prettyXml(xml) {
+      const cleaned = xml.replace(/>\s+</g, '><').trim();
+      const lines = cleaned.replace(/(>)(<)(\/?)/g, '$1\n$2$3').split('\n');
+      const out = [];
+      let pad = 0;
+      for (let i = 0; i < lines.length; i += 1) {
+        const node = lines[i];
+        if (/^<\/.+>/.test(node) && pad > 0) pad -= 1;
+        out.push('  '.repeat(pad) + node);
+        if (/^<[^!?][^>]*[^\/]?>$/.test(node) && !/^<\?/.test(node) && !/^<!--/.test(node)) pad += 1;
+      }
+      return out.join('\n');
+    }
+    function compactXml(xml) { return xml.replace(/>\s+</g, '><').replace(/\s{2,}/g, ' ').trim(); }
+    function formatXml() {
+      const parsed = parseXml(inputArea.value);
+      const formatted = window.vkbeautify && window.vkbeautify.xml ? window.vkbeautify.xml(parsed.xml) : prettyXml(parsed.xml);
+      inputArea.value = formatted;
+      renderNodeGraph(parsed.doc);
+      setMessage('格式化完成。', 'success');
+      setStatus('已在输入区格式化 XML，并更新节点视图。');
+      updateCounts();
+    }
+    function minifyXml() {
+      const parsed = parseXml(inputArea.value);
+      const minified = window.vkbeautify && window.vkbeautify.xmlmin ? window.vkbeautify.xmlmin(parsed.xml, false) : compactXml(parsed.xml);
+      inputArea.value = minified;
+      renderNodeGraph(parsed.doc);
+      setMessage('压缩完成。', 'success');
+      setStatus('已在输入区压缩 XML，并更新节点视图。');
+      updateCounts();
+    }
+    function escapeXml() {
+      inputArea.value = normalizeInput(inputArea.value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+      renderNodeGraph(null);
+      setMessage('转义完成。', 'success');
+      setStatus('已在输入区转义内容。');
+      updateCounts();
+    }
+    function unescapeXml() {
+      const unescaped = decodeEscapes(inputArea.value);
+      inputArea.value = unescaped;
+      try { renderNodeGraph(parseXmlDocument(unescaped)); } catch (error) { renderNodeGraph(null); }
+      setMessage('去除转义完成。', 'success');
+      setStatus('已在输入区还原转义内容。');
+      updateCounts();
+    }
+    function applyPastedText(text) {
+      inputArea.value = decodeEscapes(text);
+      formatXml();
+    }
+    function openPasteDialog(seed) { pasteArea.value = seed || ''; pasteDialog.classList.add('show'); pasteDialog.setAttribute('aria-hidden', 'false'); setTimeout(function () { pasteArea.focus(); }, 0); }
+    function closePasteDialog() { pasteDialog.classList.remove('show'); pasteDialog.setAttribute('aria-hidden', 'true'); pasteArea.value = ''; }
+    function importPasteDialog() {
+      const text = decodeEscapes(pasteArea.value);
+      if (!text) { setMessage('请先在弹窗里粘贴 XML。', 'error'); return; }
+      applyPastedText(text);
+      closePasteDialog();
+      setMessage('已导入并格式化。', 'success');
+      setStatus('输入已更新并格式化。');
+      updateCounts();
+    }
+    async function copyText(text, label) {
+      if (!text) { setMessage('没有可复制的' + label + '。', 'error'); return; }
+      try { await navigator.clipboard.writeText(text); } catch (error) {
+        const temp = document.createElement('textarea'); temp.value = text; temp.style.position = 'fixed'; temp.style.opacity = '0'; document.body.appendChild(temp); temp.focus(); temp.select(); const copied = document.execCommand('copy'); document.body.removeChild(temp); if (!copied) throw error;
+      }
+      setMessage(label + '已复制。', 'success');
+      setStatus(label + '复制到剪贴板。');
+    }
+    async function pasteText() {
+      try {
+        if (!navigator.clipboard || !navigator.clipboard.readText) throw new Error('Clipboard API unavailable');
+        const text = await navigator.clipboard.readText();
+        if (!text) { openPasteDialog(); setMessage('剪贴板为空，请在弹窗中手动粘贴。', 'info'); return; }
+        applyPastedText(text);
+        setMessage('已粘贴并格式化。', 'success');
+        setStatus('输入已更新并格式化。');
+        updateCounts();
+      } catch (error) {
+        openPasteDialog();
+        setMessage('浏览器剪贴板受限，请在弹窗中手动粘贴后导入。', 'info');
+      }
+    }
+    function clearAll() {
+      inputArea.value = '';
+      nodeSearchInput.value = '';
+      nodeOnlyMatch.checked = false;
+      renderNodeGraph(null);
+      setMessage('已清空。', 'info');
+      setStatus('等待输入。');
+      updateCounts();
+    }
+    function wireButton(id, handler) { var el = document.getElementById(id); if (!el) return; el.addEventListener('click', function () { try { handler(); } catch (error) { setMessage(error.message || '操作失败。', 'error'); setStatus('请检查输入格式。'); } }); }
+    wireButton('formatBtn', formatXml); wireButton('minifyBtn', minifyXml); wireButton('escapeBtn', escapeXml); wireButton('unescapeBtn', unescapeXml); wireButton('pasteBtn', pasteText); wireButton('copyInputBtn', function () { return copyText(inputArea.value, '输入内容'); }); wireButton('clearBtn', clearAll); wireButton('importPasteBtn', importPasteDialog); wireButton('cancelPasteBtn', closePasteDialog);
+    inputArea.addEventListener('input', updateCounts);
+    inputArea.addEventListener('keydown', function (event) { const isMac = navigator.platform.toUpperCase().includes('MAC'); const modifier = isMac ? event.metaKey : event.ctrlKey; if (!modifier || event.key !== 'Enter') return; event.preventDefault(); if (event.shiftKey) minifyXml(); else formatXml(); });
+    pasteArea.addEventListener('keydown', function (event) { if (event.key === 'Escape') closePasteDialog(); });
+    nodeSearchInput.addEventListener('input', applyNodeFilter);
+    nodeOnlyMatch.addEventListener('change', applyNodeFilter);
+    updateCounts();
+    setMessage('就绪。左侧编辑 XML，右侧可搜索节点路径。', 'info');
+  </script>
+</body>
+</html>

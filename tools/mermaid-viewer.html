@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mermaid Flowchart Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent: #3b82f6;
+            --accent-dark: #2563eb;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+        .toolbar {
+            height: 52px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 8px;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+        .toolbar-logo {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--accent);
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .toolbar-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            margin: 0 4px;
+        }
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .toolbar-btn {
+            padding: 6px 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .toolbar-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent);
+        }
+        .toolbar-btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+        .toolbar-btn.primary:hover {
+            background: var(--accent-dark);
+        }
+        .toolbar-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+        .zoom-display {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 44px;
+            text-align: center;
+        }
+        .toolbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .main-container {
+            display: flex;
+            height: calc(100vh - 52px);
+        }
+        .editor-panel {
+            width: 40%;
+            min-width: 320px;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            resize: horizontal;
+            overflow: hidden;
+        }
+        .editor-header {
+            padding: 10px 14px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .editor-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .editor-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .editor-action-btn {
+            padding: 4px 10px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.15s;
+        }
+        .editor-action-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-color: var(--accent);
+        }
+        #editor {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            resize: none;
+            font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            outline: none;
+            tab-size: 2;
+        }
+        #editor::placeholder { color: var(--text-secondary); }
+        .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg-secondary);
+        }
+        .preview-header {
+            padding: 10px 14px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .preview-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .preview-container {
+            flex: 1;
+            overflow: auto;
+            position: relative;
+            background: white;
+            background-image:
+                radial-gradient(circle, #e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .preview-wrapper {
+            transform-origin: 0 0;
+            min-width: 100%;
+            min-height: 100%;
+            display: inline-block;
+        }
+        #preview {
+            padding: 24px;
+            min-width: 100%;
+            min-height: 100%;
+        }
+        #preview svg {
+            max-width: none;
+        }
+        .error-msg {
+            padding: 16px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            color: #dc2626;
+            font-size: 13px;
+            margin: 24px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .empty-hint {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            gap: 12px;
+        }
+        .empty-hint svg { width: 48px; height: 48px; opacity: 0.4; }
+        .empty-hint p { font-size: 14px; }
+        .status-bar {
+            height: 26px;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            gap: 16px;
+        }
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #22c55e;
+            display: inline-block;
+            margin-right: 4px;
+        }
+        .status-dot.error { background: #ef4444; }
+        .color-panel {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 8px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 1000;
+            min-width: 220px;
+        }
+        .color-panel.active { display: block; }
+        .color-panel-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .color-swatch {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .color-swatch:hover {
+            border-color: var(--accent);
+            transform: scale(1.15);
+        }
+        .color-custom {
+            border-top: 1px solid var(--border);
+            padding-top: 10px;
+        }
+        .color-custom label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            display: block;
+        }
+        .color-inputs {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .color-inputs input {
+            width: 50px;
+            padding: 4px 6px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: center;
+        }
+        .color-inputs input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <a href="index.html" class="toolbar-btn" style="text-decoration:none;display:flex;align-items:center;gap:4px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg>
+            工具中心
+        </a>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/>
+                <path d="M10 7h4M7 10v4M17 10v4"/>
+            </svg>
+            Mermaid Viewer
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+            <button class="toolbar-btn" onclick="zoomIn()" title="Zoom In">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/></svg>
+                Zoom In
+            </button>
+            <button class="toolbar-btn" onclick="zoomOut()" title="Zoom Out">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M8 11h6"/></svg>
+                Zoom Out
+            </button>
+            <span class="zoom-display" id="zoom-display">100%</span>
+            <button class="toolbar-btn" onclick="zoomReset()" title="Reset Zoom">Reset</button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+            <button class="toolbar-btn" onclick="fitToScreen()" title="Fit to Screen">Fit</button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group" style="position:relative;">
+            <button class="toolbar-btn" onclick="toggleColorPanel()" title="Insert rect color block" id="color-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
+                Rect
+            </button>
+            <div class="color-panel" id="color-panel">
+                <div class="color-panel-title">Select Color</div>
+                <div class="color-grid">
+                    <div class="color-swatch" style="background:rgb(255,230,230)" onclick="insertRect('rgb(255,230,230)')" title="Light Red"></div>
+                    <div class="color-swatch" style="background:rgb(230,240,255)" onclick="insertRect('rgb(230,240,255)')" title="Light Blue"></div>
+                    <div class="color-swatch" style="background:rgb(230,255,230)" onclick="insertRect('rgb(230,255,230)')" title="Light Green"></div>
+                    <div class="color-swatch" style="background:rgb(255,255,230)" onclick="insertRect('rgb(255,255,230)')" title="Light Yellow"></div>
+                    <div class="color-swatch" style="background:rgb(245,230,255)" onclick="insertRect('rgb(245,230,255)')" title="Light Purple"></div>
+                    <div class="color-swatch" style="background:rgb(255,240,220)" onclick="insertRect('rgb(255,240,220)')" title="Light Orange"></div>
+                    <div class="color-swatch" style="background:rgb(220,255,255)" onclick="insertRect('rgb(220,255,255)')" title="Cyan"></div>
+                    <div class="color-swatch" style="background:rgb(255,220,245)" onclick="insertRect('rgb(255,220,245)')" title="Pink"></div>
+                    <div class="color-swatch" style="background:rgb(220,245,220)" onclick="insertRect('rgb(220,245,220)')" title="Mint"></div>
+                    <div class="color-swatch" style="background:rgb(245,245,245)" onclick="insertRect('rgb(245,245,245)')" title="Light Gray"></div>
+                    <div class="color-swatch" style="background:rgb(200,220,255)" onclick="insertRect('rgb(200,220,255)')" title="Cornflower"></div>
+                    <div class="color-swatch" style="background:rgb(255,210,210)" onclick="insertRect('rgb(255,210,210)')" title="Salmon"></div>
+                </div>
+                <div class="color-custom">
+                    <label>Custom RGB:</label>
+                    <div class="color-inputs">
+                        <input type="number" id="color-r" min="0" max="255" value="255" placeholder="R">
+                        <input type="number" id="color-g" min="0" max="255" value="230" placeholder="G">
+                        <input type="number" id="color-b" min="0" max="255" value="230" placeholder="B">
+                        <button class="toolbar-btn" onclick="insertRectCustom()" style="padding:4px 8px;font-size:12px;">Insert</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="toolbar-right">
+            <button class="toolbar-btn" onclick="copyImageToClipboard()" title="Copy image to clipboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copy
+            </button>
+            <button class="toolbar-btn" onclick="exportSVG()" title="Export SVG">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                SVG
+            </button>
+            <button class="toolbar-btn primary" onclick="exportPNG()" title="Export PNG">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                PNG
+            </button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="editor-panel" id="editor-panel">
+            <div class="editor-header">
+                <span class="editor-title">Code Editor</span>
+                <div class="editor-actions">
+                    <button class="editor-action-btn" onclick="copyCode()" title="Copy code to clipboard">Copy</button>
+                    <button class="editor-action-btn" onclick="formatCode()" title="Auto-fix common syntax issues">Format</button>
+                    <button class="editor-action-btn" onclick="clearEditor()" title="Clear editor">Clear</button>
+                </div>
+            </div>
+            <textarea id="editor" spellcheck="false" placeholder="Enter Mermaid code here...&#10;&#10;Example:&#10;sequenceDiagram&#10;    participant A as Alice&#10;    participant B as Bob&#10;    A->>B: Hello Bob&#10;    B-->>A: Hi Alice&#10;    A->>B: How are you?&#10;    B-->>A: Great!"></textarea>
+        </div>
+        <div class="preview-panel">
+            <div class="preview-header">
+                <span class="preview-title">Preview</span>
+                <div style="display:flex; gap:8px;">
+                    <select id="diagram-type" style="padding:4px 8px; border:1px solid var(--border); border-radius:4px; font-size:12px; background:var(--bg-primary);">
+                        <option value="sequence">Sequence Diagram</option>
+                    </select>
+                </div>
+            </div>
+            <div class="preview-container" id="preview-container">
+                <div class="preview-wrapper" id="preview-wrapper">
+                    <div id="preview">
+                        <div class="empty-hint">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <path d="M9 9h6v6H9z"/>
+                            </svg>
+                            <p>Enter code on the left to see the diagram</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="status-bar">
+                <span><span class="status-dot" id="status-dot"></span><span id="status-text">Ready</span></span>
+                <span id="render-time"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentScale = 1;
+        let renderTimeout = null;
+
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            securityLevel: 'loose',
+            sequence: {
+                diagramMarginX: 20,
+                diagramMarginY: 20,
+                actorMargin: 80,
+                width: 200,
+                height: 50,
+                boxMargin: 10,
+                boxTextMargin: 5,
+                noteMargin: 10,
+                messageMargin: 40,
+                mirrorActors: true,
+                useMaxWidth: false,
+                wrap: true,
+                wrapPadding: 10
+            }
+        });
+
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+        const previewWrapper = document.getElementById('preview-wrapper');
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+        const renderTimeEl = document.getElementById('render-time');
+
+        editor.addEventListener('input', debounceRender);
+        editor.addEventListener('input', saveToCache);
+        editor.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 2;
+                debounceRender();
+            }
+        });
+
+        // --- LocalStorage Cache ---
+        const CACHE_KEY = 'mermaid-viewer-code';
+        function saveToCache() {
+            localStorage.setItem(CACHE_KEY, editor.value);
+        }
+        function loadFromCache() {
+            return localStorage.getItem(CACHE_KEY) || '';
+        }
+
+        // --- Paste image from clipboard (show as text reference) ---
+        editor.addEventListener('paste', function(e) {
+            const items = e.clipboardData && e.clipboardData.items;
+            if (!items) return;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    e.preventDefault();
+                    const blob = items[i].getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const imgRef = '\n<!-- Pasted image -->\n';
+                        const pos = editor.selectionStart;
+                        editor.value = editor.value.substring(0, pos) + imgRef + editor.value.substring(pos);
+                        debounceRender();
+                        showPasteNotification('Image pasted (clipboard image saved as reference)');
+                    };
+                    reader.readAsDataURL(blob);
+                    break;
+                }
+            }
+        });
+
+        function showPasteNotification(msg) {
+            let toast = document.getElementById('paste-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'paste-toast';
+                toast.style.cssText = 'position:fixed;top:64px;right:20px;background:#10b981;color:white;padding:10px 16px;border-radius:8px;font-size:13px;z-index:1000;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:opacity 0.3s;';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+        }
+
+        // --- Copy code ---
+        function copyCode() {
+            const code = editor.value;
+            if (!code.trim()) return;
+            navigator.clipboard.writeText(code).then(() => {
+                showPasteNotification('Code copied!');
+            }).catch(() => {
+                // fallback
+                editor.select();
+                document.execCommand('copy');
+                showPasteNotification('Code copied!');
+            });
+        }
+
+        // --- Color Panel ---
+        function toggleColorPanel() {
+            const panel = document.getElementById('color-panel');
+            panel.classList.toggle('active');
+        }
+
+        // Close panel when clicking outside
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('color-panel');
+            const btn = document.getElementById('color-btn');
+            if (!panel.contains(e.target) && !btn.contains(e.target)) {
+                panel.classList.remove('active');
+            }
+        });
+
+        function insertRect(color) {
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selected = editor.value.substring(start, end);
+            const indent = getIndentAtCursor(start);
+
+            let replacement;
+            if (selected) {
+                // Wrap selected text - ensure proper newline handling
+                const lines = selected.split('\n');
+                const wrappedLines = lines.map(l => {
+                    const line = l.trimEnd();
+                    if (!line.trim()) return '';
+                    return indent + '    ' + line.trimStart();
+                }).join('\n');
+
+                // Ensure selected text starts with newline
+                const prefix = selected.startsWith('\n') ? '' : '\n';
+                replacement = indent + 'rect ' + color + prefix + wrappedLines + '\n' + indent + 'end';
+            } else {
+                // Insert empty rect block
+                replacement = indent + 'rect ' + color + '\n' + indent + '    ' + '\n' + indent + 'end';
+            }
+
+            editor.value = editor.value.substring(0, start) + replacement + editor.value.substring(end);
+            editor.selectionStart = editor.selectionEnd = start + replacement.length;
+            editor.focus();
+            document.getElementById('color-panel').classList.remove('active');
+            debounceRender();
+        }
+
+        function insertRectCustom() {
+            const r = parseInt(document.getElementById('color-r').value) || 255;
+            const g = parseInt(document.getElementById('color-g').value) || 230;
+            const b = parseInt(document.getElementById('color-b').value) || 230;
+            insertRect('rgb(' + r + ',' + g + ',' + b + ')');
+        }
+
+        function getIndentAtCursor(pos) {
+            const lineStart = editor.value.lastIndexOf('\n', pos - 1) + 1;
+            const line = editor.value.substring(lineStart, pos);
+            const match = line.match(/^(\s*)/);
+            return match ? match[1] : '    ';
+        }
+
+        function debounceRender() {
+            if (renderTimeout) clearTimeout(renderTimeout);
+            renderTimeout = setTimeout(renderDiagram, 400);
+        }
+
+        async function renderDiagram() {
+            const code = editor.value.trim();
+            if (!code) {
+                preview.innerHTML = `
+                    <div class="empty-hint">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <path d="M9 9h6v6H9z"/>
+                        </svg>
+                        <p>Enter code on the left to see the diagram</p>
+                    </div>`;
+                statusDot.className = 'status-dot';
+                statusText.textContent = 'Ready';
+                renderTimeEl.textContent = '';
+                return;
+            }
+
+            const startTime = performance.now();
+            try {
+                const id = 'mermaid-' + Date.now();
+                const { svg } = await mermaid.render(id, code);
+                preview.innerHTML = svg;
+                const elapsed = (performance.now() - startTime).toFixed(0);
+                statusDot.className = 'status-dot';
+                statusText.textContent = 'Rendered successfully';
+                renderTimeEl.textContent = elapsed + 'ms';
+            } catch (err) {
+                const msg = err.message || String(err);
+                const cleanMsg = msg.split('\n').filter(l => !l.startsWith('Error') && l.trim()).join('\n') || msg;
+                preview.innerHTML = '<div class="error-msg">' + escapeHtml(cleanMsg) + '</div>';
+                statusDot.className = 'status-dot error';
+                statusText.textContent = 'Syntax error';
+                renderTimeEl.textContent = '';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // --- Zoom ---
+        function updateZoom() {
+            previewWrapper.style.transform = 'scale(' + currentScale + ')';
+            document.getElementById('zoom-display').textContent = Math.round(currentScale * 100) + '%';
+        }
+
+        function zoomIn() {
+            currentScale = Math.min(currentScale + 0.15, 5);
+            updateZoom();
+        }
+
+        function zoomOut() {
+            currentScale = Math.max(currentScale - 0.15, 0.1);
+            updateZoom();
+        }
+
+        function zoomReset() {
+            currentScale = 1;
+            updateZoom();
+        }
+
+        document.getElementById('preview-container').addEventListener('wheel', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                if (e.deltaY < 0) {
+                    currentScale = Math.min(currentScale + 0.05, 5);
+                } else {
+                    currentScale = Math.max(currentScale - 0.05, 0.1);
+                }
+                updateZoom();
+            }
+        }, { passive: false });
+
+        function fitToScreen() {
+            const container = document.getElementById('preview-container');
+            const svg = preview.querySelector('svg');
+            if (!svg) return;
+            const cw = container.clientWidth - 48;
+            const ch = container.clientHeight - 48;
+            const sw = svg.getBoundingClientRect().width / currentScale;
+            const sh = svg.getBoundingClientRect().height / currentScale;
+            const scaleW = cw / sw;
+            const scaleH = ch / sh;
+            currentScale = Math.min(scaleW, scaleH, 3);
+            updateZoom();
+        }
+
+        // --- Export ---
+        function getSvgElement() {
+            return preview.querySelector('svg');
+        }
+
+        function exportSVG() {
+            const svg = getSvgElement();
+            if (!svg) { alert('No diagram to export. Please render a diagram first.'); return; }
+            const clone = svg.cloneNode(true);
+            clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            const data = new XMLSerializer().serializeToString(clone);
+            const blob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
+            downloadBlob(blob, 'mermaid-diagram.svg');
+        }
+
+        function exportPNG() {
+            const svg = getSvgElement();
+            if (!svg) { alert('No diagram to export. Please render a diagram first.'); return; }
+            const clone = svg.cloneNode(true);
+            clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            const data = new XMLSerializer().serializeToString(clone);
+            const canvas = document.createElement('canvas');
+            const scale = 2;
+            const bbox = svg.getBoundingClientRect();
+            canvas.width = bbox.width * scale;
+            canvas.height = bbox.height * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.scale(scale, scale);
+            const img = new Image();
+            const svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+            img.onload = function() {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, bbox.width, bbox.height);
+                URL.revokeObjectURL(url);
+                canvas.toBlob(function(blob) {
+                    downloadBlob(blob, 'mermaid-diagram.png');
+                }, 'image/png');
+            };
+            img.src = url;
+        }
+
+        function downloadBlob(blob, filename) {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+        }
+
+        // --- Copy Image to Clipboard ---
+        async function copyImageToClipboard() {
+            const svg = getSvgElement();
+            if (!svg) { alert('No diagram to copy. Please render a diagram first.'); return; }
+
+            try {
+                const clone = svg.cloneNode(true);
+                clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                const data = new XMLSerializer().serializeToString(clone);
+                const canvas = document.createElement('canvas');
+                const scale = 2;
+                const bbox = svg.getBoundingClientRect();
+                canvas.width = bbox.width * scale;
+                canvas.height = bbox.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.scale(scale, scale);
+
+                const img = new Image();
+                const svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(svgBlob);
+
+                img.onload = async function() {
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, bbox.width, bbox.height);
+                    URL.revokeObjectURL(url);
+
+                    canvas.toBlob(async function(blob) {
+                        try {
+                            await navigator.clipboard.write([
+                                new ClipboardItem({ 'image/png': blob })
+                            ]);
+                            showPasteNotification('Image copied to clipboard!');
+                        } catch (err) {
+                            // Fallback: download as PNG
+                            downloadBlob(blob, 'mermaid-diagram.png');
+                            showPasteNotification('Clipboard not supported, downloaded as PNG');
+                        }
+                    }, 'image/png');
+                };
+                img.src = url;
+            } catch (err) {
+                alert('Failed to copy image: ' + err.message);
+            }
+        }
+
+        // --- Format / Fix ---
+        function formatCode() {
+            let code = editor.value;
+            if (!code.trim()) return;
+
+            // Step 1: Clean up line endings and escape sequences
+            code = code.replace(/\\n/g, ' ');
+            code = code.replace(/\r\n/g, '\n');
+            code = code.replace(/\r/g, '\n');
+
+            // Step 2: Split by newlines first for easier processing
+            let lines = code.split('\n');
+
+            // Step 3: Process first line - extract 'sequenceDiagram' and remove 'title'
+            if (lines.length > 0) {
+                let firstLine = lines[0].trim();
+                // Keep valid directives after sequenceDiagram, but drop unsupported title text.
+                if (/^sequenceDiagram/i.test(firstLine)) {
+                    lines[0] = /\bautonumber\b/i.test(firstLine) ? 'sequenceDiagram\nautonumber' : 'sequenceDiagram';
+                }
+            }
+
+            // Step 4: Remove invalid lines (title, bottomparticipants, standalone "End Session")
+            lines = lines.filter(line => {
+                const trimmed = line.trim();
+                if (/^title\s+/i.test(trimmed)) return false;
+                if (/^bottomparticipants/i.test(trimmed)) return false;
+                // Remove standalone "End Session" lines (not valid Mermaid syntax)
+                if (/^end\s+session$/i.test(trimmed)) return false;
+                return true;
+            });
+
+            // Step 5: Join back and fix participant syntax
+            code = lines.join('\n');
+            // Fix: participant "Name" as alias -> participant alias as "Name"
+            code = code.replace(/participant\s+"([^"]+)"\s+as\s+(\w+)/g, 'participant $2 as "$1"');
+            // Fix: participant alias as Name (unquoted) -> participant alias as "Name"
+            code = code.replace(/participant\s+(\w+)\s+as\s+(.+)$/gm, function(match, alias, name) {
+                const trimmedName = name.trim();
+                if (trimmedName.startsWith('"') && trimmedName.endsWith('"')) return match;
+                return 'participant ' + alias + ' as "' + trimmedName + '"';
+            });
+
+            // Step 6: Fix bidirectional arrow <-> to separate messages
+            code = code.replace(/(.+?)\s*<->\s*(.+?)\s*:\s*(.+)/g, function(match, from, to, msg) {
+                const message = msg.trim();
+                return from.trim() + '->>' + to.trim() + ': ' + message + '\n' + to.trim() + '-->>' + from.trim() + ': ' + message;
+            });
+
+            // Step 6.5: Fix <-- arrow (A<--B means B sent to A) to --> (B->>A)
+            code = code.replace(/(.+?)\s*<--\s*(.+?)\s*:\s*(.+)/g, function(match, receiver, sender, msg) {
+                return sender.trim() + '-->>' + receiver.trim() + ': ' + msg.trim();
+            });
+
+            // Step 7: Fix reverse arrow <- (not <-- or <<--) to -->
+            code = code.replace(/(.+?)\s*<-(?!<|--)\s*(\w+)/g, '$1-->$2');
+
+            // Step 8: Fix arrows - work from most specific to least specific
+            // First: normalize spacing around existing correct arrows (->>, -->>)
+            code = code.replace(/(\w+)\s*->>\s*(\w+)/g, '$1 ->> $2');
+            code = code.replace(/(\w+)\s*-->>\s*(\w+)/g, '$1 -->> $2');
+            // Handle multi-word names with correct arrows
+            code = code.replace(/(\w+(?:\s+\w+)*)\s*->>\s*(\w+(?:\s+\w+)*)\s*:/g, function(match, from, to) {
+                return from.trim() + ' ->> ' + to.trim() + ':';
+            });
+            code = code.replace(/(\w+(?:\s+\w+)*)\s*-->>\s*(\w+(?:\s+\w+)*)\s*:/g, function(match, from, to) {
+                return from.trim() + ' -->> ' + to.trim() + ':';
+            });
+
+            // Second: fix single arrows (-> to ->>, but not ->>)
+            code = code.replace(/(\w+)\s*->\s*(\w+)\s*:/g, '$1 ->> $2:');
+            code = code.replace(/(\w+)\s*-->\s*(\w+)\s*:/g, '$1 -->> $2:');
+            // Handle multi-word names with single arrows
+            code = code.replace(/(\w+(?:\s+\w+)*)\s*->\s*(\w+(?:\s+\w+)*)\s*:/g, function(match, from, to) {
+                return from.trim() + ' ->> ' + to.trim() + ':';
+            });
+            code = code.replace(/(\w+(?:\s+\w+)*)\s*-->\s*(\w+(?:\s+\w+)*)\s*:/g, function(match, from, to) {
+                return from.trim() + ' -->> ' + to.trim() + ':';
+            });
+
+            // Step 9: Fix <--> double arrow to --> and <--
+            code = code.replace(/(.+?)\s*<-->\s*(\w+)/g, '$1--> $2');
+
+            // Step 10: Normalize arrow directions
+            code = code.replace(/(.+?)\s*<<--\s*(\w+)/g, '$1-->>$2');
+
+            // Step 10.5: Do not split diagram keywords inside message text. For example,
+            // "WBS - DocIssuance_IssueTicket (End Session)" is one valid message.
+
+            // Step 10.6: Fix 'group' syntax (not supported in Mermaid 10)
+            // Convert 'group Label' to 'rect rgb(230,240,255)' with label as note
+            code = code.replace(/^(\s*)group\s+(.+)$/gm, function(match, indent, label) {
+                return indent + 'rect rgb(230,240,255)';
+            });
+
+            // Step 11: Clean up multiple blank lines
+            code = code.replace(/\n{3,}/g, '\n\n');
+
+            // Step 12: Re-split and process indentation
+            lines = code.split('\n');
+            const fixed = [];
+            let isFirstContent = true;
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                const trimmed = line.trimEnd();
+
+                if (!trimmed.trim()) {
+                    fixed.push('');
+                    continue;
+                }
+
+                // First non-empty line: sequenceDiagram (no indent)
+                if (isFirstContent && /^sequenceDiagram/i.test(trimmed.trim())) {
+                    fixed.push('sequenceDiagram');
+                    isFirstContent = false;
+                    continue;
+                }
+
+                // Skip empty lines at start
+                if (isFirstContent) continue;
+
+                // If already indented, keep as is
+                if (trimmed.startsWith('    ') || trimmed.startsWith('\t')) {
+                    fixed.push(trimmed);
+                    continue;
+                }
+
+                // Add indent for diagram content lines
+                fixed.push('    ' + trimmed.trim());
+            }
+
+            editor.value = fixed.join('\n').replace(/^\n+/, '').replace(/\n+$/, '\n');
+            debounceRender();
+        }
+
+        function clearEditor() {
+            editor.value = '';
+            localStorage.removeItem(CACHE_KEY);
+            preview.innerHTML = `
+                <div class="empty-hint">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <path d="M9 9h6v6H9z"/>
+                    </svg>
+                    <p>Enter code on the left to see the diagram</p>
+                </div>`;
+            statusDot.className = 'status-dot';
+            statusText.textContent = 'Ready';
+            renderTimeEl.textContent = '';
+        }
+
+        // --- Load from cache or default example ---
+        const cached = loadFromCache();
+        if (cached) {
+            editor.value = cached;
+        } else {
+            editor.value = `sequenceDiagram    title MOB/WCMP/WEB BFF OW/RT rebook flow
+
+
+autonumber 
+bottomparticipants
+participant "MOB/WCMP/WEB Page" as page
+participant "MOB/WCMP/WEB BFF" as bff
+participant "TSP Order Service" as order
+participant "TSP Fllight Service" as flight
+participant  "TSP Ancillary Service" as ancillary
+
+
+
+
+page->bff:call rebook eligibility
+bff<->order:call /tsp-order-service/v2.1/orders/atc/eligibility api
+page<--bff:return eligibility status
+
+
+
+
+page->bff:call original booking detail
+bff<->order:call /tsp-order-service/v1.0/mini/orders api
+bff<->order:call /tsp-order-service/v1.0/mini/orders/fare-condition api
+page<--bff:return original booking detail
+opt Rloc can split to rebook
+page->bff:Select split pax and confirm
+bff<->order:call /tsp-order-service/v1.0/orders/atc/split-validation api
+page<--bff:Return split status
+
+
+end
+group Flight selection
+
+
+opt OW or RT one flight change
+page->bff:call calendar api
+bff<->flight:call /tsp-flight-service/v1.0/offers/atc/calendar api 
+page<--bff:return calendar detail
+page->bff:call air bound api
+bff<->flight:call /tsp-flight-service/v1.0/orders/atc/air-bound
+page<--bff:return air bound detail
+end
+opt RT two flight change
+page->bff:call calendar api get outbound calendar
+bff<->flight:call /tsp-flight-service/v1.0/offers/atc/calendar api 
+page<--bff:return calendar detail
+page->bff:call air bound api get outbound flight list
+bff<->flight:call /tsp-flight-service/v1.0/orders/atc/air-bound
+page<--bff:return air bound detail
+page->bff:call calendar api get inbound calendar
+bff<->flight:call /tsp-flight-service/v1.0/offers/atc/calendar api 
+page<--bff:return calendar detail
+page->bff:call air bound api get inbound flight list
+bff<->flight:call /tsp-flight-service/v1.0/orders/atc/air-bound
+page<--bff:return air bound detail
+end
+end
+page->bff:Confirm rebook flight selection
+bff<->order:call /tsp-order-service/v1.0/orders/atc/order-changes/start
+bff<->order:call /tsp-order-service/v1.0/orders/atc/order-changes/polling
+page<--bff:Return confirm flight selection status
+page->bff:Get rebook flight selection detail
+bff<->order:call /tsp-order-service/v1.0/orders/atc/order-changes/enquiry
+bff<->order:call /tsp-order-service/v1.0/orders/atc/order-changes/fare-condition
+page<--bff:Return rebook flight selection detail
+opt Rebook flight has security flight
+page->bff:Input passenger info and submit
+bff<->order:call /tsp-order-service/v1.0/orders/atc/order-changes/traveler
+page<--bff:return result
+end
+
+
+opt Seat selection
+page->bff:Get seat map
+bff<->ancillary:call /tsp-ancillary-service/v1.0/orders/atc/order-changes/ancillary/seat-map
+page<--bff:Return seat map
+page->bff:Add and re-select seat
+bff<->ancillary:call /tsp-ancillary-service/v1.0/orders/atc/order-changes/ancillary
+page<--bff:Return status
+end
+page->bff:Confirm change
+bff<->order:call /tsp-order-service/v1.0/orders/atc/order-changes/verify
+page<-bff:Return verify status\\nrequire payment \\n(and oms id) 
+note over page,ancillary:CPP HPP or Other
+page->bff:confirm payment
+bff<->order:call /tsp-order-service/v1.0/orders/atc/confirmation/start
+bff<->order:call /tsp-order-service/v1.0/orders/atc/confirmation/polling
+page<--bff:Return confirm status
+page->bff:Get confirm detail
+bff<->order:call tsp-order-service/v1.1/orders/enquiry
+bff<->order:call /tsp-order-service/v1.0/orders/[orderId]/up-sell
+bff<->order:call /tsp-order-service/v1.1/orders/[orderRecLocId]/cross-sell
+bff<->order:call /tsp-flight-service/v1.0/orders/[orderId]/fare-condition
+page<--bff:Return confirm detail`;
+        }
+
+        renderDiagram();
+    </script>
+</body>
+</html>
