@@ -107,12 +107,10 @@
         }
         .editor-panel {
             width: 40%;
-            min-width: 320px;
+            min-width: 200px;
             background: var(--bg-primary);
-            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            resize: horizontal;
             overflow: hidden;
         }
         .editor-header {
@@ -148,7 +146,22 @@
         .editor-action-btn:hover {
             background: var(--bg-tertiary);
             color: var(--text-primary);
-            border-color: var(--accent);
+        }
+        .tab-btn {
+            padding: 8px 20px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { color: var(--text-primary); }
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+            font-weight: 600;
         }
         #editor {
             flex: 1;
@@ -171,6 +184,16 @@
             overflow: hidden;
             background: var(--bg-secondary);
         }
+        .resize-handle {
+            width: 5px;
+            cursor: col-resize;
+            background: var(--border);
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .resize-handle:hover, .resize-handle.active {
+            background: var(--accent);
+        }
         .preview-header {
             padding: 10px 14px;
             background: var(--bg-primary);
@@ -188,12 +211,16 @@
         }
         .preview-container {
             flex: 1;
-            overflow: auto;
+            overflow: hidden;
             position: relative;
             background: white;
             background-image:
                 radial-gradient(circle, #e2e8f0 1px, transparent 1px);
             background-size: 20px 20px;
+            cursor: grab;
+        }
+        .preview-container.dragging {
+            cursor: grabbing;
         }
         .preview-wrapper {
             transform-origin: 0 0;
@@ -406,21 +433,22 @@
             <div class="editor-header">
                 <span class="editor-title">Code Editor</span>
                 <div class="editor-actions">
+                    <button class="editor-action-btn" onclick="showSample()" title="Load sample code">Sample</button>
                     <button class="editor-action-btn" onclick="copyCode()" title="Copy code to clipboard">Copy</button>
                     <button class="editor-action-btn" onclick="formatCode()" title="Auto-fix common syntax issues">Format</button>
                     <button class="editor-action-btn" onclick="clearEditor()" title="Clear editor">Clear</button>
                 </div>
             </div>
-            <textarea id="editor" spellcheck="false" placeholder="Enter Mermaid code here...&#10;&#10;Example:&#10;sequenceDiagram&#10;    participant A as Alice&#10;    participant B as Bob&#10;    A->>B: Hello Bob&#10;    B-->>A: Hi Alice&#10;    A->>B: How are you?&#10;    B-->>A: Great!"></textarea>
+            <div style="display:flex; gap:0; border-bottom:1px solid var(--border); background:var(--bg-secondary);">
+                <button class="tab-btn active" onclick="switchTab('flowchart')" id="tab-flowchart">Flowchart</button>
+                <button class="tab-btn" onclick="switchTab('sequence')" id="tab-sequence">Sequence</button>
+            </div>
+            <textarea id="editor" spellcheck="false" placeholder="Enter Mermaid code here...&#10;&#10;Example:&#10;flowchart TD&#10;    A[Start] --> B{Condition?}&#10;    B -->|Yes| C[OK]&#10;    B -->|No| D[Fail]"></textarea>
         </div>
+        <div class="resize-handle" id="resize-handle"></div>
         <div class="preview-panel">
             <div class="preview-header">
                 <span class="preview-title">Preview</span>
-                <div style="display:flex; gap:8px;">
-                    <select id="diagram-type" style="padding:4px 8px; border:1px solid var(--border); border-radius:4px; font-size:12px; background:var(--bg-primary);">
-                        <option value="sequence">Sequence Diagram</option>
-                    </select>
-                </div>
             </div>
             <div class="preview-container" id="preview-container">
                 <div class="preview-wrapper" id="preview-wrapper">
@@ -445,6 +473,39 @@
     <script>
         let currentScale = 1;
         let renderTimeout = null;
+
+        // --- Draggable resize handle ---
+        const resizeHandle = document.getElementById('resize-handle');
+        const editorPanel = document.getElementById('editor-panel');
+        let isResizing = false;
+
+        resizeHandle.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            resizeHandle.classList.add('active');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            const container = document.querySelector('.main-container');
+            const rect = container.getBoundingClientRect();
+            let newWidth = e.clientX - rect.left;
+            const minW = 200, maxW = rect.width - 200;
+            newWidth = Math.max(minW, Math.min(maxW, newWidth));
+            editorPanel.style.width = newWidth + 'px';
+            editorPanel.style.flexShrink = '0';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                resizeHandle.classList.remove('active');
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            }
+        });
 
         mermaid.initialize({
             startOnLoad: false,
@@ -654,7 +715,7 @@
 
         // --- Zoom ---
         function updateZoom() {
-            previewWrapper.style.transform = 'scale(' + currentScale + ')';
+            previewWrapper.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + currentScale + ')';
             document.getElementById('zoom-display').textContent = Math.round(currentScale * 100) + '%';
         }
 
@@ -670,20 +731,55 @@
 
         function zoomReset() {
             currentScale = 1;
+            panX = 0; panY = 0;
             updateZoom();
         }
 
+        // --- Mouse wheel zoom (no Ctrl needed) ---
         document.getElementById('preview-container').addEventListener('wheel', function(e) {
-            if (e.ctrlKey || e.metaKey) {
-                e.preventDefault();
-                if (e.deltaY < 0) {
-                    currentScale = Math.min(currentScale + 0.05, 5);
-                } else {
-                    currentScale = Math.max(currentScale - 0.05, 0.1);
-                }
-                updateZoom();
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                currentScale = Math.min(currentScale + 0.08, 5);
+            } else {
+                currentScale = Math.max(currentScale - 0.08, 0.1);
             }
+            updateZoom();
         }, { passive: false });
+
+        // --- Drag to pan ---
+        const previewContainer = document.getElementById('preview-container');
+        let isPanning = false, panX = 0, panY = 0, startPanX = 0, startPanY = 0;
+
+        previewContainer.addEventListener('mousedown', (e) => {
+            if (e.target.closest('svg')) {
+                isPanning = true;
+                startPanX = e.clientX - panX;
+                startPanY = e.clientY - panY;
+                previewContainer.classList.add('dragging');
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isPanning) return;
+            panX = e.clientX - startPanX;
+            panY = e.clientY - startPanY;
+            updatePan();
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isPanning) {
+                isPanning = false;
+                previewContainer.classList.remove('dragging');
+            }
+        });
+
+        function updatePan() {
+            previewWrapper.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + currentScale + ')';
+        }
+
+        // Reset pan on zoom reset
+        function resetPan() { panX = 0; panY = 0; updatePan(); }
 
         function fitToScreen() {
             const container = document.getElementById('preview-container');
@@ -811,12 +907,23 @@
             // Step 2: Split by newlines first for easier processing
             let lines = code.split('\n');
 
-            // Step 3: Process first line - extract 'sequenceDiagram' and remove 'title'
+            // Step 2.5: Detect diagram type
+            const firstNonEmpty = lines.find(l => l.trim());
+            const isSequence = /^sequenceDiagram/i.test(firstNonEmpty);
+            const isFlowchart = /^flowchart\s+(TD|LR|TB|RL)/i.test(firstNonEmpty);
+            const isGraph = /^graph\s+(TD|LR|TB|RL)/i.test(firstNonEmpty);
+
+            // Step 3: Process first line - extract diagram keyword and remove 'title'
             if (lines.length > 0) {
                 let firstLine = lines[0].trim();
-                // Keep valid directives after sequenceDiagram, but drop unsupported title text.
-                if (/^sequenceDiagram/i.test(firstLine)) {
+                if (isSequence) {
                     lines[0] = /\bautonumber\b/i.test(firstLine) ? 'sequenceDiagram\nautonumber' : 'sequenceDiagram';
+                } else if (isFlowchart) {
+                    const dirMatch = firstLine.match(/^flowchart\s+(TD|LR|TB|RL)/i);
+                    lines[0] = 'flowchart ' + (dirMatch ? dirMatch[1] : 'TD');
+                } else if (isGraph) {
+                    const dirMatch = firstLine.match(/^graph\s+(TD|LR|TB|RL)/i);
+                    lines[0] = 'graph ' + (dirMatch ? dirMatch[1] : 'TD');
                 }
             }
 
@@ -825,73 +932,74 @@
                 const trimmed = line.trim();
                 if (/^title\s+/i.test(trimmed)) return false;
                 if (/^bottomparticipants/i.test(trimmed)) return false;
-                // Remove standalone "End Session" lines (not valid Mermaid syntax)
                 if (/^end\s+session$/i.test(trimmed)) return false;
                 return true;
             });
 
-            // Step 5: Join back and fix participant syntax
             code = lines.join('\n');
-            // Fix: participant "Name" as alias -> participant alias as "Name"
-            code = code.replace(/participant\s+"([^"]+)"\s+as\s+(\w+)/g, 'participant $2 as "$1"');
-            // Fix: participant alias as Name (unquoted) -> participant alias as "Name"
-            code = code.replace(/participant\s+(\w+)\s+as\s+(.+)$/gm, function(match, alias, name) {
-                const trimmedName = name.trim();
-                if (trimmedName.startsWith('"') && trimmedName.endsWith('"')) return match;
-                return 'participant ' + alias + ' as "' + trimmedName + '"';
-            });
 
-            // Step 6: Fix bidirectional arrow <-> to separate messages
-            code = code.replace(/(.+?)\s*<->\s*(.+?)\s*:\s*(.+)/g, function(match, from, to, msg) {
-                const message = msg.trim();
-                return from.trim() + '->>' + to.trim() + ': ' + message + '\n' + to.trim() + '-->>' + from.trim() + ': ' + message;
-            });
+            // --- Sequence-specific fixes (skip for flowchart/graph) ---
+            if (isSequence) {
+                // Step 5: Fix participant syntax
+                code = code.replace(/participant\s+"([^"]+)"\s+as\s+(\w+)/g, 'participant $2 as "$1"');
+                code = code.replace(/participant\s+(\w+)\s+as\s+(.+)$/gm, function(match, alias, name) {
+                    const trimmedName = name.trim();
+                    if (trimmedName.startsWith('"') && trimmedName.endsWith('"')) return match;
+                    return 'participant ' + alias + ' as "' + trimmedName + '"';
+                });
 
-            // Step 6.5: Fix <-- arrow (A<--B means B sent to A) to --> (B->>A)
-            code = code.replace(/(.+?)\s*<--\s*(.+?)\s*:\s*(.+)/g, function(match, receiver, sender, msg) {
-                return sender.trim() + '-->>' + receiver.trim() + ': ' + msg.trim();
-            });
+                // Step 6: Fix bidirectional arrow <-> to separate messages
+                code = code.replace(/(.+?)\s*<->\s*(.+?)\s*:\s*(.+)/g, function(match, from, to, msg) {
+                    const message = msg.trim();
+                    return from.trim() + '->>' + to.trim() + ': ' + message + '\n' + to.trim() + '-->>' + from.trim() + ': ' + message;
+                });
 
-            // Step 7: Fix reverse arrow <- (not <-- or <<--) to -->
-            code = code.replace(/(.+?)\s*<-(?!<|--)\s*(\w+)/g, '$1-->$2');
+                // Step 6.5: Fix <-- arrow
+                code = code.replace(/(.+?)\s*<--\s*(.+?)\s*:\s*(.+)/g, function(match, receiver, sender, msg) {
+                    return sender.trim() + '-->>' + receiver.trim() + ': ' + msg.trim();
+                });
 
-            // Step 8: Fix arrows - work from most specific to least specific
-            // First: normalize spacing around existing correct arrows (->>, -->>)
-            code = code.replace(/(\w+)\s*->>\s*(\w+)/g, '$1 ->> $2');
-            code = code.replace(/(\w+)\s*-->>\s*(\w+)/g, '$1 -->> $2');
-            // Handle multi-word names with correct arrows
-            code = code.replace(/(\w+(?:\s+\w+)*)\s*->>\s*(\w+(?:\s+\w+)*)\s*:/g, function(match, from, to) {
-                return from.trim() + ' ->> ' + to.trim() + ':';
-            });
-            code = code.replace(/(\w+(?:\s+\w+)*)\s*-->>\s*(\w+(?:\s+\w+)*)\s*:/g, function(match, from, to) {
-                return from.trim() + ' -->> ' + to.trim() + ':';
-            });
+                // Step 7: Fix reverse arrow <- to -->
+                code = code.replace(/(.+?)\s*<-(?!<|--)\s*(\w+)/g, '$1-->$2');
 
-            // Second: fix single arrows (-> to ->>, but not ->>)
-            code = code.replace(/(\w+)\s*->\s*(\w+)\s*:/g, '$1 ->> $2:');
-            code = code.replace(/(\w+)\s*-->\s*(\w+)\s*:/g, '$1 -->> $2:');
-            // Handle multi-word names with single arrows
-            code = code.replace(/(\w+(?:\s+\w+)*)\s*->\s*(\w+(?:\s+\w+)*)\s*:/g, function(match, from, to) {
-                return from.trim() + ' ->> ' + to.trim() + ':';
-            });
-            code = code.replace(/(\w+(?:\s+\w+)*)\s*-->\s*(\w+(?:\s+\w+)*)\s*:/g, function(match, from, to) {
-                return from.trim() + ' -->> ' + to.trim() + ':';
-            });
+                // Step 8: Fix arrows - normalize spacing and fix single arrows
+                code = code.replace(/(\w+)\s*->>\s*(\w+)/g, '$1 ->> $2');
+                code = code.replace(/(\w+)\s*-->>\s*(\w+)/g, '$1 -->> $2');
+                code = code.replace(/(\w+(?:\s+\w+)*)\s*->>\s*(\w+(?:\s+\w+)*)\s*:/g, function(match, from, to) {
+                    return from.trim() + ' ->> ' + to.trim() + ':';
+                });
+                code = code.replace(/(\w+(?:\s+\w+)*)\s*-->>\s*(\w+(?:\s+\w+)*)\s*:/g, function(match, from, to) {
+                    return from.trim() + ' -->> ' + to.trim() + ':';
+                });
+                code = code.replace(/(\w+)\s*->\s*(\w+)\s*:/g, '$1 ->> $2:');
+                code = code.replace(/(\w+)\s*-->\s*(\w+)\s*:/g, '$1 -->> $2:');
+                code = code.replace(/(\w+(?:\s+\w+)*)\s*->\s*(\w+(?:\s+\w+)*)\s*:/g, function(match, from, to) {
+                    return from.trim() + ' ->> ' + to.trim() + ':';
+                });
+                code = code.replace(/(\w+(?:\s+\w+)*)\s*-->\s*(\w+(?:\s+\w+)*)\s*:/g, function(match, from, to) {
+                    return from.trim() + ' -->> ' + to.trim() + ':';
+                });
 
-            // Step 9: Fix <--> double arrow to --> and <--
-            code = code.replace(/(.+?)\s*<-->\s*(\w+)/g, '$1--> $2');
+                // Step 9: Fix <--> double arrow
+                code = code.replace(/(.+?)\s*<-->\s*(\w+)/g, '$1--> $2');
 
-            // Step 10: Normalize arrow directions
-            code = code.replace(/(.+?)\s*<<--\s*(\w+)/g, '$1-->>$2');
+                // Step 10: Normalize arrow directions
+                code = code.replace(/(.+?)\s*<<--\s*(\w+)/g, '$1-->>$2');
 
-            // Step 10.5: Do not split diagram keywords inside message text. For example,
-            // "WBS - DocIssuance_IssueTicket (End Session)" is one valid message.
+                // Step 10.6: Fix 'group' syntax (not supported in Mermaid 10)
+                code = code.replace(/^(\s*)group\s+(.+)$/gm, function(match, indent, label) {
+                    return indent + 'rect rgb(230,240,255)';
+                });
+            }
 
-            // Step 10.6: Fix 'group' syntax (not supported in Mermaid 10)
-            // Convert 'group Label' to 'rect rgb(230,240,255)' with label as note
-            code = code.replace(/^(\s*)group\s+(.+)$/gm, function(match, indent, label) {
-                return indent + 'rect rgb(230,240,255)';
-            });
+            // --- Flowchart-specific fixes ---
+            if (isFlowchart || isGraph) {
+                // Normalize arrow styles: --> is valid, but ensure spacing
+                code = code.replace(/(\w+)\s*-->\s*(\w+)/g, '$1 --> $2');
+                code = code.replace(/(\w+)\s*---\s*(\w+)/g, '$1 --- $2');
+                code = code.replace(/(\w+)\s*-->\|([^|]*)\|\s*(\w+)/g, '$1 -->|$2| $3');
+                code = code.replace(/(\w+)\s*--\s*([^>\s][^\n]*)\s*-->\s*(\w+)/g, '$1 -- $2 --> $3');
+            }
 
             // Step 11: Clean up multiple blank lines
             code = code.replace(/\n{3,}/g, '\n\n');
@@ -910,23 +1018,20 @@
                     continue;
                 }
 
-                // First non-empty line: sequenceDiagram (no indent)
-                if (isFirstContent && /^sequenceDiagram/i.test(trimmed.trim())) {
-                    fixed.push('sequenceDiagram');
+                // First non-empty line: diagram keyword (no indent)
+                if (isFirstContent && /^(sequenceDiagram|flowchart|graph)\b/i.test(trimmed.trim())) {
+                    fixed.push(trimmed.trim());
                     isFirstContent = false;
                     continue;
                 }
 
-                // Skip empty lines at start
                 if (isFirstContent) continue;
 
-                // If already indented, keep as is
                 if (trimmed.startsWith('    ') || trimmed.startsWith('\t')) {
                     fixed.push(trimmed);
                     continue;
                 }
 
-                // Add indent for diagram content lines
                 fixed.push('    ' + trimmed.trim());
             }
 
@@ -950,106 +1055,45 @@
             renderTimeEl.textContent = '';
         }
 
+        const EXAMPLES = {
+            flowchart: `flowchart TD
+    A[Start] --> B{Is score > 80?}
+    B -->|Yes| C[Excellent]
+    B -->|No| D{Is score > 60?}
+    D -->|Yes| E[Pass]
+    D -->|No| F[Fail]
+    C --> G[End]
+    E --> G
+    F --> G`,
+            sequence: `sequenceDiagram
+    participant U as User
+    participant S as Server
+    participant D as Database
+    U->>S: Login request
+    S->>D: Query user
+    D-->>S: User data
+    S-->>U: Login success`
+        };
+
+        let activeTab = 'flowchart';
+
+        function switchTab(type) {
+            activeTab = type;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + type).classList.add('active');
+        }
+
+        function showSample() {
+            editor.value = EXAMPLES[activeTab];
+            renderDiagram();
+        }
+
         // --- Load from cache or default example ---
         const cached = loadFromCache();
         if (cached) {
             editor.value = cached;
         } else {
-            editor.value = `sequenceDiagram    title MOB/WCMP/WEB BFF OW/RT rebook flow
-
-
-autonumber 
-bottomparticipants
-participant "MOB/WCMP/WEB Page" as page
-participant "MOB/WCMP/WEB BFF" as bff
-participant "TSP Order Service" as order
-participant "TSP Fllight Service" as flight
-participant  "TSP Ancillary Service" as ancillary
-
-
-
-
-page->bff:call rebook eligibility
-bff<->order:call /tsp-order-service/v2.1/orders/atc/eligibility api
-page<--bff:return eligibility status
-
-
-
-
-page->bff:call original booking detail
-bff<->order:call /tsp-order-service/v1.0/mini/orders api
-bff<->order:call /tsp-order-service/v1.0/mini/orders/fare-condition api
-page<--bff:return original booking detail
-opt Rloc can split to rebook
-page->bff:Select split pax and confirm
-bff<->order:call /tsp-order-service/v1.0/orders/atc/split-validation api
-page<--bff:Return split status
-
-
-end
-group Flight selection
-
-
-opt OW or RT one flight change
-page->bff:call calendar api
-bff<->flight:call /tsp-flight-service/v1.0/offers/atc/calendar api 
-page<--bff:return calendar detail
-page->bff:call air bound api
-bff<->flight:call /tsp-flight-service/v1.0/orders/atc/air-bound
-page<--bff:return air bound detail
-end
-opt RT two flight change
-page->bff:call calendar api get outbound calendar
-bff<->flight:call /tsp-flight-service/v1.0/offers/atc/calendar api 
-page<--bff:return calendar detail
-page->bff:call air bound api get outbound flight list
-bff<->flight:call /tsp-flight-service/v1.0/orders/atc/air-bound
-page<--bff:return air bound detail
-page->bff:call calendar api get inbound calendar
-bff<->flight:call /tsp-flight-service/v1.0/offers/atc/calendar api 
-page<--bff:return calendar detail
-page->bff:call air bound api get inbound flight list
-bff<->flight:call /tsp-flight-service/v1.0/orders/atc/air-bound
-page<--bff:return air bound detail
-end
-end
-page->bff:Confirm rebook flight selection
-bff<->order:call /tsp-order-service/v1.0/orders/atc/order-changes/start
-bff<->order:call /tsp-order-service/v1.0/orders/atc/order-changes/polling
-page<--bff:Return confirm flight selection status
-page->bff:Get rebook flight selection detail
-bff<->order:call /tsp-order-service/v1.0/orders/atc/order-changes/enquiry
-bff<->order:call /tsp-order-service/v1.0/orders/atc/order-changes/fare-condition
-page<--bff:Return rebook flight selection detail
-opt Rebook flight has security flight
-page->bff:Input passenger info and submit
-bff<->order:call /tsp-order-service/v1.0/orders/atc/order-changes/traveler
-page<--bff:return result
-end
-
-
-opt Seat selection
-page->bff:Get seat map
-bff<->ancillary:call /tsp-ancillary-service/v1.0/orders/atc/order-changes/ancillary/seat-map
-page<--bff:Return seat map
-page->bff:Add and re-select seat
-bff<->ancillary:call /tsp-ancillary-service/v1.0/orders/atc/order-changes/ancillary
-page<--bff:Return status
-end
-page->bff:Confirm change
-bff<->order:call /tsp-order-service/v1.0/orders/atc/order-changes/verify
-page<-bff:Return verify status\\nrequire payment \\n(and oms id) 
-note over page,ancillary:CPP HPP or Other
-page->bff:confirm payment
-bff<->order:call /tsp-order-service/v1.0/orders/atc/confirmation/start
-bff<->order:call /tsp-order-service/v1.0/orders/atc/confirmation/polling
-page<--bff:Return confirm status
-page->bff:Get confirm detail
-bff<->order:call tsp-order-service/v1.1/orders/enquiry
-bff<->order:call /tsp-order-service/v1.0/orders/[orderId]/up-sell
-bff<->order:call /tsp-order-service/v1.1/orders/[orderRecLocId]/cross-sell
-bff<->order:call /tsp-flight-service/v1.0/orders/[orderId]/fare-condition
-page<--bff:Return confirm detail`;
+            editor.value = EXAMPLES.flowchart;
         }
 
         renderDiagram();
