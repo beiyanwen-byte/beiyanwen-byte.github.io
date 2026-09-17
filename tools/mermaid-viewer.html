@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mermaid Flowchart Viewer</title>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js?v=2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -511,6 +511,11 @@
             startOnLoad: false,
             theme: 'default',
             securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            },
             sequence: {
                 diagramMarginX: 20,
                 diagramMarginY: 20,
@@ -691,7 +696,10 @@
             const startTime = performance.now();
             try {
                 const id = 'mermaid-' + Date.now();
-                const { svg } = await mermaid.render(id, code.replace(/`/g, '').replace(/\*\*/g, ''));
+                let cleanCode = code
+                    .replace(/`/g, '')
+                    .replace(/\*\*/g, '');
+                const { svg } = await mermaid.render(id, cleanCode);
                 preview.innerHTML = svg;
                 const elapsed = (performance.now() - startTime).toFixed(0);
                 statusDot.className = 'status-dot';
@@ -1052,14 +1060,89 @@
 
         const EXAMPLES = {
             flowchart: `flowchart TD
-    A[Start] --> B{Is score > 80?}
-    B -->|Yes| C[Excellent]
-    B -->|No| D{Is score > 60?}
-    D -->|Yes| E[Pass]
-    D -->|No| F[Fail]
-    C --> G[End]
-    E --> G
-    F --> G`,
+    subgraph Overlay ["API - Confirm rebook for complex itinerary"]
+        direction TB
+        A([Start]) --> B{Checking request parameters is valid?}
+        B -- No --> End_Session
+        B -- Yes --> H[Getting Pnr,Order change Info from session]
+
+        %% Step D
+        H --> D["\`Retrieve order change snapshot<br> **WBS - PNR_Retrieve (with session)**\`"]
+        D --> D_Check{Success?}
+        D_Check -- No --> End_Session
+        D_Check -- Yes --> E{Has Global Fop?}
+
+        %% Step F
+        E -- Yes --> F["\`Remove global FOP<br>**WBS- PNR_Cancel (with session)**\`"]
+        F --> F_Check{Success?}
+        F_Check -- No --> End_Session
+
+        %% Step G
+        E -- No --> G["\`Retrieve TST pricing info<br>**WBS - Ticket_displayTST (with session)**\`"]
+        F_Check -- Yes --> G
+        G --> G_Check{Success?}
+        G_Check -- No --> End_Session
+
+        %% Step I
+        G_Check -- Yes --> I["\`Retrieve TSM info <br> **WBS - Ticket_RetrieveListOfTSM (with session)**\`"]
+        I --> I_Check{Success?}
+        I_Check -- No --> End_Session
+
+        %% New Decision Step
+        I_Check -- Yes --> QPX_Check{Is QPX lower price applied?}
+        QPX_Check -- Yes --> Discount_FOP["\`Create FOP line with debit code on discounted amount\`"]
+        Discount_FOP --> Fare_Diff_FOP["\`Create FOP line with QPX lower price on fare difference\`"]
+        Fare_Diff_FOP --> J
+
+        %% New No Path Step
+        QPX_Check -- No --> Standard_FOP["\`Create FOP based on TST and TSM only\`"]
+        Standard_FOP --> J
+
+        %% Step J
+        J["\`Create payment record <br> **WBS - FOP_CreateFromOfPayment (with session)**\`"]
+        J --> J_Check{Success?}
+        J_Check -- No --> End_Session
+
+        %% Relocated Step K
+        J_Check -- Yes --> K["\`Commit snapshot to PNR <br> **WBS - PNR_AddMultiElements - Option 0**\`"]
+        K --> K_Check{Success?}
+        K_Check -- No --> End_Session
+        %% Bypass K to L
+        K_Check -- Yes --> L{Check TSM RECORD EXIST?}
+
+        %% Step N
+        L -- Yes --> N["\`Issue tickets and emd <br>**WBS - DocIssuance_IssueCombined**\`"]
+        N --> N_Check{Success?}
+        N_Check -- No --> End_Session
+
+        %% Step M
+        L -- No --> M["\`Issue tickets only <br>**WBS - DocIssuance_IssueTicket**\`"]
+        M --> M_Check{Success?}
+        M_Check -- No --> End_Session
+
+        %% Centralized Error Session Cleanup Block
+        End_Session["\`Discard changes and close session <br> **WBS - PNR_AddMultiElements - option 20 end session**\`"] --> C[return common error]
+
+        %% Final Path to End from P
+        M_Check -- Yes --> P
+        N_Check -- Yes --> P["\`Update Remarks OtherServiceInformations SpecialKeywords<br>**DC API**\`"]
+        C --> O
+
+        %% Send fr-ca e-ticket email
+        P --> Q_CHECK{"entryLanguage=='fa'&& entryCountry='ca'?"}
+        Q_CHECK -- yes --> U([Send fr-ca e-ticket email])
+        Q_CHECK -- No --> O
+        U --> V["\`Retrieve PNR context WBS - <br> **PNR_Retrieve (New Session)**\`"]
+        V --> S_Check
+
+        %% step s
+        S_Check{Check the issued ticket status and language match fr-CA}
+        S_Check --> Yes --> T["\`Send e-ticket email - <br> **Ticket_GetDocumentReceipt**\`"]
+        S_Check --> No --> End_Session
+
+        %% step t
+        T --> O
+    end`,
             sequence: `sequenceDiagram
     participant U as User
     participant S as Server
