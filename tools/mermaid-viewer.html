@@ -691,7 +691,7 @@
             const startTime = performance.now();
             try {
                 const id = 'mermaid-' + Date.now();
-                const { svg } = await mermaid.render(id, code);
+                const { svg } = await mermaid.render(id, code.replace(/`/g, '').replace(/\*\*/g, ''));
                 preview.innerHTML = svg;
                 const elapsed = (performance.now() - startTime).toFixed(0);
                 statusDot.className = 'status-dot';
@@ -824,18 +824,16 @@
             const ctx = canvas.getContext('2d');
             ctx.scale(scale, scale);
             const img = new Image();
-            const svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
-            const url = URL.createObjectURL(svgBlob);
+            const svgBase64 = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(data);
             img.onload = function() {
                 ctx.fillStyle = 'white';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0, bbox.width, bbox.height);
-                URL.revokeObjectURL(url);
                 canvas.toBlob(function(blob) {
                     downloadBlob(blob, 'mermaid-diagram.png');
                 }, 'image/png');
             };
-            img.src = url;
+            img.src = svgBase64;
         }
 
         function downloadBlob(blob, filename) {
@@ -866,14 +864,12 @@
                 ctx.scale(scale, scale);
 
                 const img = new Image();
-                const svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
-                const url = URL.createObjectURL(svgBlob);
+                const svgBase64 = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(data);
 
                 img.onload = async function() {
                     ctx.fillStyle = 'white';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(img, 0, 0, bbox.width, bbox.height);
-                    URL.revokeObjectURL(url);
 
                     canvas.toBlob(async function(blob) {
                         try {
@@ -882,13 +878,12 @@
                             ]);
                             showPasteNotification('Image copied to clipboard!');
                         } catch (err) {
-                            // Fallback: download as PNG
                             downloadBlob(blob, 'mermaid-diagram.png');
                             showPasteNotification('Clipboard not supported, downloaded as PNG');
                         }
                     }, 'image/png');
                 };
-                img.src = url;
+                img.src = svgBase64;
             } catch (err) {
                 alert('Failed to copy image: ' + err.message);
             }
