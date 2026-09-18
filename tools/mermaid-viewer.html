@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mermaid Flowchart Viewer</title>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js?v=2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -512,9 +512,7 @@
             theme: 'default',
             securityLevel: 'loose',
             flowchart: {
-                useMaxWidth: false,
-                htmlLabels: true,
-                curve: 'basis'
+                curve: 'stepBefore'
             },
             sequence: {
                 diagramMarginX: 20,
