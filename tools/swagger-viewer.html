@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swagger/OpenAPI Viewer</title>
+    <link rel="stylesheet" href="vendor/swagger-ui.css">
+    <script src="vendor/js-yaml.min.js"></script>
+    <script src="vendor/swagger-ui-bundle.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #333; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        /* 顶部导航 */
+        .header-nav { display: flex; align-items: center; gap: 20px; padding: 10px 20px; background: #fff; border-bottom: 1px solid #e1e5eb; }
+        .home-btn { background: #f8f9fb; color: #333; padding: 6px 14px; border-radius: 4px; text-decoration: none; font-size: 13px; border: 1px solid #ddd; transition: all 0.2s; white-space: nowrap; }
+        .home-btn:hover { background: #e9ecef; border-color: #0066cc; }
+        .page-title { font-size: 16px; font-weight: 600; color: #0066cc; }
+        .page-hint { flex: 1; text-align: right; font-size: 12px; color: #999; }
+
+        .container { display: flex; flex: 1; overflow: hidden; }
+
+        /* 左侧面板 */
+        .left-panel { width: 34%; min-width: 300px; display: flex; flex-direction: column; background: #fff; border-right: 1px solid #e1e5eb; }
+        .panel-header { padding: 12px 16px; background: #f8f9fb; border-bottom: 1px solid #e1e5eb; font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .panel-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        textarea { flex: 1; padding: 16px; border: none; resize: none; font-family: 'Consolas', monospace; font-size: 13px; line-height: 1.5; background: #fff; }
+        textarea:focus { outline: none; }
+        .status-bar { padding: 8px 16px; background: #f8f9fb; border-top: 1px solid #e1e5eb; font-size: 12px; color: #666; }
+
+        /* 右侧面板 */
+        .center-panel { flex: 1; display: flex; flex-direction: column; background: #fff; min-width: 0; }
+        .spec-badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 500; background: #e8f0fe; color: #1a56db; border: 1px solid #c6dafc; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .badge.green { background: #e6f6ec; color: #0d7a3f; border-color: #bfe6cf; }
+        .badge.gray { background: #f1f3f5; color: #555; border-color: #dee2e6; }
+
+        /* 搜索栏 */
+        .search-bar { padding: 10px 16px; background: #f8f9fb; border-bottom: 1px solid #e1e5eb; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .search-bar label { font-size: 13px; font-weight: 600; white-space: nowrap; }
+        .search-bar input { flex: 1; min-width: 160px; padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
+        .search-count { font-size: 12px; color: #666; min-width: 60px; text-align: right; font-variant-numeric: tabular-nums; }
+
+        .ui-wrap { flex: 1; overflow: auto; position: relative; }
+        #swagger-ui { padding: 8px 20px 40px; }
+        #swagger-ui .topbar { display: none !important; }
+        .empty-hint { color: #999; text-align: center; margin-top: 80px; font-size: 15px; }
+
+        /* 搜索高亮 */
+        #swagger-ui .opblock.search-hit { outline: 2px dashed #f59e0b; outline-offset: -2px; }
+        #swagger-ui .opblock.search-hit-current { outline: 3px solid #ef4444; outline-offset: -3px; box-shadow: 0 0 0 4px rgba(239,68,68,.12); }
+
+        /* 按钮 */
+        button { padding: 6px 12px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        button:hover { background: #f0f0f0; }
+        button.primary { background: #0066cc; color: #fff; border-color: #0066cc; }
+        button.primary:hover { background: #0052a3; }
+
+        /* 消息 */
+        .message-area { position: fixed; top: 20px; right: 20px; z-index: 1000; }
+        .message { padding: 12px 20px; margin-bottom: 10px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s; font-size: 13px; }
+        .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .message.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* 拖拽遮罩 */
+        #drop-overlay { position: fixed; inset: 0; background: rgba(0, 102, 204, 0.12); border: 3px dashed #0066cc; display: none; align-items: center; justify-content: center; z-index: 999; pointer-events: none; }
+        #drop-overlay.show { display: flex; }
+        #drop-overlay span { background: #0066cc; color: #fff; padding: 16px 32px; border-radius: 8px; font-size: 18px; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+    <div class="header-nav">
+        <a href="index.html" class="home-btn">← 返回工具中心</a>
+        <span class="page-title">Swagger/OpenAPI 查看器</span>
+        <span class="page-hint">支持 .yaml / .yml / .json ｜ 文件 · 拖拽 · 粘贴 ｜ 本地渲染，不上传任何数据</span>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <div class="panel-header">
+                <span>📄 OpenAPI 文件</span>
+                <div class="actions">
+                    <button class="primary" onclick="document.getElementById('fileInput').click()">📂 打开</button>
+                    <button onclick="pasteSpec()">📋 粘贴</button>
+                    <button onclick="parseFromTextarea()">▶ 解析</button>
+                    <button onclick="clearAll()">🗑️ 清空</button>
+                </div>
+            </div>
+            <div class="panel-content">
+                <textarea id="specInput" spellcheck="false" placeholder="将 OpenAPI/Swagger 文档（YAML 或 JSON）粘贴到这里...&#10;&#10;或点击「📂 打开」选择文件，或直接拖拽文件到本页面。&#10;Ctrl+Enter 快捷解析。"></textarea>
+            </div>
+            <div class="status-bar" id="inputStatus">等待输入...</div>
+        </div>
+
+        <div class="center-panel">
+            <div class="panel-header">
+                <span>👁️ Swagger UI 预览</span>
+                <div class="spec-badges" id="specBadges"></div>
+            </div>
+            <div class="search-bar">
+                <label>🔎 查找:</label>
+                <input type="text" id="searchInput" placeholder="路径/摘要/operationId/标签，如 /special-service-requests" onkeydown="onSearchKey(event)">
+                <button class="primary" onclick="runSearch()">GO!</button>
+                <button onclick="stepMatch(-1)">◀ 上一个</button>
+                <button onclick="stepMatch(1)">下一个 ▶</button>
+                <button onclick="clearSearch()">清除</button>
+                <span class="search-count" id="searchCount"></span>
+            </div>
+            <div class="ui-wrap">
+                <div id="swagger-ui"></div>
+                <p class="empty-hint" id="emptyHint">📋 打开、拖入或粘贴 OpenAPI 文件以预览</p>
+            </div>
+            <div class="status-bar" id="viewStatus">就绪</div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept=".yaml,.yml,.json" style="display:none" onchange="handleFileSelect(event)">
+    <div class="message-area" id="messageArea"></div>
+    <div id="drop-overlay"><span>📥 释放以加载 OpenAPI 文件</span></div>
+
+    <script>
+        const specInput = document.getElementById('specInput');
+        const emptyHint = document.getElementById('emptyHint');
+        const messageArea = document.getElementById('messageArea');
+        let currentFileName = '';
+
+        function showMessage(text, type) {
+            const msg = document.createElement('div');
+            msg.className = 'message ' + type;
+            msg.textContent = text;
+            messageArea.appendChild(msg);
+            setTimeout(() => { msg.remove(); }, 3500);
+        }
+
+        function checkLibs() {
+            if (typeof jsyaml === 'undefined') { showMessage('❌ js-yaml CDN 加载失败，请检查网络', 'error'); return false; }
+            if (typeof SwaggerUIBundle === 'undefined') { showMessage('❌ swagger-ui CDN 加载失败，请检查网络', 'error'); return false; }
+            return true;
+        }
+
+        /* ---------- 文件加载 ---------- */
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) readFile(file);
+            event.target.value = '';
+        }
+
+        function readFile(file) {
+            if (!/\.(ya?ml|json)$/i.test(file.name)) {
+                showMessage('❌ 仅支持 .yaml / .yml / .json 文件', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                currentFileName = file.name;
+                specInput.value = e.target.result;
+                updateInputStatus(file.name, file.size, specInput.value.split('\n').length);
+                parseFromTextarea(file.name);
+            };
+            reader.onerror = function () { showMessage('❌ 文件读取失败', 'error'); };
+            reader.readAsText(file);
+        }
+
+        async function pasteSpec() {
+            if (!navigator.clipboard || !navigator.clipboard.readText) {
+                specInput.focus();
+                showMessage('ℹ️ 请直接在左侧按 Ctrl+V 粘贴，然后点「▶ 解析」', 'info');
+                return;
+            }
+            try {
+                const text = await navigator.clipboard.readText();
+                if (!text || !text.trim()) { showMessage('⚠️ 剪贴板为空', 'info'); return; }
+                currentFileName = '剪贴板';
+                specInput.value = text;
+                updateInputStatus('剪贴板', text.length, text.split('\n').length);
+                parseFromTextarea('剪贴板');
+            } catch (e) {
+                specInput.focus();
+                showMessage('❌ 剪贴板读取受限，请在左侧按 Ctrl+V 粘贴后点「▶ 解析」', 'info');
+            }
+        }
+
+        function updateInputStatus(name, size, lines) {
+            const sizeStr = size >= 1024 * 1024 ? (size / 1024 / 1024).toFixed(2) + ' MB' : (size / 1024).toFixed(1) + ' KB';
+            document.getElementById('inputStatus').textContent = name + ' ｜ ' + lines + ' 行 ｜ ' + sizeStr;
+        }
+
+        /* ---------- 预解析内部 $ref ----------
+           swagger-ui v5 (apidom) 在 file:// 页面上评估 $ref URI 会抛
+           "Evaluation failed on URI"，导致 schema 不渲染。这里先把内部
+           $ref 内联（按指针缓存、共享对象、循环引用则保留原 $ref）。 */
+        function derefSpec(spec) {
+            const cache = new Map();
+            const resolving = new Set();
+
+            function getByPointer(pointer) {
+                const parts = pointer.replace(/^#/, '').split('/').slice(1)
+                    .map(p => p.replace(/~1/g, '/').replace(/~0/g, '~'));
+                let cur = spec;
+                for (const p of parts) {
+                    if (cur === null || typeof cur !== 'object') return undefined;
+                    cur = cur[p];
+                }
+                return cur;
+            }
+
+            function resolvePointer(pointer) {
+                if (cache.has(pointer)) return cache.get(pointer);
+                if (resolving.has(pointer)) return undefined; // 循环引用
+                const target = getByPointer(pointer);
+                if (target === undefined) return undefined;
+                resolving.add(pointer);
+                const out = walk(target);
+                resolving.delete(pointer);
+                cache.set(pointer, out);
+                return out;
+            }
+
+            function walk(node) {
+                if (Array.isArray(node)) return node.map(walk);
+                if (node !== null && typeof node === 'object') {
+                    if (typeof node.$ref === 'string' && node.$ref.charAt(0) === '#') {
+                        const target = resolvePointer(node.$ref);
+                        if (target !== undefined) {
+                            const rest = {};
+                            for (const k in node) if (k !== '$ref') rest[k] = walk(node[k]);
+                            if (target !== null && typeof target === 'object' && !Array.isArray(target)) {
+                                return Object.assign({}, target, rest);
+                            }
+                            return target;
+                        }
+                        return node; // 保留 $ref（循环/未找到）
+                    }
+                    const out = {};
+                    for (const k in node) out[k] = walk(node[k]);
+                    return out;
+                }
+                return node;
+            }
+
+            return walk(spec);
+        }
+
+        /* ---------- 解析与渲染 ---------- */
+        function parseFromTextarea(sourceName, quiet) {
+            if (!checkLibs()) return;
+            const text = specInput.value.trim();
+            if (!text) { showMessage('⚠️ 请先打开文件或粘贴内容', 'info'); return; }
+            saveToCache(specInput.value, sourceName || currentFileName);
+
+            let obj;
+            try {
+                if (text.startsWith('{')) {
+                    obj = JSON.parse(text);
+                } else {
+                    obj = jsyaml.load(text);
+                }
+            } catch (e) {
+                showMessage('❌ 解析失败：' + e.message, 'error');
+                document.getElementById('viewStatus').textContent = '解析失败';
+                return;
+            }
+
+            if (!obj || typeof obj !== 'object') {
+                showMessage('❌ 内容不是有效的文档对象', 'error');
+                return;
+            }
+            if (!obj.openapi && !obj.swagger) {
+                showMessage('❌ 缺少 openapi/swagger 字段，可能不是 OpenAPI 文档', 'error');
+                return;
+            }
+
+            const t0 = performance.now();
+            obj = derefSpec(obj);
+            const derefMs = Math.round(performance.now() - t0);
+
+            renderSpec(obj);
+            updateBadges(obj);
+            const name = sourceName || currentFileName || '已粘贴内容';
+            document.getElementById('viewStatus').textContent = '已渲染：' + (obj.info && obj.info.title ? obj.info.title : '未命名文档') + ' ｜ ref 内联 ' + derefMs + 'ms';
+            if (!quiet && (sourceName || currentFileName)) showMessage('✅ 已加载 ' + name, 'success');
+        }
+
+        function renderSpec(spec) {
+            emptyHint.style.display = 'none';
+            let old = document.getElementById('swagger-ui');
+            let fresh = old.cloneNode(false);
+            old.replaceWith(fresh);
+
+            SwaggerUIBundle({
+                spec: spec,
+                dom_id: '#swagger-ui',
+                deepLinking: false,
+                tryItOutEnabled: false,
+                supportedSubmitMethods: [],
+                docExpansion: 'list',
+                defaultModelsExpandDepth: 1,
+                filter: false,
+                presets: [SwaggerUIBundle.presets.apis]
+            });
+            resetSearch();
+        }
+
+        function updateBadges(spec) {
+            const info = spec.info || {};
+            const specVersion = spec.openapi || spec.swagger || '?';
+            const paths = spec.paths ? Object.keys(spec.paths).length : 0;
+            let ops = 0;
+            const methods = ['get', 'post', 'put', 'delete', 'patch', 'head', 'options', 'trace'];
+            if (spec.paths) {
+                for (const p in spec.paths) {
+                    for (const m of methods) {
+                        if (spec.paths[p] && typeof spec.paths[p] === 'object' && spec.paths[p][m]) ops++;
+                    }
+                }
+            }
+            const badges = [];
+            badges.push('<span class="badge" title="' + escapeHtml(info.title || '未命名') + '">📘 ' + escapeHtml(info.title || '未命名') + '</span>');
+            if (info.version) badges.push('<span class="badge gray">v' + escapeHtml(String(info.version)) + '</span>');
+            badges.push('<span class="badge green">' + escapeHtml(String(specVersion)) + '</span>');
+            badges.push('<span class="badge gray">' + paths + ' paths</span>');
+            badges.push('<span class="badge gray">' + ops + ' operations</span>');
+            document.getElementById('specBadges').innerHTML = badges.join('');
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        function clearAll() {
+            specInput.value = '';
+            currentFileName = '';
+            clearCache();
+            document.getElementById('inputStatus').textContent = '等待输入...';
+            document.getElementById('viewStatus').textContent = '就绪';
+            document.getElementById('specBadges').innerHTML = '';
+            let old = document.getElementById('swagger-ui');
+            old.replaceWith(old.cloneNode(false));
+            emptyHint.style.display = 'block';
+            showMessage('🗑️ 已清空', 'info');
+        }
+
+        /* ---------- 页面内搜索/定位 ---------- */
+        const searchState = { query: '', keys: [], index: -1, openedBySearch: null };
+
+        function getSections() { return Array.from(document.querySelectorAll('#swagger-ui .opblock-tag-section')); }
+        function getOps() { return Array.from(document.querySelectorAll('#swagger-ui .opblock')); }
+        function opKey(op) { return op.id || (op.querySelector('.opblock-summary-path') ? op.querySelector('.opblock-summary-path').textContent + ' ' + (op.querySelector('.opblock-summary-method') ? op.querySelector('.opblock-summary-method').textContent : '') : ''); }
+
+        function ensureExpanded() {
+            if (!searchState.openedBySearch) searchState.openedBySearch = [];
+            getSections().forEach(sec => {
+                if (!sec.classList.contains('is-open')) {
+                    const btn = sec.querySelector('.opblock-tag');
+                    if (btn) { btn.click(); searchState.openedBySearch.push(sec); }
+                }
+            });
+        }
+
+        function opMatches(op, q, tagName) {
+            if (tagName && tagName.toLowerCase().indexOf(q) !== -1) return true;
+            const pick = sel => { const el = op.querySelector(sel); return el ? el.textContent : ''; };
+            const head = pick('.opblock-summary-path') + ' ' + pick('.opblock-summary-operation-id') + ' ' + pick('.opblock-summary-description') + ' ' + pick('.opblock-summary-method');
+            return head.toLowerCase().indexOf(q) !== -1 || op.textContent.toLowerCase().indexOf(q) !== -1;
+        }
+
+        function applyFilter(q) {
+            const matches = [];
+            getSections().forEach(sec => {
+                const ops = Array.from(sec.querySelectorAll('.opblock'));
+                if (!ops.length) return; // 已被用户折叠，子节点未渲染，保持原样
+                const tagBtn = sec.querySelector('.opblock-tag');
+                const tagName = tagBtn ? (tagBtn.getAttribute('data-tag') || '') : '';
+                const tagHit = tagName.toLowerCase().indexOf(q) !== -1;
+                let visible = 0;
+                ops.forEach(op => {
+                    if (tagHit || opMatches(op, q, tagName)) {
+                        op.style.display = '';
+                        matches.push(op);
+                        visible++;
+                    } else {
+                        op.style.display = 'none';
+                    }
+                });
+                sec.style.display = visible ? '' : 'none';
+            });
+            getOps().forEach(op => {
+                if (op.closest('.opblock-tag-section')) return;
+                if (opMatches(op, q, '')) { op.style.display = ''; matches.push(op); }
+                else op.style.display = 'none';
+            });
+            return matches;
+        }
+
+        function runSearch() {
+            const input = document.getElementById('searchInput');
+            const q = input.value.trim().toLowerCase();
+            if (!q) { clearSearch(); return; }
+            if (!getOps().length) { showMessage('⚠️ 请先加载 OpenAPI 文档', 'info'); return; }
+            ensureExpanded();
+            const matches = applyFilter(q);
+            searchState.query = q;
+            searchState.keys = matches.map(opKey);
+            searchState.index = matches.length ? 0 : -1;
+            if (!matches.length) {
+                clearHitClasses();
+                document.getElementById('searchCount').textContent = '0 匹配';
+                showMessage('❌ 无匹配结果：' + input.value.trim(), 'error');
+            } else {
+                focusCurrent();
+                showMessage('🔍 找到 ' + matches.length + ' 个匹配', 'success');
+            }
+        }
+
+        function resolveMatches() {
+            const byKey = new Map();
+            getOps().forEach(op => byKey.set(opKey(op), op));
+            return searchState.keys.map(k => byKey.get(k)).filter(Boolean);
+        }
+
+        function clearHitClasses() {
+            getOps().forEach(op => op.classList.remove('search-hit', 'search-hit-current'));
+        }
+
+        function refreshHighlights() {
+            const nodes = resolveMatches();
+            if (searchState.index >= nodes.length) searchState.index = nodes.length ? 0 : -1;
+            clearHitClasses();
+            nodes.forEach((op, i) => op.classList.add(i === searchState.index ? 'search-hit-current' : 'search-hit'));
+            document.getElementById('searchCount').textContent = searchState.index >= 0 ? (searchState.index + 1) + ' / ' + nodes.length : (searchState.keys.length ? '' : '');
+            return nodes;
+        }
+
+        function focusCurrent() {
+            const nodes = refreshHighlights();
+            if (!nodes.length || searchState.index < 0) return;
+            const cur = nodes[searchState.index];
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                cur.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }));
+        }
+
+        function stepMatch(delta) {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (q !== searchState.query || !searchState.keys.length) { runSearch(); return; }
+            const n = searchState.keys.length;
+            searchState.index = ((searchState.index + delta) % n + n) % n;
+            focusCurrent();
+        }
+
+        function onSearchKey(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const q = document.getElementById('searchInput').value.trim().toLowerCase();
+                if (q !== searchState.query) runSearch();
+                else stepMatch(e.shiftKey ? -1 : 1);
+            } else if (e.key === 'Escape') {
+                clearSearch();
+            }
+        }
+
+        function clearSearch() {
+            getOps().forEach(op => { op.style.display = ''; op.classList.remove('search-hit', 'search-hit-current'); });
+            getSections().forEach(sec => sec.style.display = '');
+            (searchState.openedBySearch || []).forEach(sec => {
+                if (sec.isConnected && sec.classList.contains('is-open')) {
+                    const b = sec.querySelector('.opblock-tag');
+                    if (b) b.click();
+                }
+            });
+            searchState.query = '';
+            searchState.keys = [];
+            searchState.index = -1;
+            searchState.openedBySearch = null;
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchCount').textContent = '';
+        }
+
+        function resetSearch() {
+            searchState.query = '';
+            searchState.keys = [];
+            searchState.index = -1;
+            searchState.openedBySearch = null;
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchCount').textContent = '';
+        }
+
+        // 用户手动折叠/展开 tag 后（React 重建 DOM 节点），重新套用过滤与高亮（不打断滚动）
+        document.querySelector('.ui-wrap').addEventListener('click', function () {
+            if (searchState.query && searchState.keys.length) {
+                setTimeout(function () {
+                    applyFilter(searchState.query);
+                    refreshHighlights();
+                }, 0);
+            }
+        });
+
+        /* ---------- localStorage 缓存（自动保存/恢复上次内容） ---------- */
+        const CACHE_KEY = 'swagger-viewer-spec';
+        const CACHE_NAME_KEY = 'swagger-viewer-spec-name';
+        const CACHE_MAX = 3 * 1024 * 1024; // 超过 3MB 不缓存，给 quota 留余量
+
+        function saveToCache(text, name) {
+            if (!text || !text.trim()) return false;
+            if (text.length > CACHE_MAX) return false;
+            try {
+                localStorage.setItem(CACHE_KEY, text);
+                localStorage.setItem(CACHE_NAME_KEY, name || '');
+                return true;
+            } catch (e) { return false; }
+        }
+
+        function loadFromCache() {
+            try {
+                const text = localStorage.getItem(CACHE_KEY);
+                if (text && text.trim()) {
+                    return { text: text, name: localStorage.getItem(CACHE_NAME_KEY) || '缓存内容' };
+                }
+            } catch (e) {}
+            return null;
+        }
+
+        function clearCache() {
+            try {
+                localStorage.removeItem(CACHE_KEY);
+                localStorage.removeItem(CACHE_NAME_KEY);
+            } catch (e) {}
+        }
+
+        // 输入防抖自动保存（不触发解析）
+        let cacheTimer = null;
+        specInput.addEventListener('input', function () {
+            clearTimeout(cacheTimer);
+            cacheTimer = setTimeout(function () { saveToCache(specInput.value, currentFileName); }, 800);
+        });
+
+        /* ---------- 拖拽 ---------- */
+        let dragCounter = 0;
+        const dropOverlay = document.getElementById('drop-overlay');
+        document.addEventListener('dragenter', function (e) {
+            e.preventDefault();
+            dragCounter++;
+            dropOverlay.classList.add('show');
+        });
+        document.addEventListener('dragover', function (e) { e.preventDefault(); });
+        document.addEventListener('dragleave', function (e) {
+            e.preventDefault();
+            dragCounter--;
+            if (dragCounter <= 0) { dragCounter = 0; dropOverlay.classList.remove('show'); }
+        });
+        document.addEventListener('drop', function (e) {
+            e.preventDefault();
+            dragCounter = 0;
+            dropOverlay.classList.remove('show');
+            const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+            if (file) readFile(file);
+        });
+
+        /* ---------- 快捷键 ---------- */
+        specInput.addEventListener('keydown', function (e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                parseFromTextarea();
+            }
+        });
+
+        /* ---------- 启动时恢复缓存 ---------- */
+        (function restoreFromCache() {
+            const cached = loadFromCache();
+            if (!cached) return;
+            const cleanName = cached.name.replace(/（缓存恢复）/g, '') || '缓存内容';
+            specInput.value = cached.text;
+            currentFileName = cleanName;
+            updateInputStatus(cleanName + '（缓存恢复）', cached.text.length, cached.text.split('\n').length);
+            showMessage('↻ 已从缓存恢复 ' + cleanName, 'info');
+            // 先完成首屏渲染，大文档的解析+渲染延后，避免打开时白屏
+            document.getElementById('viewStatus').textContent = '正在渲染缓存内容...';
+            requestAnimationFrame(() => setTimeout(() => parseFromTextarea(undefined, true), 30));
+        })();
+    </script>
+</body>
+</html>

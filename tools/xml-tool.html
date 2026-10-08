@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>XML 工具 - Tools Center</title>
-  <script src="https://cdn.jsdelivr.net/npm/vkbeautify@0.99.3/vkbeautify.min.js" defer></script>
   <style>
     :root { --bg:#f5f7fa; --panel:#fff; --text:#1f2937; --muted:#6b7280; --border:#dbe3ee; --primary:#2563eb; --danger:#dc2626; --success:#059669; }
     * { box-sizing: border-box; }
@@ -28,6 +27,29 @@
     .message.success { background:#ecfdf5; border-color:#a7f3d0; color:var(--success); }
     .message.error { background:#fef2f2; border-color:#fecaca; color:var(--danger); }
     .grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .grid.node-hidden { grid-template-columns:1fr; }
+    .grid.node-hidden #nodePanel { display:none; }
+    .btn-mini { border:1px solid var(--border); background:#fff; color:#374151; border-radius:9px; padding:5px 10px; font-size:12px; cursor:pointer; margin-left:10px; }
+    .btn-mini:hover { background:#f3f4f6; }
+    /* ---------- overlay 编辑器（行号 + 缩进竖线 + 语法高亮） ---------- */
+    .editor { flex:1; position:relative; min-height:0; overflow:hidden; }
+    .gutter { position:absolute; left:0; top:0; bottom:0; width:64px; padding:18px 8px 18px 6px; background:#f8fafc; border-right:1px solid #eef2f7; color:#9ca3af; font:14px/22px Consolas,"SFMono-Regular",Menlo,Monaco,"Liberation Mono",monospace; text-align:right; overflow:hidden; user-select:none; }
+    .gutter div { line-height:22px; }
+    .code-wrap { position:absolute; left:64px; top:0; right:0; bottom:0; }
+    .editor .code-hl, #inputArea { position:absolute; inset:0; padding:18px; font:14px/22px Consolas,"SFMono-Regular",Menlo,Monaco,"Liberation Mono",monospace; tab-size:2; white-space:pre; border:0; margin:0; }
+    .editor .code-hl { background:#fff; overflow:hidden; color:#0f172a; word-break:normal; pointer-events:none; }
+    #inputArea { background:transparent; color:transparent; caret-color:#0f172a; overflow:auto; resize:none; }
+    #inputArea::placeholder { color:#9ca3af; opacity:1; }
+    #inputArea::selection { background:rgba(59,130,246,.3); }
+    .hl-tag { color:#b3261e; }
+    .hl-attr { color:#0b57d0; }
+    .hl-str { color:#0a7d33; }
+    .hl-t { color:#0f172a; }
+    .hl-p { color:#57606a; }
+    .hl-decl { color:#9a3412; }
+    .hl-c { color:#6a737d; font-style:italic; }
+    .hl-cd { color:#0a7d33; }
+    .ig { display:inline-block; box-sizing:border-box; width:2ch; height:22px; border-left:1px solid #e5e7eb; vertical-align:top; }
     .panel { min-height:640px; display:flex; flex-direction:column; overflow:hidden; }
     .panel-head { display:flex; justify-content:space-between; gap:12px; align-items:center; padding:16px 18px; border-bottom:1px solid var(--border); background:linear-gradient(180deg,#fff,#fbfcfe); }
     .panel-head h2 { margin:0; font-size:16px; }
@@ -95,15 +117,21 @@
       <div class="panel">
         <div class="panel-head">
           <h2>输入 XML</h2>
-          <div class="meta"><span id="inputCount">0</span> 字符</div>
+          <div class="meta"><span id="inputCount">0</span> 字符<button id="showNodeBtn" class="btn-mini" style="display:none;">显示节点视图</button></div>
         </div>
-        <textarea id="inputArea" spellcheck="false" placeholder="在这里粘贴 XML，例如：&lt;root&gt;&lt;item id=\"1\"&gt;demo&lt;/item&gt;&lt;/root&gt;"></textarea>
+        <div class="editor" id="inputEditor">
+          <div class="gutter" id="inputGutter" aria-hidden="true"></div>
+          <div class="code-wrap">
+            <pre class="code-hl" id="inputHighlight" aria-hidden="true"></pre>
+            <textarea id="inputArea" wrap="off" spellcheck="false" placeholder="在这里粘贴 XML，例如：&lt;root&gt;&lt;item id=&quot;1&quot;&gt;demo&lt;/item&gt;&lt;/root&gt;"></textarea>
+          </div>
+        </div>
       </div>
 
       <div class="panel" id="nodePanel">
         <div class="panel-head">
           <h2>XML 节点视图</h2>
-          <div class="meta"><span id="nodeCount">0</span> 节点</div>
+          <div class="meta"><span id="nodeCount">0</span> 节点<button id="hideNodeBtn" class="btn-mini">隐藏</button></div>
         </div>
         <div class="node-tools">
           <input id="nodeSearchInput" class="node-search" type="text" placeholder="搜索节点路径或值，例如 segmentName 或 FP" />
@@ -151,7 +179,140 @@
     }
 
     function setStatus(text) { statusBox.textContent = text; }
-    function updateCounts() { inputCount.textContent = inputArea.value.length; }
+    function updateCounts() { inputCount.textContent = inputArea.value.length; scheduleCacheSave(); refreshEditor(); }
+
+    /* ---------- localStorage 缓存（自动保存/恢复上次内容） ---------- */
+    const CACHE_KEY = 'xml-tool-content';
+    const CACHE_MAX = 3 * 1024 * 1024; // 超过 3MB 不缓存，给 quota 留余量
+
+    function clearCache() {
+      try { localStorage.removeItem(CACHE_KEY); } catch (e) {}
+    }
+    function saveToCache(text) {
+      if (!text || !text.trim()) { clearCache(); return false; }
+      if (text.length > CACHE_MAX) return false;
+      try { localStorage.setItem(CACHE_KEY, text); return true; } catch (e) { return false; }
+    }
+    function loadFromCache() {
+      try {
+        const text = localStorage.getItem(CACHE_KEY);
+        if (text && text.trim()) return text;
+      } catch (e) {}
+      return null;
+    }
+    // 输入/格式化等变更后防抖保存
+    let cacheTimer = null;
+    function scheduleCacheSave() {
+      clearTimeout(cacheTimer);
+      cacheTimer = setTimeout(function () { saveToCache(inputArea.value); }, 500);
+    }
+
+    /* ---------- overlay 编辑器（行号 + 缩进竖线 + 语法高亮） ---------- */
+    const inputHighlight = document.getElementById('inputHighlight');
+    const inputGutter = document.getElementById('inputGutter');
+
+    function escapeHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    function indentGuides(lead) {
+      let width = 0;
+      for (let i = 0; i < lead.length; i++) width += lead[i] === '\t' ? 2 : 1;
+      let html = '';
+      for (let c = 0; c < width; c += 2) {
+        const w = Math.min(2, width - c);
+        html += '<span class="ig"' + (w === 1 ? ' style="width:1ch"' : '') + '></span>';
+      }
+      return html;
+    }
+
+    function highlightXml(text) {
+      const lines = text.split('\n');
+      let inComment = false;
+      const out = new Array(lines.length);
+      for (let li = 0; li < lines.length; li++) {
+        const line = lines[li];
+        const lead = (line.match(/^[ \t]*/) || [''])[0];
+        const body = line.slice(lead.length);
+        let html = indentGuides(lead);
+        let pos = 0;
+        if (inComment) {
+          const close = body.indexOf('-->');
+          if (close === -1) { out[li] = html + '<span class="hl-c">' + escapeHtml(body) + '</span>'; continue; }
+          html += '<span class="hl-c">' + escapeHtml(body.slice(0, close + 3)) + '</span>';
+          pos = close + 3;
+          inComment = false;
+        }
+        while (pos < body.length) {
+          const lt = body.indexOf('<', pos);
+          if (lt === -1) { html += '<span class="hl-t">' + escapeHtml(body.slice(pos)) + '</span>'; break; }
+          if (lt > pos) html += '<span class="hl-t">' + escapeHtml(body.slice(pos, lt)) + '</span>';
+          if (body.startsWith('<!--', lt)) {
+            const end = body.indexOf('-->', lt + 4);
+            if (end === -1) { html += '<span class="hl-c">' + escapeHtml(body.slice(lt)) + '</span>'; inComment = true; pos = body.length; }
+            else { html += '<span class="hl-c">' + escapeHtml(body.slice(lt, end + 3)) + '</span>'; pos = end + 3; }
+            continue;
+          }
+          if (body.startsWith('<![CDATA[', lt)) {
+            const end = body.indexOf(']]>', lt + 9);
+            if (end === -1) { html += '<span class="hl-cd">' + escapeHtml(body.slice(lt)) + '</span>'; pos = body.length; }
+            else { html += '<span class="hl-cd">' + escapeHtml(body.slice(lt, end + 3)) + '</span>'; pos = end + 3; }
+            continue;
+          }
+          if (body.startsWith('<?', lt)) {
+            const end = body.indexOf('?>', lt + 2);
+            if (end === -1) { html += '<span class="hl-decl">' + escapeHtml(body.slice(lt)) + '</span>'; pos = body.length; }
+            else { html += '<span class="hl-decl">' + escapeHtml(body.slice(lt, end + 2)) + '</span>'; pos = end + 2; }
+            continue;
+          }
+          if (body.startsWith('<!', lt)) {
+            const end = body.indexOf('>', lt + 2);
+            if (end === -1) { html += '<span class="hl-decl">' + escapeHtml(body.slice(lt)) + '</span>'; pos = body.length; }
+            else { html += '<span class="hl-decl">' + escapeHtml(body.slice(lt, end + 1)) + '</span>'; pos = end + 1; }
+            continue;
+          }
+          const m = /^<\/?([A-Za-z_][\w:.-]*)?/.exec(body.slice(lt));
+          let t = lt;
+          const closing = body[t + 1] === '/';
+          html += '<span class="hl-p">' + (closing ? '&lt;/' : '&lt;') + '</span>';
+          t += closing ? 2 : 1;
+          if (m && m[1]) { html += '<span class="hl-tag">' + escapeHtml(m[1]) + '</span>'; t += m[1].length; }
+          let inQ = '';
+          while (t < body.length) {
+            const c = body[t];
+            if (inQ) {
+              if (c === inQ) { html += '<span class="hl-str">' + escapeHtml(c) + '</span>'; t++; inQ = ''; continue; }
+              const s0 = t;
+              while (t < body.length && body[t] !== inQ) t++;
+              html += '<span class="hl-str">' + escapeHtml(body.slice(s0, t)) + '</span>';
+              continue;
+            }
+            if (c === '"' || c === "'") { inQ = c; html += '<span class="hl-str">' + escapeHtml(c) + '</span>'; t++; continue; }
+            if (c === '>') { html += '<span class="hl-p">&gt;</span>'; t++; break; }
+            if (c === '/' && body[t + 1] === '>') { html += '<span class="hl-p">/&gt;</span>'; t += 2; break; }
+            if (c === ' ' || c === '\t') { const w0 = t; while (t < body.length && (body[t] === ' ' || body[t] === '\t')) t++; html += escapeHtml(body.slice(w0, t)); continue; }
+            if (c === '=') { html += '<span class="hl-p">=</span>'; t++; continue; }
+            const a0 = t;
+            while (t < body.length && !/[\s=>]/.test(body[t])) t++;
+            if (t === a0) t++;
+            html += '<span class="hl-attr">' + escapeHtml(body.slice(a0, t)) + '</span>';
+          }
+          pos = t;
+        }
+        out[li] = html;
+      }
+      return out.join('\n');
+    }
+
+    function refreshEditor() {
+      const text = inputArea.value;
+      inputHighlight.innerHTML = highlightXml(text);
+      const n = text.split('\n').length;
+      let g = '';
+      for (let i = 1; i <= n; i++) g += '<div>' + i + '</div>';
+      inputGutter.innerHTML = g;
+    }
+
+    let hlTimer = null;
+    function scheduleHighlight() { clearTimeout(hlTimer); hlTimer = setTimeout(refreshEditor, 150); }
     function normalizeInput(text) { return String(text || '').replace(/^\uFEFF/, '').trim(); }
     function shortenText(text, max) { const trimmed = normalizeInput(text).replace(/\s+/g, ' '); return trimmed.length > max ? trimmed.slice(0, max) + '…' : trimmed; }
     function escapeHtml(text) { return String(text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
@@ -200,6 +361,23 @@
     function parseXml(text) {
       const doc = parseXmlDocument(text);
       return { doc: doc, xml: new XMLSerializer().serializeToString(doc) };
+    }
+    function parseXmlWithDecodeFallback(text) {
+      try {
+        const parsed = parseXml(text);
+        parsed.decoded = false;
+        return parsed;
+      } catch (rawError) {
+        const decoded = decodeEscapes(text);
+        if (decoded !== normalizeInput(text)) {
+          try {
+            const parsed = parseXml(decoded);
+            parsed.decoded = true;
+            return parsed;
+          } catch (decodedError) { throw decodedError; }
+        }
+        throw rawError;
+      }
     }
     function childElements(node) { return Array.prototype.filter.call(node.childNodes || [], function (child) { return child.nodeType === 1; }); }
     function textChildren(node) {
@@ -311,27 +489,27 @@
         const node = lines[i];
         if (/^<\/.+>/.test(node) && pad > 0) pad -= 1;
         out.push('  '.repeat(pad) + node);
-        if (/^<[^!?][^>]*[^\/]?>$/.test(node) && !/^<\?/.test(node) && !/^<!--/.test(node)) pad += 1;
+        if (/^<[^!?\/][^>]*[^\/]?>$/.test(node)) pad += 1;
       }
       return out.join('\n');
     }
     function compactXml(xml) { return xml.replace(/>\s+</g, '><').replace(/\s{2,}/g, ' ').trim(); }
     function formatXml() {
-      const parsed = parseXml(inputArea.value);
-      const formatted = window.vkbeautify && window.vkbeautify.xml ? window.vkbeautify.xml(parsed.xml) : prettyXml(parsed.xml);
+      const parsed = parseXmlWithDecodeFallback(inputArea.value);
+      const formatted = prettyXml(parsed.xml);
       inputArea.value = formatted;
       renderNodeGraph(parsed.doc);
-      setMessage('格式化完成。', 'success');
-      setStatus('已在输入区格式化 XML，并更新节点视图。');
+      setMessage(parsed.decoded ? '已自动去除转义并格式化完成。' : '格式化完成。', 'success');
+      setStatus(parsed.decoded ? '检测到转义字符（如 \\\"），已自动还原并在输入区格式化。' : '已在输入区格式化 XML，并更新节点视图。');
       updateCounts();
     }
     function minifyXml() {
-      const parsed = parseXml(inputArea.value);
-      const minified = window.vkbeautify && window.vkbeautify.xmlmin ? window.vkbeautify.xmlmin(parsed.xml, false) : compactXml(parsed.xml);
+      const parsed = parseXmlWithDecodeFallback(inputArea.value);
+      const minified = compactXml(parsed.xml);
       inputArea.value = minified;
       renderNodeGraph(parsed.doc);
-      setMessage('压缩完成。', 'success');
-      setStatus('已在输入区压缩 XML，并更新节点视图。');
+      setMessage(parsed.decoded ? '已自动去除转义并压缩完成。' : '压缩完成。', 'success');
+      setStatus(parsed.decoded ? '检测到转义字符（如 \\\"），已自动还原并在输入区压缩。' : '已在输入区压缩 XML，并更新节点视图。');
       updateCounts();
     }
     function escapeXml() {
@@ -397,13 +575,58 @@
     }
     function wireButton(id, handler) { var el = document.getElementById(id); if (!el) return; el.addEventListener('click', function () { try { handler(); } catch (error) { setMessage(error.message || '操作失败。', 'error'); setStatus('请检查输入格式。'); } }); }
     wireButton('formatBtn', formatXml); wireButton('minifyBtn', minifyXml); wireButton('escapeBtn', escapeXml); wireButton('unescapeBtn', unescapeXml); wireButton('pasteBtn', pasteText); wireButton('copyInputBtn', function () { return copyText(inputArea.value, '输入内容'); }); wireButton('clearBtn', clearAll); wireButton('importPasteBtn', importPasteDialog); wireButton('cancelPasteBtn', closePasteDialog);
-    inputArea.addEventListener('input', updateCounts);
+
+    const gridSection = document.querySelector('.grid');
+    const hideNodeBtn = document.getElementById('hideNodeBtn');
+    const showNodeBtn = document.getElementById('showNodeBtn');
+    function setNodeViewHidden(hidden) {
+      gridSection.classList.toggle('node-hidden', hidden);
+      hideNodeBtn.style.display = hidden ? 'none' : '';
+      showNodeBtn.style.display = hidden ? '' : 'none';
+      if (hidden) inputArea.focus();
+    }
+    hideNodeBtn.addEventListener('click', function () { setNodeViewHidden(true); });
+    showNodeBtn.addEventListener('click', function () { setNodeViewHidden(false); });
+    inputArea.addEventListener('input', function () { inputCount.textContent = inputArea.value.length; scheduleCacheSave(); scheduleHighlight(); });
+    inputArea.addEventListener('scroll', function () { inputHighlight.scrollTop = inputArea.scrollTop; inputHighlight.scrollLeft = inputArea.scrollLeft; inputGutter.scrollTop = inputArea.scrollTop; });
+    inputArea.addEventListener('keydown', function (event) {
+      if (event.key !== 'Tab' || event.ctrlKey || event.altKey || event.metaKey) return;
+      event.preventDefault();
+      let ok = false;
+      try { ok = document.execCommand('insertText', false, '  '); } catch (e) {}
+      if (!ok) {
+        const s = inputArea.selectionStart, e2 = inputArea.selectionEnd;
+        inputArea.setRangeText('  ', s, e2, 'end');
+        inputArea.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
     inputArea.addEventListener('keydown', function (event) { const isMac = navigator.platform.toUpperCase().includes('MAC'); const modifier = isMac ? event.metaKey : event.ctrlKey; if (!modifier || event.key !== 'Enter') return; event.preventDefault(); if (event.shiftKey) minifyXml(); else formatXml(); });
     pasteArea.addEventListener('keydown', function (event) { if (event.key === 'Escape') closePasteDialog(); });
     nodeSearchInput.addEventListener('input', applyNodeFilter);
     nodeOnlyMatch.addEventListener('change', applyNodeFilter);
     updateCounts();
     setMessage('就绪。左侧编辑 XML，右侧可搜索节点路径。', 'info');
+
+    (function restoreFromCache() {
+      const cached = loadFromCache();
+      if (!cached) return;
+      inputArea.value = cached;
+      setMessage('↻ 已从缓存恢复上次编辑内容。', 'info');
+      inputCount.textContent = inputArea.value.length;
+      scheduleCacheSave();
+      // 先完成首屏，高亮与节点渲染延后，避免打开时卡顿
+      setStatus('正在渲染缓存内容...');
+      requestAnimationFrame(() => setTimeout(() => {
+        refreshEditor();
+        try {
+          const parsed = parseXmlWithDecodeFallback(inputArea.value);
+          renderNodeGraph(parsed.doc);
+          setStatus(parsed.decoded ? '已从缓存恢复，并自动去除转义、更新节点视图。' : '已从缓存恢复输入内容，并更新节点视图。');
+        } catch (e) {
+          setStatus('已从缓存恢复输入内容（XML 解析失败，未渲染节点）。');
+        }
+      }, 30));
+    })();
   </script>
 </body>
 </html>
