@@ -8,6 +8,7 @@
 
 | 工具 | 功能 | 链接 |
 |------|------|------|
+| **🤖 OC Chat** | 浏览器直连本地 opencode 服务：历史会话/发消息/实时回复（配对一次） | [打开](oc-chat.html) |
 | **📚 Swagger Viewer** | 本地渲染 OpenAPI/Swagger 文档（YAML/JSON） | [打开](swagger-viewer.html) |
 | **📄 XML Tool** | 格式化、压缩、转义/解码 XML | [打开](xml-tool.html) |
 | **📊 JSON Viewer** | 美化查看 JSON 数据，支持树形展开 | [打开](json-viewer.html) |
@@ -149,6 +150,13 @@ python3 -m http.server 8080
 
 ## 📝 更新日志
 
+### v1.2.0 (2026-10-15)
+- 🤖 新增 **OC Chat**（oc-chat.html）：浏览器自制对话页，直连本地 opencode 服务（127.0.0.1:49374）。粘贴 `opencode pair` 链接完成配对（凭证存 localStorage，刷新不丢）；支持历史会话列表、历史消息、发送消息、SSE+轮询实时接收回复、模型出错提示。零桥接零依赖，实测全链路（配对→列表→历史→对话→回复）通过
+- ✨ JSON Viewer 新增「🤖 AI 分析」按钮：一键弹出 OC Chat 小窗（640×760），当前 JSON 自动作为上下文带入（>20000 字符降级为提示手动复制）
+- 🔧 修复 JSON Viewer：树节点点击复制改用 `data-copy` 属性 + 事件委托 —— 值含 `"` 时原内联 onclick 属性被打断，导致复制失效及 HTML 注入隐患
+- 🔧 修复 JSON Viewer：数字/布尔/null 不再显示引号（`42` 而非 `"42"`）；树初始展开图标 ▶ 改 ▼ 与实际状态一致；复制增加 execCommand 兜底（file:// 下可用），失败有错误提示
+- 📖 使用方式：工具目录起静态服务 `python3 -m http.server 8888`，浏览器访问 `http://127.0.0.1:8888/oc-chat.html`（WSL 的127.0.0.1 从 Windows 浏览器直达）
+
 ### v1.1.6 (2026-10-06)
 - 🔧 修复 XML Tool：格式化后缩进层级错乱（闭合标签 `</x>` 被误判为开始标签，缩进只增不减，深层节点全部顶格堆在一起）—— 本地格式化算法 `prettyXml` 已修正，闭合标签正确回退一层；验证二次格式化结果幂等
 - 🗑️ 移除失效的 vkbeautify CDN 引用（`vkbeautify.min.js` 路径实际 404，从未加载成功，线上一直走的是本地兜底算法）；格式化完全本地化，离线 / `file://` 下零外部依赖
@@ -201,5 +209,5 @@ Peter - CodeMate 团队
 
 ---
 
-**Last Updated**: 2026-10-06  
+**Last Updated**: 2026-10-15  
 **License**: Internal Use Only (Cathay Pacific)

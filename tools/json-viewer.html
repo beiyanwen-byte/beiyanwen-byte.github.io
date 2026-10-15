@@ -70,7 +70,7 @@
 <body>
     <div class="header-nav">
         <a href="index.html" class="home-btn">← 返回工具中心</a>
-        <span class="page-title">智能 JSON 查看器</span>
+        <span class="page-title">智能 JSON 查看器 <small style="font-weight:400;color:#999;font-size:11px">v1.1.0</small></span>
     </div>
     
     <div class="container">
@@ -94,6 +94,7 @@
         <div class="center-panel">
             <div class="panel-header">
                 <span>👁️ 视图</span>
+                <button onclick="openAiAssistant()" title="打开本地 opencode 小窗会话，对话分析当前数据">🤖 AI 分析</button>
             </div>
             <div class="search-bar">
                 <label>查找:</label>
@@ -200,6 +201,12 @@
             if (e.key === 'Enter') findNext();
         });
 
+        // 事件委托：点击带 data-copy 的键/值即复制（替代内联 onclick）
+        treeView.addEventListener('click', function(e) {
+            const el = e.target.closest('[data-copy]');
+            if (el) copyText(el.getAttribute('data-copy'));
+        });
+
         // 格式化
         function formatJson() {
             try {
@@ -250,12 +257,33 @@
             }
         }
 
-        // 复制
+        // 复制（clipboard API 失败时回退 execCommand，file:// 下也能用）
         function copyAll() {
             const text = jsonInput.value;
             if (!text) { showMessage('没有内容', 'error'); return; }
-            navigator.clipboard.writeText(text).then(() => {
-                showMessage('✅ 已复制', 'success');
+            copyToClipboard(text)
+                .then(() => showMessage('✅ 已复制', 'success'))
+                .catch(() => showMessage('❌ 复制失败，请手动选择复制', 'error'));
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+            }
+            return fallbackCopy(text);
+        }
+
+        function fallbackCopy(text) {
+            return new Promise((resolve, reject) => {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+                document.body.appendChild(ta);
+                ta.select();
+                let ok = false;
+                try { ok = document.execCommand('copy'); } catch (e) {}
+                ta.remove();
+                ok ? resolve() : reject(new Error('copy failed'));
             });
         }
 
@@ -299,11 +327,25 @@
             }
         }
 
-        // 复制文本
+        // 复制文本（点击节点值/键时触发）
         function copyText(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showMessage('✅ 已复制: ' + text.substring(0, 30), 'success');
-            });
+            copyToClipboard(text)
+                .then(() => showMessage('✅ 已复制: ' + text.substring(0, 30), 'success'))
+                .catch(() => showMessage('❌ 复制失败', 'error'));
+        }
+
+        // 打开 OC Chat 本地会话小窗（需本地静态服务 + opencode pair 配对一次）；当前数据作为上下文自动带上
+        function openAiAssistant() {
+            const data = jsonInput.value.trim();
+            const base = 'http://127.0.0.1:8888/oc-chat.html';
+            let url;
+            if (data && data.length < 20000) {
+                url = base + '?tool=json-viewer&ctx=' + encodeURIComponent(data);
+            } else {
+                url = base;
+                if (data) showMessage('⚠️ 数据过大（>20000 字符），未自动带入，请用复制按钮后粘贴到对话', 'info');
+            }
+            window.open(url, 'oc-chat', 'width=640,height=760');
         }
 
         // 渲染树
@@ -334,7 +376,7 @@
                 const closeBracket = isArray ? ']' : '}';
                 
                 let html = '<div class="node-item' + (isRoot ? '' : '') + '">';
-                html += '<span class="toggle-btn" onclick="toggleNode(\'' + nodeId + '\', event)">▶</span>';
+                html += '<span class="toggle-btn" onclick="toggleNode(\'' + nodeId + '\', event)">▼</span>';
                 if (key !== '') html += '<span class="node-key">' + escapeHtml(key) + '</span><span class="node-colon">: </span>';
                 html += '<span class="node-bracket">' + openBracket + '</span>';
                 if (entries.length > 0) html += '<span class="node-count">(' + entries.length + ')</span>';
@@ -344,19 +386,23 @@
                 return html;
             } else {
                 let valueClass = 'string';
-                let displayValue = escapeHtml(String(value));
+                const rawText = String(value);
+                // 数字 / 布尔 / null 不加引号，字符串保留引号（与 JSON 语法一致）
+                const shownText = type === 'string' ? '"' + rawText + '"' : rawText;
+                const displayValue = escapeHtml(shownText);
                 if (type === 'number') valueClass = 'number';
                 else if (type === 'boolean') valueClass = 'boolean';
                 else if (type === 'null') valueClass = 'null';
-                
+
+                // 用 data-copy 属性 + 事件委托代替内联 onclick，避免值含引号时打断 HTML 属性（注入/复制失效）
                 let keyHtml = key !== '' 
-                    ? '<span class="node-key copyable" onclick="copyText(\'' + escapeHtml(key).replace(/'/g, "\\'") + '\')">' + escapeHtml(key) + '</span><span class="node-colon">: </span>'
+                    ? '<span class="node-key copyable" data-copy="' + escapeHtml(key) + '">' + escapeHtml(key) + '</span><span class="node-colon">: </span>'
                     : '';
                 
                 return '<div class="node-item">'
                     + '<span class="toggle-btn">&nbsp;</span>'
                     + keyHtml
-                    + '<span class="node-value ' + valueClass + ' copyable" onclick="copyText(\'' + displayValue.replace(/'/g, "\\'") + '\')">"' + displayValue + '"</span>'
+                    + '<span class="node-value ' + valueClass + ' copyable" data-copy="' + escapeHtml(rawText) + '">' + displayValue + '</span>'
                     + '</div>';
             }
         }
@@ -469,9 +515,13 @@
         }
 
         function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+            // 手动转义（含引号），同一函数安全用于文本内容与双引号属性值
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         function countNodes(obj) {
