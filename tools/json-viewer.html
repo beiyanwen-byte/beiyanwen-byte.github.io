@@ -94,7 +94,6 @@
         <div class="center-panel">
             <div class="panel-header">
                 <span>👁️ 视图</span>
-                <button onclick="openAiAssistant()" title="打开本地 opencode 小窗会话，对话分析当前数据">🤖 AI 分析</button>
             </div>
             <div class="search-bar">
                 <label>查找:</label>
@@ -332,20 +331,6 @@
             copyToClipboard(text)
                 .then(() => showMessage('✅ 已复制: ' + text.substring(0, 30), 'success'))
                 .catch(() => showMessage('❌ 复制失败', 'error'));
-        }
-
-        // 打开 OC Chat 本地会话小窗（需本地静态服务 + opencode pair 配对一次）；当前数据作为上下文自动带上
-        function openAiAssistant() {
-            const data = jsonInput.value.trim();
-            const base = 'http://127.0.0.1:8888/oc-chat.html';
-            let url;
-            if (data && data.length < 20000) {
-                url = base + '?tool=json-viewer&ctx=' + encodeURIComponent(data);
-            } else {
-                url = base;
-                if (data) showMessage('⚠️ 数据过大（>20000 字符），未自动带入，请用复制按钮后粘贴到对话', 'info');
-            }
-            window.open(url, 'oc-chat', 'width=640,height=760');
         }
 
         // 渲染树
