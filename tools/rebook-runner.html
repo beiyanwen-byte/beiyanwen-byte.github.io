@@ -85,6 +85,13 @@
   .price-cell .nonzero { color: var(--err); font-weight: 700; }
   .price-cell .sub { font-family: var(--mono); font-size: .72rem; color: var(--muted); }
   .plan { font-size: .82rem; margin-top: 8px; }
+  .filterbar { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 6px; align-items:center; }
+  .filterbar .chip { cursor:pointer; border:1px solid var(--border-color); }
+  .filterbar .chip.active { background:var(--primary-color); color:#fff; border-color:var(--primary-color); }
+  .filterbar .chip.active.success { background:var(--ok); border-color:var(--ok); }
+  .filterbar .chip.active.failed { background:var(--err); border-color:var(--err); }
+  .filterbar .chip.active.timeout { background:var(--warn); border-color:var(--warn); }
+  .filterbar .chip.active.start_failed { background:#a33; border-color:#a33; }
   .plan code { font-family: var(--mono); font-size: .78rem; }
 </style>
 </head>
@@ -164,9 +171,18 @@
     </div>
     <div class="note" id="execHint">⚠ 未勾选 <b>execute</b> → 「开始执行」不可用。勾选后才能真正发请求；不勾选也可用「只列组合」预览。</div>
     <div class="banner-err hidden" id="errorBanner"></div>
+    <div class="filterbar" id="filterBar" style="display:none;">
+      <span style="font-size:.8rem;color:var(--muted);margin-right:6px;">筛选：</span>
+      <button type="button" class="chip active" data-filter="all">全部</button>
+      <button type="button" class="chip" data-filter="success">成功</button>
+      <button type="button" class="chip" data-filter="failed">失败</button>
+      <button type="button" class="chip" data-filter="timeout">超时</button>
+      <button type="button" class="chip" data-filter="start_failed">启动失败</button>
+      <span id="filterCount" style="margin-left:10px;font-size:.8rem;color:var(--muted);"></span>
+    </div>
     <div style="margin-top:16px;">
       <table id="resultsTable" class="hidden">
-        <thead><tr><th style="width:52px;">#</th><th style="width:100px;">结果</th><th>组合（舱位 · airBoundId）</th><th style="width:70px;">轮询</th><th style="width:190px;">改单价格 · additionalCollection</th><th style="width:70px;">详情</th></tr></thead>
+        <thead><tr><th style="width:52px;">#</th><th style="width:100px;">结果</th><th>组合（舱位 · airBoundId）</th><th style="width:150px;">失败原因</th><th style="width:70px;">轮询</th><th style="width:190px;">改单价格 · additionalCollection</th><th style="width:70px;">详情</th></tr></thead>
         <tbody id="resultsBody"></tbody>
       </table>
     </div>
@@ -191,7 +207,7 @@ const PATHS = {
 const $ = (id) => document.getElementById(id);
 const state = {
   order: null, combinations: [], changedBounds: [], tspId: "", traceId: "",
-  results: [], running: false, stopRequested: false, completed: new Set(),
+  results: [], running: false, stopRequested: false, completed: new Set(), filter: "all",
 };
 let controller = null;
 
@@ -625,8 +641,9 @@ async function onRun() {
   p.traceId = p.traceId || state.traceId;
   if (!p.tspId) { showError("缺少 tspId，请先执行 Step 1。"); return; }
 
-  state.running = true; state.stopRequested = false; state.results = [];
+  state.running = true; state.stopRequested = false; state.results = []; state.filter = "all";
   $("resultsBody").innerHTML = ""; $("resultsTable").classList.remove("hidden");
+  $("filterBar").style.display = "none";
   refreshRunButtons(); $("btnStop").disabled = false; $("btnOrder").disabled = true; $("btnOffers").disabled = true;
   $("btnExportResults").classList.add("hidden"); setStatus("runStatus", "运行中", "run");
   controller = new AbortController();
@@ -662,6 +679,8 @@ async function onRun() {
       processed++;
     }
     setStatus("runStatus", state.stopRequested ? "已停止" : "完成", state.stopRequested ? "stop" : "done");
+    $("filterBar").style.display = "";
+    filterResults();
   } catch (e) {
     if (e.name === "AbortError") setStatus("runStatus", "已停止", "stop");
     else { setStatus("runStatus", "出错", "stop"); showError(e.message); logLine("ERROR: " + e.message, "l-err"); }
@@ -680,6 +699,29 @@ function printAttempt(record) {
   logJson("Start response:", record.details.start);
   (record.details.polls || []).forEach((poll, i) => logJson(`Polling response #${i + 1} (HTTP ${poll.httpStatus}):`, poll.body));
 }
+function extractFailureReason(record) {
+  const { result, details } = record;
+  if (result === "start_failed") {
+    const start = details && details.start || {};
+    const err = start.error || (start.json && (start.json.errorMessage || start.json.detail || JSON.stringify(start.json)));
+    return err ? `Start失败: ${escapeHtml(String(err)).slice(0, 120)}` : "Start失败";
+  }
+  if (result === "failed" || result === "timeout") {
+    const polls = details && details.polls || [];
+    const last = polls[polls.length - 1];
+    if (last && last.body) {
+      const b = last.body;
+      const data = b.data || {};
+      const code = data.errorCode;
+      const msg = data.errorMessage;
+      if (code || msg) return `轮询失败: ${code || ""} ${msg || ""}`;
+      if (b.error) return `轮询失败: ${escapeHtml(String(b.error)).slice(0, 120)}`;
+      if (b.errors && b.errors[0]) return `轮询失败: ${escapeHtml(b.errors[0].detail || b.errors[0].title || "").slice(0, 120)}`;
+    }
+    return result === "timeout" ? "轮询超时" : "轮询失败";
+  }
+  return "";
+}
 function priceCell(price) {
   if (!price) return '<span class="k">—</span>';
   if (price.error) return `<span class="k">错误: ${escapeHtml(price.error)}</span>`;
@@ -692,16 +734,30 @@ function priceCell(price) {
 }
 function addResultRow(n, record) {
   const tr = document.createElement("tr");
+  tr.setAttribute("data-result", record.result);
   const combo = (record.bounds || []).map(o => fareFamilyBadge(o) + ' <span class="k">' + escapeHtml(o.airBoundId) + "</span>").join("<br>")
     || '<span class="k">' + escapeHtml(record.combinationKey) + "</span>";
+  const failReason = record.result === "success" ? "" : `<span class="k" style="color:var(--err);">${escapeHtml(extractFailureReason(record))}</span>`;
   tr.innerHTML = `
     <td>${n}</td>
     <td><span class="tag ${record.result}">${record.result}</span></td>
     <td>${combo}</td>
+    <td>${failReason}</td>
     <td>${(record.details.polls || []).length}</td>
     <td>${priceCell(record.price)}</td>
     <td><details><summary>JSON</summary><pre style="max-height:220px; overflow:auto; background:#1e2229; color:#d7dce3; border-radius:6px; padding:8px; font-size:.74rem;">${escapeHtml(JSON.stringify({ airBoundIds: record.airBoundIds, fareFamilies: record.fareFamilies, startRequest: record.startRequest, price: record.price, details: record.details }, null, 2))}</pre></details></td>`;
   $("resultsBody").appendChild(tr);
+}
+function filterResults() {
+  const rows = $("resultsBody").rows;
+  let shown = 0;
+  for (const row of rows) {
+    const r = row.getAttribute("data-result");
+    const show = (state.filter === "all" || r === state.filter);
+    row.style.display = show ? "" : "none";
+    if (show) shown++;
+  }
+  $("filterCount").textContent = `（共 ${state.results.length} 条，显示 ${shown} 条）`;
 }
 
 /* ---------------- 导出 / 缓存 ---------------- */
@@ -741,6 +797,14 @@ $("btnDryRun").addEventListener("click", dryRun);
 $("optExecute").addEventListener("change", refreshRunButtons);
 $("btnStop").addEventListener("click", () => { state.stopRequested = true; if (controller) controller.abort(); });
 $("btnClearLog").addEventListener("click", () => { $("log").innerHTML = ""; });
+$("filterBar").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-filter]");
+  if (!btn) return;
+  $("filterBar").querySelectorAll("button").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  state.filter = btn.getAttribute("data-filter");
+  filterResults();
+});
 ["baseUrl","rloc","lastName","channel","traceId","cookie","dateRetries","pollInterval","maxPolls","limit","optExecute","optVerbose","optStartWrapped"]
   .forEach(id => $(id).addEventListener("change", saveParams));
 $("btnExportCombos").addEventListener("click", () => download("rebook-combinations.jsonl", state.combinations.map(o => JSON.stringify({ airBoundIds: o.map(x => x.airBoundId) })).join("\n") + "\n"));
