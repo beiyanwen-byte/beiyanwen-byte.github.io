@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ATC Rebook 分步执行器 - Rebook Combination Runner</title>
+<style>
+  :root {
+    --bg-color: #f5f7fa; --card-bg: #ffffff; --text-color: #2c3038; --muted: #6b7280;
+    --border-color: #dfe3e8; --primary-color: #4a90e2; --hover-color: #357abd;
+    --ok: #1a7f37; --warn: #b26a00; --err: #c0392b;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; line-height: 1.55; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  h1 { text-align: center; margin: 0 0 6px; font-size: 1.55rem; }
+  .subtitle { text-align: center; color: var(--muted); font-size: .9rem; margin-bottom: 22px; }
+  .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 18px 20px; margin-bottom: 18px; }
+  .card h2 { font-size: 1.05rem; margin: 0 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .card h2 .hint { font-size: .78rem; font-weight: 400; color: var(--muted); }
+  .step-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--primary-color); color: #fff; font-size: .78rem; font-weight: 700; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 16px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: .82rem; color: #3d4450; font-weight: 600; }
+  .field label .en { font-weight: 400; color: var(--muted); font-size: .76rem; }
+  .field input[type=text], .field input[type=number], .field textarea { padding: 7px 9px; border: 1px solid var(--border-color); border-radius: 5px; font-family: var(--mono); font-size: .85rem; background: #fff; color: inherit; width: 100%; }
+  .field textarea { resize: vertical; min-height: 34px; }
+  .field input:focus, .field textarea:focus { outline: 2px solid rgba(74,144,226,.35); border-color: var(--primary-color); }
+  .checks { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 6px; }
+  .checks label { font-weight: 600; font-size: .85rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .checks .en { font-weight: 400; color: var(--muted); font-size: .76rem; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+  button { padding: 9px 16px; border: 1px solid transparent; border-radius: 5px; cursor: pointer; font-size: .9rem; font-weight: 600; background: var(--primary-color); color: #fff; transition: background .15s; }
+  button:hover:not(:disabled) { background: var(--hover-color); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.secondary { background: #fff; color: var(--text-color); border-color: var(--border-color); }
+  button.secondary:hover:not(:disabled) { background: #eef2f7; }
+  button.danger { background: var(--err); }
+  button.danger:hover:not(:disabled) { background: #97281c; }
+  .status-pill { font-size: .8rem; padding: 3px 10px; border-radius: 20px; background: #eef2f7; color: var(--muted); }
+  .status-pill.run { background: #fff4e0; color: var(--warn); }
+  .status-pill.done { background: #e6f4ea; color: var(--ok); }
+  .status-pill.stop { background: #fdecea; color: var(--err); }
+  .note { font-size: .82rem; color: var(--muted); background: #f8fafc; border-left: 3px solid var(--primary-color); padding: 8px 12px; border-radius: 4px; margin-top: 12px; }
+  .note b { color: var(--text-color); }
+  .log { font-family: var(--mono); font-size: .8rem; line-height: 1.5; background: #1e2229; color: #d7dce3; border-radius: 6px; padding: 12px 14px; max-height: 460px; overflow: auto; white-space: pre-wrap; word-break: break-word; margin: 0; }
+  .log .l-ok { color: #5ddc7a; } .log .l-err { color: #ff7b6b; } .log .l-warn { color: #ffc457; }
+  .log .l-dim { color: #8b95a3; } .log .l-head { color: #7cc4ff; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+  th { background: #f7f9fb; font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+  td .k { font-family: var(--mono); font-size: .76rem; color: var(--muted); }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 12px; font-size: .74rem; font-weight: 700; }
+  .tag.success { background: #e6f4ea; color: var(--ok); }
+  .tag.failed, .tag.start_failed { background: #fdecea; color: var(--err); }
+  .tag.timeout { background: #fff4e0; color: var(--warn); }
+  details summary { cursor: pointer; color: var(--primary-color); font-size: .78rem; }
+  .combos { font-family: var(--mono); font-size: .78rem; max-height: 240px; overflow: auto; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; }
+  .combos div { padding: 2px 0; border-bottom: 1px dashed #e7ebf0; }
+  .combos div:last-child { border-bottom: 0; }
+  .footer { text-align: center; color: var(--muted); font-size: .82rem; margin-top: 26px; }
+  .hidden { display: none !important; }
+  .count-badge { background: var(--primary-color); color: #fff; border-radius: 10px; padding: 1px 9px; font-size: .76rem; font-weight: 700; }
+  .banner-err { background: #fdecea; border-left: 3px solid var(--err); color: #7d1d13; padding: 10px 12px; border-radius: 4px; font-size: .85rem; margin-top: 12px; white-space: pre-wrap; }
+  .bound-card { border: 1px solid var(--border-color); border-radius: 7px; padding: 12px 14px; margin-bottom: 12px; background: #fcfdfe; }
+  .bound-card.changed { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(74,144,226,.12); }
+  .bound-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; margin-bottom: 8px; }
+  .bound-head .bidx { font-weight: 700; color: var(--primary-color); }
+  .bound-head .meta { font-family: var(--mono); font-size: .76rem; color: var(--muted); }
+  .seg-route { font-family: var(--mono); }
+  .datepick { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font-size: .84rem; }
+  .datepick input[type=date] { padding: 5px 8px; border: 1px solid var(--border-color); border-radius: 5px; font-family: var(--mono); font-size: .84rem; }
+  .datepick input[type=date]:disabled { background: #f1f3f5; color: #9aa1ab; }
+  .datepick input[type=date].changed { border-color: var(--primary-color); background: #eef4fb; font-weight: 700; }
+  .datepick .nochange { font-weight: 700; color: #3d4450; display: inline-flex; align-items: center; gap: 5px; padding-right: 10px; border-right: 1px solid var(--border-color); margin-right: 4px; }
+  .exec-toggle { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: .88rem; cursor: pointer; padding: 7px 12px; border: 1px dashed var(--primary-color); border-radius: 5px; background: #f2f7fe; }
+  .exec-toggle input { width: 16px; height: 16px; }
+  .exec-toggle .en { font-weight: 400; color: var(--muted); font-size: .76rem; }
+  .chip { font-size: .74rem; padding: 1px 8px; border-radius: 10px; background: #eef4fb; color: #2b5f9e; font-family: var(--mono); }
+  .chip.warn { background: #fff4e0; color: var(--warn); }
+  .ff { display: inline-block; padding: 1px 7px; border-radius: 10px; background: #e8f0fe; color: #1a5cad; font-weight: 700; font-size: .74rem; }
+  .cabin { display: inline-block; padding: 0 6px; border-radius: 10px; background: #f0f2f5; color: #5b6472; font-size: .72rem; }
+  .price-cell .zero { color: var(--ok); font-weight: 700; }
+  .price-cell .nonzero { color: var(--err); font-weight: 700; }
+  .price-cell .sub { font-family: var(--mono); font-size: .72rem; color: var(--muted); }
+  .plan { font-size: .82rem; margin-top: 8px; }
+  .plan code { font-family: var(--mono); font-size: .78rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🔁 ATC Rebook 分步执行器</h1>
+  <div class="subtitle">Rebook Combination Runner（分步版）— 纯静态页面，浏览器直接调接口（无后端）</div>
+
+  <!-- 0 参数 -->
+  <div class="card">
+    <h2><span class="step-num">0</span> 参数配置 <span class="hint">Parameters</span></h2>
+    <div class="grid">
+      <div class="field" style="grid-column: 1 / -1;">
+        <label>Base URL <span class="en">接口根地址</span></label>
+        <input type="text" id="baseUrl" value="https://book-wav.ete.cathaypacific.com/tsp-d1/tsp-svc/v1.0" />
+      </div>
+      <div class="field"><label>RLOC <span class="en">订座记录</span></label><input type="text" id="rloc" value="EMUG8D" /></div>
+      <div class="field"><label>Last Name <span class="en">姓</span></label><input type="text" id="lastName" value="aa" /></div>
+      <div class="field"><label>x-channel</label><input type="text" id="channel" value="WEB" /></div>
+      <div class="field"><label>x-trace-id <span class="en">留空则用资格接口返回的值</span></label><input type="text" id="traceId" placeholder="(auto)" /></div>
+      <div class="field" style="grid-column: 1 / -1;">
+        <label>Cookie <span class="en">可选；浏览器禁止 JS 设置 Cookie 头，一般留空靠登录态自动带</span></label>
+        <textarea id="cookie" rows="1" placeholder="(可选)"></textarea>
+      </div>
+      <div class="field"><label>自动往后试 N 天 <span class="en">1 = 只用所选日期</span></label><input type="number" id="dateRetries" value="1" min="1" /></div>
+      <div class="field"><label>poll-interval (秒)</label><input type="number" id="pollInterval" value="2" min="0.2" step="0.2" /></div>
+      <div class="field"><label>max-polls</label><input type="number" id="maxPolls" value="30" min="1" /></div>
+      <div class="field"><label>limit <span class="en">最多处理多少组合（空=不限）</span></label><input type="number" id="limit" placeholder="(不限)" min="1" /></div>
+    </div>
+    <div class="checks">
+      <label><input type="checkbox" id="optVerbose" /> <span>verbose <span class="en">打印每次请求/响应详情</span></span></label>
+      <label><input type="checkbox" id="optStartWrapped" /> <span>start 用 <code>{body:{…}}</code> 包裹 <span class="en">py 脚本默认是不包裹；若你的环境要求包裹就勾上</span></span></label>
+    </div>
+  </div>
+
+  <!-- 1 获取订单 -->
+  <div class="card" id="cardOrder">
+    <h2><span class="step-num">1</span> 获取订单并查看航班 <span class="hint">check-rebook-eligible → retrieve-rebook-order</span></h2>
+    <div class="row">
+      <button id="btnOrder">① 获取订单 / Get order</button>
+      <span class="status-pill" id="orderStatus">未开始</span>
+      <span id="orderMeta" class="hidden"><span class="chip" id="orderTspId"></span> <span class="chip" id="orderTrace"></span></span>
+    </div>
+    <div id="orderResult" class="hidden" style="margin-top:14px;"></div>
+    <div id="dateControls" class="hidden" style="margin-top:6px;">
+      <div class="plan" id="planNote"></div>
+    </div>
+  </div>
+
+  <!-- 2 查询报价 -->
+  <div class="card" id="cardOffers">
+    <h2><span class="step-num">2</span> 查询报价 / 组合 <span class="hint">rebook-complex-air-bound（只搜改动的 bound）</span></h2>
+    <div class="row">
+      <button id="btnOffers" disabled>② 查询报价 / Search offers</button>
+      <span class="status-pill" id="offersStatus">待 Step 1</span>
+      <span id="comboCount" class="hidden"><span class="count-badge" id="comboCountNum">0</span> 个组合</span>
+      <button id="btnExportCombos" class="secondary hidden">导出组合列表</button>
+    </div>
+    <div id="offersProgress" class="note hidden" role="status" aria-live="polite"></div>
+    <div style="margin-top:14px;"><div class="combos" id="combos" style="display:none;"></div></div>
+  </div>
+
+  <!-- 3 执行 -->
+  <div class="card" id="cardRun">
+    <h2><span class="step-num">3</span> 执行 <span class="hint">rebook-complex-order-change-start → …-polling</span></h2>
+    <div class="row">
+      <label class="exec-toggle"><input type="checkbox" id="optExecute" /> <span>execute <span class="en">真正发请求</span></span></label>
+      <button id="btnRun" disabled>▶ 开始执行 / Run</button>
+      <button id="btnDryRun" class="secondary" disabled>📋 只列组合 / Dry run</button>
+      <button id="btnStop" class="danger" disabled>■ 停止 / Stop</button>
+      <span class="status-pill" id="runStatus">待机</span>
+      <span class="status-pill" id="runProgress" style="display:none;"></span>
+      <button id="btnExportResults" class="secondary hidden">下载结果 JSONL</button>
+    </div>
+    <div class="note" id="execHint">⚠ 未勾选 <b>execute</b> → 「开始执行」不可用。勾选后才能真正发请求；不勾选也可用「只列组合」预览。</div>
+    <div class="banner-err hidden" id="errorBanner"></div>
+    <div style="margin-top:16px;">
+      <table id="resultsTable" class="hidden">
+        <thead><tr><th style="width:52px;">#</th><th style="width:100px;">结果</th><th>组合（舱位 · airBoundId）</th><th style="width:70px;">轮询</th><th style="width:190px;">改单价格 · additionalCollection</th><th style="width:70px;">详情</th></tr></thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:16px;">
+      <h2 style="border:0; padding:0; margin:0 0 8px;">运行日志 <span class="hint">Log</span>
+        <button id="btnClearLog" class="secondary" style="margin-left:auto; padding:4px 10px; font-size:.78rem;">清空</button></h2>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+
+  <div class="footer">纯浏览器实现 · 流程对齐 <code>rebook_combination_runner.py</code> · 不上传任何数据，直接调用接口</div>
+</div>
+
+<script>
+"use strict";
+
+const PATHS = {
+  eligible: "check-rebook-eligible", order: "retrieve-rebook-order",
+  airBound: "rebook-complex-air-bound", start: "rebook-complex-order-change-start",
+  polling: "rebook-complex-order-change-polling", price: "rebook-complex-order-change",
+};
+const $ = (id) => document.getElementById(id);
+const state = {
+  order: null, combinations: [], changedBounds: [], tspId: "", traceId: "",
+  results: [], running: false, stopRequested: false, completed: new Set(),
+};
+let controller = null;
+
+/* ---------------- 日志 / 工具 ---------------- */
+function logLine(t, cls) { const el = $("log"); const d = document.createElement("div"); if (cls) d.className = cls; d.textContent = t; el.appendChild(d); el.scrollTop = el.scrollHeight; }
+function logHead(t) { logLine("=".repeat(90), "l-dim"); logLine(t, "l-head"); }
+function logJson(label, obj) { logLine(label, "l-dim"); logLine(JSON.stringify(obj, null, 2), ""); }
+function escapeHtml(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function setStatus(id, txt, cls) { const el = $(id); el.textContent = txt; el.className = "status-pill" + (cls ? " " + cls : ""); }
+function showError(m) { const el = $("errorBanner"); el.textContent = m; el.classList.remove("hidden"); }
+function clearError() { const el = $("errorBanner"); el.textContent = ""; el.classList.add("hidden"); }
+function sleep(ms, signal) { return new Promise((res, rej) => { const t = setTimeout(res, ms); if (signal) signal.addEventListener("abort", () => { clearTimeout(t); rej(new DOMException("aborted", "AbortError")); }, { once: true }); }); }
+
+/* ---------------- 舱位 / fare family 映射 ---------------- */
+function cabinLabel(code) {
+  const c = (code || "").toUpperCase();
+  return ({ Y: "Economy", W: "Premium Economy", C: "Business", F: "First" })[c] || (c || "—");
+}
+function fareFamilyLabel(name) {
+  const n = (name || "").toUpperCase();
+  let cabin = "", tier = "";
+  if (n.startsWith("ECON") || n.startsWith("ECO")) cabin = "Economy";
+  else if (n.startsWith("PEY")) cabin = "Premium Economy";
+  else if (n.startsWith("BIZ")) cabin = "Business";
+  else if (n.startsWith("FST") || n.startsWith("FIR")) cabin = "First";
+  if (n.endsWith("LIGHT")) tier = "Light";
+  else if (n.endsWith("ESSENT")) tier = "Essential";
+  else if (n.endsWith("FLEX")) tier = "Flex";
+  return [cabin, tier].filter(Boolean).join(" ") || n || "—";
+}
+function fareFamilyBadge(o) {
+  const label = fareFamilyLabel(o.fareFamilyName || o.brandCode);
+  const cabin = cabinLabel(o.cabinClass);
+  return `<span class="ff" title="cabinClass=${escapeHtml(o.cabinClass || "")}">${escapeHtml(label)}</span>` +
+    (label && !label.startsWith(cabin) && cabin !== "—" ? ` <span class="cabin">${escapeHtml(cabin)}</span>` : "");
+}
+function moneyText(v) {
+  if (v == null) return "—";
+  if (typeof v === "number") return String(v);
+  if (typeof v === "string") return v;
+  if (typeof v === "object") {
+    const val = v.value !== undefined ? v.value : v.amount;
+    if (val !== undefined) return `${val} ${v.currencyCode || v.currency || ""}`.trim();
+  }
+  return String(v);
+}
+function moneyIsZero(v) {
+  if (v == null) return false;
+  if (typeof v === "number") return v === 0;
+  if (typeof v === "object") { const val = v.value !== undefined ? v.value : v.amount; return Number(val) === 0; }
+  return Number(v) === 0;
+}
+function deepFind(obj, key, depth) {
+  depth = depth || 0;
+  if (!obj || typeof obj !== "object" || depth > 10) return undefined;
+  if (Object.prototype.hasOwnProperty.call(obj, key)) return obj[key];
+  for (const k of Object.keys(obj)) { const r = deepFind(obj[k], key, depth + 1); if (r !== undefined) return r; }
+  return undefined;
+}
+
+function readParams() {
+  const lim = $("limit").value.trim();
+  return {
+    baseUrl: $("baseUrl").value.trim().replace(/\/+$/, ""),
+    rloc: $("rloc").value.trim(), lastName: $("lastName").value.trim(),
+    channel: $("channel").value.trim(), traceId: $("traceId").value.trim(), cookie: $("cookie").value.trim(),
+    dateRetries: Math.max(1, parseInt($("dateRetries").value, 10) || 1),
+    pollInterval: Math.max(0.2, parseFloat($("pollInterval").value) || 2),
+    maxPolls: Math.max(1, parseInt($("maxPolls").value, 10) || 30),
+    limit: lim === "" ? null : Math.max(1, parseInt(lim, 10)),
+    execute: $("optExecute").checked, verbose: $("optVerbose").checked,
+    startWrapped: $("optStartWrapped").checked,
+  };
+}
+
+/* ---------------- HTTP ---------------- */
+async function apiPost(p, path, body, wrapped, signal) {
+  const url = p.baseUrl + "/" + path.replace(/^\/+/, "");
+  const headers = { "Content-Type": "application/json", "Accept": "application/json" };
+  if (p.channel) headers["x-channel"] = p.channel;
+  if (p.traceId) headers["x-trace-id"] = p.traceId;
+  if (p.cookie) headers["Cookie"] = p.cookie;
+  const payload = wrapped ? { body } : body;
+  let resp;
+  try { resp = await fetch(url, { method: "POST", headers, body: JSON.stringify(payload), credentials: "include", signal }); }
+  catch (e) { if (e.name === "AbortError") throw e; return { status: null, error: "networkError: " + e.message, request: payload, url }; }
+  const hdr = {}; resp.headers.forEach((v, k) => { hdr[k.toLowerCase()] = v; });
+  const text = await resp.text(); let parsed = text; try { parsed = JSON.parse(text); } catch (_) {}
+  return { status: resp.status, json: parsed, headers: hdr, request: payload, url };
+}
+function requireSuccess(step, r) {
+  if (r.status != null && r.status >= 200 && r.status < 300) return;
+  throw new Error(`${step} 失败 (HTTP ${r.status}): ${r.status == null ? (r.error || "") : JSON.stringify(r.json)}`);
+}
+function printDetails(step, r, verbose) {
+  const ok = r.status != null && r.status >= 200 && r.status < 300;
+  if (!verbose && ok) return;
+  logHead(`${step} (HTTP ${r.status})`);
+  logJson("Request:", r.request && r.request.body !== undefined ? r.request.body : r.request);
+  logJson("Response headers:", r.headers || {});
+  logJson("Response body:", r.json);
+}
+
+/* ---------------- Step 1 ---------------- */
+async function fetchOrder(p, signal) {
+  logHead("Step 1/4: checking rebook eligibility");
+  let r = await apiPost(p, PATHS.eligible, { rloc: p.rloc, lastName: p.lastName, atcFlow: "REBOOK" }, true, signal);
+  printDetails("check-rebook-eligible", r, p.verbose);
+  requireSuccess("check-rebook-eligible", r);
+  const trace = r.headers && r.headers["x-trace-id"];
+  if (!trace) throw new Error("Eligibility 响应没有 x-trace-id");
+  p.traceId = trace; state.traceId = trace; logLine("  x-trace-id: " + trace, "l-ok");
+
+  logHead("Step 2/4: retrieving rebook order");
+  r = await apiPost(p, PATHS.order, { lastName: p.lastName, rloc: p.rloc, entryLanguage: "en", entryCountry: "HK" }, true, signal);
+  printDetails("retrieve-rebook-order", r, p.verbose);
+  requireSuccess("retrieve-rebook-order", r);
+  state.tspId = r.json.data.tspId;
+  logLine("  tspId: " + state.tspId, "l-ok");
+
+  const bounds = r.json.data.air.bounds;
+  if (!bounds || !bounds.length) throw new Error("订单里没有 air bounds");
+  state.order = {
+    tspId: state.tspId, traceId: trace,
+    bounds: bounds.map((b, i) => ({
+      index: i, boundId: String(b.airBoundId), airBoundId: b.airBoundId,
+      departureDate: b.flights[0].flightInfo.departure.dateTime.slice(0, 10), raw: b,
+      flights: (b.flights || []).map(f => {
+        const info = f.flightInfo || {};
+        return {
+          flightNumber: `${info.marketingAirlineCode || ""}${info.marketingFlightNumber || ""}`,
+          depCode: info.departure && info.departure.airportCode, depTime: info.departure && info.departure.dateTime,
+          arrCode: info.arrival && info.arrival.airportCode, arrTime: info.arrival && info.arrival.dateTime,
+          cabin: f.cabinClass, rbd: f.rbd, fareFamily: f.fareFamilyCode,
+          status: info.flightStatus || info.status || "",
+        };
+      }),
+    })),
+  };
+  return state.order;
+}
+
+function renderOrder() {
+  const o = state.order;
+  $("orderMeta").classList.remove("hidden");
+  $("orderTspId").textContent = "tspId: " + o.tspId;
+  $("orderTrace").textContent = "trace: " + o.traceId;
+  const box = $("orderResult");
+  box.classList.remove("hidden");
+  box.innerHTML = o.bounds.map(b => `
+    <div class="bound-card" id="bcard-${b.index}">
+      <div class="bound-head">
+        <span class="bidx">Bound ${b.index + 1}</span>
+        <span class="meta">boundId=${escapeHtml(b.boundId)} · 原始出发日 ${escapeHtml(b.departureDate)} · ${escapeHtml(b.flights.map(f => f.flightNumber + " " + f.depCode + "→" + f.arrCode).join(" / "))}</span>
+      </div>
+      <table>
+        <thead><tr><th style="width:90px;">航班</th><th>航线</th><th>出发</th><th>到达</th><th style="width:150px;">舱位/RBD</th><th style="width:80px;">状态</th></tr></thead>
+        <tbody>${b.flights.map(f => `
+          <tr>
+            <td class="k">${escapeHtml(f.flightNumber) || "-"}</td>
+            <td class="seg-route">${escapeHtml(f.depCode || "?")} → ${escapeHtml(f.arrCode || "?")}</td>
+            <td class="k">${escapeHtml(f.depTime || "-")}</td>
+            <td class="k">${escapeHtml(f.arrTime || "-")}</td>
+            <td class="k">${escapeHtml([f.cabin, f.rbd, f.fareFamily].filter(Boolean).join(" / ")) || "-"}</td>
+            <td>${escapeHtml(f.status) || "-"}</td>
+          </tr>`).join("")}</tbody>
+      </table>
+      <div class="datepick">
+        <label class="nochange"><input type="checkbox" class="nchg" id="nchg-${b.index}" checked /> 不更改此航班</label>
+        <label>出发日期</label>
+        <input type="date" id="date-${b.index}" value="${escapeHtml(b.departureDate)}" data-orig="${escapeHtml(b.departureDate)}" disabled />
+        <span class="chip hidden" id="chg-${b.index}">要更改</span>
+      </div>
+    </div>`).join("");
+  $("dateControls").classList.remove("hidden");
+  state.order.bounds.forEach(b => {
+    $("nchg-" + b.index).addEventListener("change", updatePlan);
+    $("date-" + b.index).addEventListener("change", updatePlan);
+  });
+  updatePlan();
+}
+
+/* 每个 bound：勾「不更改此航班」= 保持该航班；取消勾选 = 要更改（日期可选新的，也可保持原日期） */
+function updatePlan() {
+  if (!state.order) return;
+  const picked = [];
+  state.order.bounds.forEach(b => {
+    const notChange = $("nchg-" + b.index).checked;
+    const el = $("date-" + b.index);
+    const willChange = !notChange;
+    el.disabled = notChange;
+    const dateChanged = willChange && el.value && el.value !== el.dataset.orig;
+    el.classList.toggle("changed", dateChanged);
+    $("chg-" + b.index).classList.toggle("hidden", !willChange);
+    $("chg-" + b.index).textContent = dateChanged ? "改日期" : "要更改";
+    $("bcard-" + b.index).classList.toggle("changed", willChange);
+    if (willChange) picked.push({ index: b.index, boundId: b.boundId, original: el.dataset.orig, date: el.value || el.dataset.orig });
+  });
+  state.changedBounds = picked;
+
+  const note = $("planNote");
+  if (!picked.length) {
+    note.innerHTML = '所有 bound 都勾选了「不更改此航班」→ 保持航班不变，<b>不调用</b> <code>rebook-complex-air-bound</code>，流程到 Step 1 结束。';
+    $("btnOffers").disabled = true;
+  } else {
+    note.innerHTML = '要更改 <b>' + picked.length + '</b> 个 bound：' +
+      picked.map(c => `Bound${c.index + 1} → <code>${escapeHtml(c.date)}</code>${c.date === c.original ? '（原日期）' : ''}`).join("、") +
+      '。<br>→ 依次查询所选 bound；每次 <code>itineraries</code> 都带全部 bound，当前项加 <code>isRequestedBound</code>，前面已查询的项加 <code>selectedBoundId</code>；未更改的项仅保留原日期。';
+    $("btnOffers").disabled = false;
+  }
+  // 选择变了 → 旧报价/组合已过期，清空并等重新查询
+  if (state.combinations.length) {
+    state.combinations = [];
+    $("combos").style.display = "none"; $("combos").innerHTML = "";
+    $("comboCount").classList.add("hidden"); $("btnExportCombos").classList.add("hidden");
+  }
+  refreshRunButtons();
+  setStatus("offersStatus", picked.length ? "已选要更改的航班，可查询报价" : "未更改航班");
+}
+
+/* ---------------- Step 2: 只搜改动的 bound ---------------- */
+function departureDate(seg) { return seg.flightInfo.departure.dateTime.slice(0, 10); }
+function fareClassByFlight(offer) { const c = {}; for (const fi of (offer.fareInfos || [])) { if (!fi.fareClass) continue; for (const fid of (fi.flightIds || [])) (c[fid] = c[fid] || new Set()).add(fi.fareClass); } return c; }
+function boundIdentifier(flight, offer) {
+  const classes = fareClassByFlight(offer); const parts = [];
+  for (const seg of flight.flightDetails.flightSegments) {
+    const info = seg.flightInfo, fid = seg.flightId;
+    const fcs = Array.from(classes[fid] || []);
+    if (fcs.length !== 1) throw new Error(`Expected one fareClass for ${fid}, found [${fcs.sort()}]`);
+    parts.push([info.departure.airportCode, info.arrival.airportCode, departureDate(seg), `${info.marketingAirlineCode}${info.marketingFlightNumber}`, fcs[0]].join(","));
+  }
+  return parts.join("|");
+}
+function selectedBoundIdentifier(flight, offer) {
+  return flight.flightDetails.flightSegments.map(seg => { const i = seg.flightInfo; return [i.departure.airportCode, i.arrival.airportCode, departureDate(seg), `${i.marketingAirlineCode}${i.marketingFlightNumber}`, offer.fareFamilyName].join(","); }).join("|");
+}
+function optionsFromResponse(res) {
+  const out = [];
+  for (const flight of (res.data.flightList || [])) {
+    for (const offer of (flight.flightOffers || [])) {
+      out.push({
+        airBoundId: boundIdentifier(flight, offer), selectedBoundId: selectedBoundIdentifier(flight, offer),
+        fareFamilyName: offer.fareFamilyName, cabinClass: offer.cabinClass, totalPrice: offer.totalPrice,
+      });
+    }
+  }
+  return out;
+}
+function cartesian(lists) { return lists.reduce((acc, l) => acc.flatMap(a => l.map(b => a.concat([b]))), [[]]); }
+
+async function searchOffers(p, signal) {
+  const o = state.order;
+  const changed = state.changedBounds.slice().sort((a, b) => a.index - b.index);
+  const offersByChanged = [];
+  const selected = new Map();
+
+  for (const [position, cb] of changed.entries()) {
+    const idx = cb.index;
+    setStatus("offersStatus", `查询第 ${position + 1}/${changed.length} 班 · Bound ${idx + 1}`, "run");
+    $("offersProgress").textContent = `已完成 ${position}/${changed.length} 班；正在查询 Bound ${idx + 1}（boundId=${cb.boundId}，${cb.date}）。itineraries 包含全部 bound，已查过的 bound 带 selectedBoundId。`;
+    logLine(`查询第 ${position + 1}/${changed.length} 班：Bound ${idx + 1}（boundId=${cb.boundId}）`, "l-head");
+    const baseDate = cb.date;
+    const base = new Date(baseDate + "T00:00:00Z");
+    let resp = null;
+    for (let offset = 0; offset < p.dateRetries; offset++) {
+      if (signal && signal.aborted) throw new DOMException("aborted", "AbortError");
+      const searchDate = new Date(base.getTime() + offset * 86400000).toISOString().slice(0, 10);
+      const itineraries = o.bounds.map(b => ({ departureDate: b.departureDate, boundId: b.boundId }));
+      for (const [previousIndex, selectedId] of selected) itineraries[previousIndex].selectedBoundId = selectedId;
+      itineraries[idx].departureDate = searchDate;
+      itineraries[idx].isRequestedBound = true;
+      const request = {
+        rloc: p.rloc, lastName: p.lastName,
+        entryLanguage: "en", entryCountry: "HK",
+        itineraries, tspId: o.tspId,
+      };
+      resp = await apiPost(p, PATHS.airBound, request, true, signal);
+      printDetails(`rebook-complex-air-bound Bound${idx + 1} (boundId=${cb.boundId}, ${searchDate}) attempt ${offset + 1}/${p.dateRetries}`, resp, p.verbose);
+      const has = !!(resp.json && resp.json.data && resp.json.data.flightList && resp.json.data.flightList.length);
+      if (resp.status != null && resp.status >= 200 && resp.status < 300 && has) { if (offset) logLine(`  Bound${idx + 1} 用 ${searchDate} 才拿到报价`, "l-warn"); break; }
+      if (resp.status != null && resp.status >= 200 && resp.status < 300) logLine(`  Bound${idx + 1} 该日期无报价，尝试下一个日期`, "l-dim");
+    }
+    requireSuccess(`rebook-complex-air-bound Bound${idx + 1}`, resp);
+    const options = optionsFromResponse(resp.json);
+    logLine(`  Bound${idx + 1} (boundId=${cb.boundId}) offers: ${options.length}`, "l-ok");
+    if (!options.length) throw new Error(`Bound${idx + 1} 没有可用报价`);
+    offersByChanged.push(options);
+    // 用第一个报价作为后续 bound 查询的上下文；最终组合仍覆盖全部报价。
+    selected.set(idx, options[0].selectedBoundId);
+    $("offersProgress").textContent = `已完成 ${position + 1}/${changed.length} 班；Bound ${idx + 1} 获得 ${options.length} 个报价。${position + 1 < changed.length ? `下一班：Bound ${changed[position + 1].index + 1}。` : "全部报价到齐，正在生成组合。"}`;
+  }
+  // 组合维度 = 各“改动 bound”的 offers（不改的 bound 不参与变化）
+  return { combos: cartesian(offersByChanged), changedOrder: changed.map(c => c.index) };
+}
+
+function renderCombos() {
+  const box = $("combos");
+  $("comboCount").classList.remove("hidden");
+  $("comboCountNum").textContent = state.combinations.length;
+  $("btnExportCombos").classList.toggle("hidden", state.combinations.length === 0);
+  if (!state.combinations.length) { box.style.display = "none"; box.innerHTML = ""; return; }
+  box.style.display = "block";
+  box.innerHTML = state.combinations.map((opts, i) =>
+    `<div>#${i + 1} &nbsp; ${opts.map(o => fareFamilyBadge(o) + " <span>" + escapeHtml(o.airBoundId) + "</span>").join(" &nbsp;⟂&nbsp; ")}</div>`).join("");
+}
+
+/* ---------------- Step 3: 执行 + 轮询 ---------------- */
+function pollingStatus(resp) {
+  let data = (resp && resp.data) || {};
+  if (!Object.keys(data).length && resp && resp.body && typeof resp.body === "object") data = resp.body.data || {};
+  const s = data.status; return typeof s === "string" ? s.toLowerCase() : null;
+}
+async function runCombination(p, options, signal) {
+  const request = { tspId: p.tspId, airBoundIds: options.map(o => o.airBoundId), rloc: p.rloc, lastName: p.lastName };
+  const start = await apiPost(p, PATHS.start, request, p.startWrapped, signal);
+  if (start.status == null || !(start.status >= 200 && start.status < 300)) return { result: "start_failed", details: { start: start.json || start.error }, request };
+  const polls = [];
+  const pollingRequest = { tspId: p.tspId, rloc: p.rloc, lastName: p.lastName };
+  for (let i = 0; i < p.maxPolls; i++) {
+    if (signal && signal.aborted) throw new DOMException("aborted", "AbortError");
+    await sleep(p.pollInterval * 1000, signal);
+    const pr = await apiPost(p, PATHS.polling, pollingRequest, true, signal);
+    polls.push({ httpStatus: pr.status, body: pr.json });
+    const st = pollingStatus(pr.json);
+    if (st === "success") return { result: "success", details: { start: start.json, polls }, request };
+    if (st === "fail" || pr.status == null || (pr.status && pr.status >= 400)) return { result: "failed", details: { start: start.json, polls }, request };
+  }
+  return { result: "timeout", details: { start: start.json, polls }, request };
+}
+
+/* 改单后的价格：/rebook-complex-order-change?flow=complexRebook
+   body: {body:{lastName,tspId,rloc}}；响应里有 airOffer → prices → exchangePrices */
+async function queryChangePrice(p, signal) {
+  const r = await apiPost(p, PATHS.price + "?flow=complexRebook", { lastName: p.lastName, tspId: p.tspId, rloc: p.rloc }, true, signal);
+  const out = { httpStatus: r.status, ok: r.status != null && r.status >= 200 && r.status < 300, raw: r.json };
+  const ex = deepFind(r.json, "exchangePrices");
+  if (ex && typeof ex === "object") {
+    out.exchangePrices = ex;
+    out.additionalCollection = ex.additionalCollection !== undefined ? ex.additionalCollection : ex.additionalCollectionAmount;
+    out.refund = ex.refund !== undefined ? ex.refund : (ex.refundAmount !== undefined ? ex.refundAmount : ex.refundInfo);
+    out.currency = ex.currencyCode;
+  }
+  if (out.additionalCollection === undefined) { const a = deepFind(r.json, "additionalCollection"); if (a !== undefined) out.additionalCollection = a; }
+  if (out.refund === undefined) { const rf = deepFind(r.json, "refund"); if (rf !== undefined) out.refund = rf; }
+  return out;
+}
+
+/* ---------------- 事件 ---------------- */
+async function onOrder() {
+  clearError();
+  const p = readParams();
+  if (!p.rloc || !p.lastName) { showError("请填写 RLOC 和 Last Name。"); return; }
+  $("btnOrder").disabled = true; setStatus("orderStatus", "获取中…", "run");
+  $("orderResult").classList.add("hidden"); $("dateControls").classList.add("hidden"); $("orderMeta").classList.add("hidden");
+  state.order = null; state.combinations = []; state.changedBounds = []; state.completed.clear();
+  $("offersProgress").classList.add("hidden");
+  $("btnOffers").disabled = true; refreshRunButtons(); setStatus("offersStatus", "待 Step 1");
+  $("combos").style.display = "none"; $("comboCount").classList.add("hidden");
+  controller = new AbortController();
+  try {
+    await fetchOrder(p, controller.signal);
+    renderOrder();
+    setStatus("orderStatus", `完成 · ${state.order.bounds.length} 个 bound`, "done");
+  } catch (e) {
+    if (e.name === "AbortError") { setStatus("orderStatus", "已取消", "stop"); return; }
+    setStatus("orderStatus", "失败", "stop"); showError(e.message); logLine("ERROR: " + e.message, "l-err");
+  } finally { controller = null; $("btnOrder").disabled = false; }
+}
+
+async function onOffers() {
+  clearError();
+  const p = readParams();
+  if (!state.order) { showError("请先执行 Step 1。"); return; }
+  if (!state.changedBounds.length) { showError("所有航班都勾选了「不更改此航班」；要查询报价请先取消对应 bound 的勾选。"); return; }
+  p.tspId = state.order.tspId;
+  p.traceId = p.traceId || state.traceId;   // ← 补上 Step 1 拿到的 x-trace-id
+  $("btnOffers").disabled = true; $("btnOrder").disabled = true;
+  state.order.bounds.forEach(b => { $("nchg-" + b.index).disabled = true; $("date-" + b.index).disabled = true; });
+  $("offersProgress").classList.remove("hidden");
+  $("offersProgress").textContent = `准备依次查询 ${state.changedBounds.length} 班…`;
+  setStatus("offersStatus", "查询中…", "run"); refreshRunButtons();
+  state.combinations = [];
+  refreshRunButtons();
+  controller = new AbortController();
+  try {
+    logHead("Step 3/4: retrieving offers（只搜改动的 bound）");
+    logLine(`  tspId=${p.tspId}   x-trace-id=${p.traceId || "(空)"}`, "l-dim");
+    const { combos } = await searchOffers(p, controller.signal);
+    state.combinations = combos;
+    renderCombos();
+    setStatus("offersStatus", `完成 · ${combos.length} 个组合`, "done");
+    $("offersProgress").textContent = `${state.changedBounds.length} 班报价均已查询完成，组合数 ${combos.length}。现在可勾选 execute 并开始执行 order-change-start → polling。`;
+    refreshRunButtons();
+    await logCookies(p);
+  } catch (e) {
+    if (e.name === "AbortError") { setStatus("offersStatus", "已取消", "stop"); return; }
+    setStatus("offersStatus", "失败", "stop"); showError(e.message); logLine("ERROR: " + e.message, "l-err");
+  } finally {
+    controller = null;
+    $("btnOrder").disabled = false;
+    state.order.bounds.forEach(b => { $("nchg-" + b.index).disabled = false; $("date-" + b.index).disabled = $("nchg-" + b.index).checked; });
+    $("btnOffers").disabled = !state.changedBounds.length;
+  }
+}
+async function logCookies() { /* 预留：如需打印 cookie 可在此实现 */ }
+
+function dryRun() {
+  clearError();
+  if (!state.combinations.length) { showError("还没有组合，请先点「查询报价」。"); return; }
+  logHead(`只列组合（未发请求，共 ${state.combinations.length} 个）`);
+  state.combinations.forEach((opts, i) => logLine(`${i + 1}: ` + JSON.stringify({ airBoundIds: opts.map(o => o.airBoundId) })));
+  setStatus("runStatus", "已列组合 · 未执行", "run");
+}
+
+function refreshRunButtons() {
+  const hasCombos = state.combinations.length > 0;
+  $("btnRun").disabled = !($("optExecute").checked && hasCombos && !state.running);
+  $("btnDryRun").disabled = !hasCombos || state.running;
+  $("execHint").classList.toggle("hidden", $("optExecute").checked);
+}
+
+async function onRun() {
+  clearError();
+  const p = readParams();
+  if (!p.execute) {
+    showError("未勾选 execute → 不会发请求。请勾选「execute」再点开始执行，或用「只列组合」。");
+    return;
+  }
+  if (!state.combinations.length) { showError("还没有组合，请先点「查询报价」。"); return; }
+  p.tspId = state.order ? state.order.tspId : "";
+  p.traceId = p.traceId || state.traceId;
+  if (!p.tspId) { showError("缺少 tspId，请先执行 Step 1。"); return; }
+
+  state.running = true; state.stopRequested = false; state.results = [];
+  $("resultsBody").innerHTML = ""; $("resultsTable").classList.remove("hidden");
+  refreshRunButtons(); $("btnStop").disabled = false; $("btnOrder").disabled = true; $("btnOffers").disabled = true;
+  $("btnExportResults").classList.add("hidden"); setStatus("runStatus", "运行中", "run");
+  controller = new AbortController();
+  let processed = 0; const total = state.combinations.length;
+  try {
+    for (let i = 0; i < state.combinations.length; i++) {
+      if (state.stopRequested) break;
+      const opts = state.combinations[i];
+      const key = opts.map(o => o.airBoundId).join("||");
+      if (state.completed.has(key)) continue;
+      if (p.limit != null && processed >= p.limit) break;
+      $("runProgress").style.display = ""; $("runProgress").textContent = `${processed + 1} / ${total}`;
+      logLine(`#${i + 1} 执行组合 airBoundIds=[${key}]`, "l-head");
+      const { result, details, request } = await runCombination(p, opts, controller.signal);
+      const record = {
+        timestamp: new Date().toISOString(), combinationKey: key, result,
+        requestParameters: { rloc: p.rloc, lastName: p.lastName, tspId: p.tspId, traceId: p.traceId, channel: p.channel },
+        startRequest: request, airBoundIds: opts.map(o => o.airBoundId),
+        fareFamilies: opts.map(o => ({ airBoundId: o.airBoundId, fareFamilyName: o.fareFamilyName, cabinClass: o.cabinClass, label: fareFamilyLabel(o.fareFamilyName) })),
+        bounds: opts, details,
+      };
+      if (result === "success") {
+        logLine("  成功后查询改单价格：/rebook-complex-order-change?flow=complexRebook", "l-dim");
+        try { record.price = await queryChangePrice(p, controller.signal); } catch (e) { record.price = { error: e.message }; }
+        if (record.price) logLine(`  additionalCollection = ${moneyText(record.price.additionalCollection)}${moneyIsZero(record.price.additionalCollection) ? "  ✅ 0 元" : ""}   refund = ${moneyText(record.price.refund)}`,
+          moneyIsZero(record.price.additionalCollection) ? "l-ok" : "l-warn");
+      }
+      state.results.push(record);
+      if (result === "success") state.completed.add(key);
+      addResultRow(i + 1, record);
+      logLine(`${processed + 1}: ${result} - ${key}`, result === "success" ? "l-ok" : (result === "timeout" ? "l-warn" : "l-err"));
+      if (p.verbose || result !== "success") printAttempt(record);
+      processed++;
+    }
+    setStatus("runStatus", state.stopRequested ? "已停止" : "完成", state.stopRequested ? "stop" : "done");
+  } catch (e) {
+    if (e.name === "AbortError") setStatus("runStatus", "已停止", "stop");
+    else { setStatus("runStatus", "出错", "stop"); showError(e.message); logLine("ERROR: " + e.message, "l-err"); }
+  } finally {
+    state.running = false; controller = null;
+    $("btnStop").disabled = true; $("btnOrder").disabled = false; refreshRunButtons();
+    $("btnOffers").disabled = !state.changedBounds.length;
+    $("btnExportResults").classList.toggle("hidden", state.results.length === 0);
+  }
+}
+
+function printAttempt(record) {
+  logHead(`Result: ${record.result}`);
+  logLine("airBoundIds: " + JSON.stringify(record.airBoundIds));
+  logJson("Start request:", record.startRequest);
+  logJson("Start response:", record.details.start);
+  (record.details.polls || []).forEach((poll, i) => logJson(`Polling response #${i + 1} (HTTP ${poll.httpStatus}):`, poll.body));
+}
+function priceCell(price) {
+  if (!price) return '<span class="k">—</span>';
+  if (price.error) return `<span class="k">错误: ${escapeHtml(price.error)}</span>`;
+  if (!price.ok) return `<span class="k">HTTP ${escapeHtml(price.httpStatus)}<br>${escapeHtml(JSON.stringify(price.raw).slice(0, 160))}</span>`;
+  const ac = price.additionalCollection;
+  const cls = moneyIsZero(ac) ? "zero" : "nonzero";
+  const flag = moneyIsZero(ac) ? " ✅ 0 元" : "";
+  return `<div class="price-cell"><span class="${cls}">${escapeHtml(moneyText(ac))}${flag}</span>` +
+    `<br><span class="sub">refund: ${escapeHtml(moneyText(price.refund))}</span></div>`;
+}
+function addResultRow(n, record) {
+  const tr = document.createElement("tr");
+  const combo = (record.bounds || []).map(o => fareFamilyBadge(o) + ' <span class="k">' + escapeHtml(o.airBoundId) + "</span>").join("<br>")
+    || '<span class="k">' + escapeHtml(record.combinationKey) + "</span>";
+  tr.innerHTML = `
+    <td>${n}</td>
+    <td><span class="tag ${record.result}">${record.result}</span></td>
+    <td>${combo}</td>
+    <td>${(record.details.polls || []).length}</td>
+    <td>${priceCell(record.price)}</td>
+    <td><details><summary>JSON</summary><pre style="max-height:220px; overflow:auto; background:#1e2229; color:#d7dce3; border-radius:6px; padding:8px; font-size:.74rem;">${escapeHtml(JSON.stringify({ airBoundIds: record.airBoundIds, fareFamilies: record.fareFamilies, startRequest: record.startRequest, price: record.price, details: record.details }, null, 2))}</pre></details></td>`;
+  $("resultsBody").appendChild(tr);
+}
+
+/* ---------------- 导出 / 缓存 ---------------- */
+function download(filename, text) {
+  const blob = new Blob([text], { type: "application/json;charset=utf-8" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+const CACHE_KEY = "rebook-runner-params-v3";
+function saveParams() {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      baseUrl: $("baseUrl").value, rloc: $("rloc").value, lastName: $("lastName").value,
+      channel: $("channel").value, traceId: $("traceId").value, cookie: $("cookie").value,
+      dateRetries: $("dateRetries").value, pollInterval: $("pollInterval").value, maxPolls: $("maxPolls").value, limit: $("limit").value,
+      execute: $("optExecute").checked, verbose: $("optVerbose").checked, startWrapped: $("optStartWrapped").checked,
+    }));
+  } catch (_) {}
+}
+function restoreParams() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY); if (!raw) return;
+    const v = JSON.parse(raw); const set = (id, val) => { if (val !== undefined && val !== null) $(id).value = val; };
+    set("baseUrl", v.baseUrl); set("rloc", v.rloc); set("lastName", v.lastName); set("channel", v.channel);
+    set("traceId", v.traceId); set("cookie", v.cookie); set("dateRetries", v.dateRetries);
+    set("pollInterval", v.pollInterval); set("maxPolls", v.maxPolls); set("limit", v.limit);
+    $("optExecute").checked = !!v.execute; $("optVerbose").checked = !!v.verbose; $("optStartWrapped").checked = !!v.startWrapped;
+  } catch (_) {}
+}
+
+restoreParams();
+refreshRunButtons();
+$("btnOrder").addEventListener("click", onOrder);
+$("btnOffers").addEventListener("click", onOffers);
+$("btnRun").addEventListener("click", onRun);
+$("btnDryRun").addEventListener("click", dryRun);
+$("optExecute").addEventListener("change", refreshRunButtons);
+$("btnStop").addEventListener("click", () => { state.stopRequested = true; if (controller) controller.abort(); });
+$("btnClearLog").addEventListener("click", () => { $("log").innerHTML = ""; });
+["baseUrl","rloc","lastName","channel","traceId","cookie","dateRetries","pollInterval","maxPolls","limit","optExecute","optVerbose","optStartWrapped"]
+  .forEach(id => $(id).addEventListener("change", saveParams));
+$("btnExportCombos").addEventListener("click", () => download("rebook-combinations.jsonl", state.combinations.map(o => JSON.stringify({ airBoundIds: o.map(x => x.airBoundId) })).join("\n") + "\n"));
+$("btnExportResults").addEventListener("click", () => download("rebook-results.jsonl", state.results.map(r => JSON.stringify(r)).join("\n") + "\n"));
+
+logLine("就绪。分步流程：", "l-dim");
+logLine("  ① 获取订单：check-rebook-eligible → retrieve-rebook-order → 显示航班（每 bound 有「不更改此航班」勾选框）", "l-dim");
+logLine("  ② 取消勾选的 bound → rebook-complex-air-bound（只搜这些 bound，带 x-trace-id）→ 组合", "l-dim");
+logLine("  ③ 执行：order-change-start（airBoundIds 只放改动的 bound）→ polling", "l-dim");
+</script>
+</body>
+</html>
