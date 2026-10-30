@@ -415,7 +415,7 @@ function updatePlan() {
   } else {
     note.innerHTML = '要更改 <b>' + picked.length + '</b> 个 bound：' +
       picked.map(c => `Bound${c.index + 1} → <code>${escapeHtml(c.date)}</code>${c.date === c.original ? '（原日期）' : ''}`).join("、") +
-      '。<br>→ 依次查询所选 bound；每次 <code>itineraries</code> 都带全部 bound，当前项加 <code>isRequestedBound</code>，前面已查询的项加 <code>selectedBoundId</code>；未更改的项仅保留原日期。';
+      '。<br>→ 依次查询所选 bound；每次 <code>itineraries</code> 只传改动的 bound，当前项加 <code>isRequestedBound</code>，前面已查询的项加 <code>selectedBoundId</code>；未更改的 bound 不传。';
     $("btnOffers").disabled = false;
   }
   // 选择变了 → 旧报价/组合已过期，清空并等重新查询
@@ -467,7 +467,8 @@ async function searchOffers(p, signal) {
   for (const [position, cb] of changed.entries()) {
     const idx = cb.index;
     setStatus("offersStatus", `查询第 ${position + 1}/${changed.length} 班 · Bound ${idx + 1}`, "run");
-    $("offersProgress").textContent = `已完成 ${position}/${changed.length} 班；正在查询 Bound ${idx + 1}（boundId=${cb.boundId}，${cb.date}）。itineraries 包含全部 bound，已查过的 bound 带 selectedBoundId。`;
+    const onlyChanged = changed.map(c => ({ departureDate: c.date, boundId: c.boundId }));
+    $("offersProgress").textContent = `已完成 ${position}/${changed.length} 班；正在查询 Bound ${idx + 1}（boundId=${cb.boundId}，${cb.date}）。itineraries 仅传改动的 bound，已查过的 bound 带 selectedBoundId。`;
     logLine(`查询第 ${position + 1}/${changed.length} 班：Bound ${idx + 1}（boundId=${cb.boundId}）`, "l-head");
     const baseDate = cb.date;
     const base = new Date(baseDate + "T00:00:00Z");
@@ -475,10 +476,15 @@ async function searchOffers(p, signal) {
     for (let offset = 0; offset < p.dateRetries; offset++) {
       if (signal && signal.aborted) throw new DOMException("aborted", "AbortError");
       const searchDate = new Date(base.getTime() + offset * 86400000).toISOString().slice(0, 10);
-      const itineraries = o.bounds.map(b => ({ departureDate: b.departureDate, boundId: b.boundId }));
-      for (const [previousIndex, selectedId] of selected) itineraries[previousIndex].selectedBoundId = selectedId;
-      itineraries[idx].departureDate = searchDate;
-      itineraries[idx].isRequestedBound = true;
+      // itineraries 只包含改动的 bound（未勾选“不更改此航班”的 bound）
+      const itineraries = onlyChanged.map(b => ({ departureDate: b.date, boundId: b.boundId }));
+      for (const [previousIndex, selectedId] of selected) {
+        const pos = itineraries.findIndex(x => x.boundId === changed[previousIndex].boundId);
+        if (pos >= 0) itineraries[pos].selectedBoundId = selectedId;
+      }
+      const curPos = itineraries.findIndex(x => x.boundId === cb.boundId);
+      itineraries[curPos].departureDate = searchDate;
+      itineraries[curPos].isRequestedBound = true;
       const request = {
         rloc: p.rloc, lastName: p.lastName,
         entryLanguage: "en", entryCountry: "HK",
