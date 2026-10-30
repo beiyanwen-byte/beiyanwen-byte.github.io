@@ -490,6 +490,7 @@ async function searchOffers(p, signal) {
         entryLanguage: "en", entryCountry: "HK",
         itineraries, tspId: o.tspId,
       };
+      logLine(`  → air-bound itineraries（本次实际发送 ${itineraries.length} 项）: ` + JSON.stringify(itineraries), "l-dim");
       resp = await apiPost(p, PATHS.airBound, request, true, signal);
       printDetails(`rebook-complex-air-bound Bound${idx + 1} (boundId=${cb.boundId}, ${searchDate}) attempt ${offset + 1}/${p.dateRetries}`, resp, p.verbose);
       const has = !!(resp.json && resp.json.data && resp.json.data.flightList && resp.json.data.flightList.length);
