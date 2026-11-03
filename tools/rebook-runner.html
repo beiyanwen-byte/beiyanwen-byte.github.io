@@ -159,7 +159,7 @@
 
   <!-- 3 执行 -->
   <div class="card" id="cardRun">
-    <h2><span class="step-num">3</span> 执行 <span class="hint">rebook-complex-order-change-start → …-polling</span></h2>
+    <h2><span class="step-num">3</span> 执行 <span class="hint">rebook-complex-order-change-start → …-polling（airBoundIds 使用 brandCode）</span></h2>
     <div class="row">
       <label class="exec-toggle"><input type="checkbox" id="optExecute" /> <span>execute <span class="en">真正发请求</span></span></label>
       <button id="btnRun" disabled>▶ 开始执行 / Run</button>
@@ -430,14 +430,14 @@ function updatePlan() {
 
 /* ---------------- Step 2: 只搜改动的 bound ---------------- */
 function departureDate(seg) { return seg.flightInfo.departure.dateTime.slice(0, 10); }
-function fareClassByFlight(offer) { const c = {}; for (const fi of (offer.fareInfos || [])) { if (!fi.fareClass) continue; for (const fid of (fi.flightIds || [])) (c[fid] = c[fid] || new Set()).add(fi.fareClass); } return c; }
+function brandCodeByFlight(offer) { const c = new Map(); for (const fi of (offer.fareInfos || [])) { if (typeof fi.brandCode !== "string" || !fi.brandCode.trim()) continue; for (const fid of (fi.flightIds || [])) { if (!c.has(fid)) c.set(fid, new Set()); c.get(fid).add(fi.brandCode.trim()); } } return c; }
 function boundIdentifier(flight, offer) {
-  const classes = fareClassByFlight(offer); const parts = [];
+  const brands = brandCodeByFlight(offer); const parts = [];
   for (const seg of flight.flightDetails.flightSegments) {
     const info = seg.flightInfo, fid = seg.flightId;
-    const fcs = Array.from(classes[fid] || []);
-    if (fcs.length !== 1) throw new Error(`Expected one fareClass for ${fid}, found [${fcs.sort()}]`);
-    parts.push([info.departure.airportCode, info.arrival.airportCode, departureDate(seg), `${info.marketingAirlineCode}${info.marketingFlightNumber}`, fcs[0]].join(","));
+    const codes = Array.from(brands.get(fid) || []);
+    if (codes.length !== 1) throw new Error(`Expected one brandCode for ${fid}, found [${codes.sort()}]`);
+    parts.push([info.departure.airportCode, info.arrival.airportCode, departureDate(seg), `${info.marketingAirlineCode}${info.marketingFlightNumber}`, codes[0]].join(","));
   }
   return parts.join("|");
 }
@@ -476,8 +476,8 @@ async function searchOffers(p, signal) {
     for (let offset = 0; offset < p.dateRetries; offset++) {
       if (signal && signal.aborted) throw new DOMException("aborted", "AbortError");
       const searchDate = new Date(base.getTime() + offset * 86400000).toISOString().slice(0, 10);
-      // itineraries 只包含改动的 bound（未勾选“不更改此航班”的 bound）
-      const itineraries = onlyChanged.map(b => ({ departureDate: b.date, boundId: b.boundId }));
+      // itineraries 只包含改动的 bound（未勾选“不更改此航班”的 bound），每项都带各自的出发日期
+      const itineraries = changed.map(c => ({ departureDate: c.date, boundId: c.boundId }));
       for (const [previousIndex, selectedId] of selected) {
         const pos = itineraries.findIndex(x => x.boundId === changed[previousIndex].boundId);
         if (pos >= 0) itineraries[pos].selectedBoundId = selectedId;
@@ -820,7 +820,7 @@ $("btnExportResults").addEventListener("click", () => download("rebook-results.j
 logLine("就绪。分步流程：", "l-dim");
 logLine("  ① 获取订单：check-rebook-eligible → retrieve-rebook-order → 显示航班（每 bound 有「不更改此航班」勾选框）", "l-dim");
 logLine("  ② 取消勾选的 bound → rebook-complex-air-bound（只搜这些 bound，带 x-trace-id）→ 组合", "l-dim");
-logLine("  ③ 执行：order-change-start（airBoundIds 只放改动的 bound）→ polling", "l-dim");
+logLine("  ③ 执行：order-change-start（airBoundIds 只放改动的 bound；每航段格式：出发机场,到达机场,日期,航班号,brandCode）→ polling", "l-dim");
 </script>
 </body>
 </html>
