@@ -146,7 +146,7 @@
 
   <!-- 2 查询报价 -->
   <div class="card" id="cardOffers">
-    <h2><span class="step-num">2</span> 查询报价 / 组合 <span class="hint">rebook-complex-air-bound（只搜改动的 bound）</span></h2>
+    <h2><span class="step-num">2</span> 查询报价 / 组合 <span class="hint" id="offersFlowHint">按 RT / CI 选择报价接口（只搜改动的 bound）</span></h2>
     <div class="row">
       <button id="btnOffers" disabled>② 查询报价 / Search offers</button>
       <span class="status-pill" id="offersStatus">待 Step 1</span>
@@ -159,7 +159,7 @@
 
   <!-- 3 执行 -->
   <div class="card" id="cardRun">
-    <h2><span class="step-num">3</span> 执行 <span class="hint">rebook-complex-order-change-start → …-polling（airBoundIds 使用 brandCode）</span></h2>
+    <h2><span class="step-num">3</span> 执行 <span class="hint" id="runFlowHint">RT：原始 airBoundId；CI：brandCode 拼接 → polling</span></h2>
     <div class="row">
       <label class="exec-toggle"><input type="checkbox" id="optExecute" /> <span>execute <span class="en">真正发请求</span></span></label>
       <button id="btnRun" disabled>▶ 开始执行 / Run</button>
@@ -182,7 +182,7 @@
     </div>
     <div style="margin-top:16px;">
       <table id="resultsTable" class="hidden">
-        <thead><tr><th style="width:52px;">#</th><th style="width:100px;">结果</th><th>组合（舱位 · airBoundId）</th><th style="width:150px;">失败原因</th><th style="width:70px;">轮询</th><th style="width:190px;">改单价格 · additionalCollection</th><th style="width:70px;">详情</th></tr></thead>
+        <thead><tr><th style="width:52px;">#</th><th style="width:100px;">结果</th><th>组合（舱位 · 航班信息）</th><th style="width:150px;">失败原因</th><th style="width:70px;">轮询</th><th style="width:190px;">改单价格 · additionalCollection</th><th style="width:70px;">详情</th></tr></thead>
         <tbody id="resultsBody"></tbody>
       </table>
     </div>
@@ -201,9 +201,20 @@
 
 const PATHS = {
   eligible: "check-rebook-eligible", order: "retrieve-rebook-order",
-  airBound: "rebook-complex-air-bound", start: "rebook-complex-order-change-start",
-  polling: "rebook-complex-order-change-polling", price: "rebook-complex-order-change",
+  RT: {
+    airBound: "rebook-air-bound", start: "rebook-order-change-start",
+    polling: "rebook-order-change-polling", price: "rebook-order-change",
+  },
+  CI: {
+    airBound: "rebook-complex-air-bound", start: "rebook-complex-order-change-start",
+    polling: "rebook-complex-order-change-polling", price: "rebook-complex-order-change?flow=complexRebook",
+  },
 };
+function orderPaths() {
+  const type = state.order && state.order.itineraryType;
+  if (type !== "RT" && type !== "CI") throw new Error(`不支持的 itineraryType: ${type || "(缺失)"}`);
+  return PATHS[type];
+}
 const $ = (id) => document.getElementById(id);
 const state = {
   order: null, combinations: [], changedBounds: [], tspId: "", traceId: "",
@@ -243,6 +254,13 @@ function fareFamilyBadge(o) {
   const cabin = cabinLabel(o.cabinClass);
   return `<span class="ff" title="cabinClass=${escapeHtml(o.cabinClass || "")}">${escapeHtml(label)}</span>` +
     (label && !label.startsWith(cabin) && cabin !== "—" ? ` <span class="cabin">${escapeHtml(cabin)}</span>` : "");
+}
+function offerFlightHtml(o) {
+  const flights = (o.flights || []).map(f => {
+    const time = value => value ? value.slice(0, 16).replace("T", " ") : "—";
+    return `<span class="k">${escapeHtml(f.flightNumber || "—")} · ${escapeHtml(f.depCode || "—")} → ${escapeHtml(f.arrCode || "—")} · ${escapeHtml(time(f.depTime))} → ${escapeHtml(time(f.arrTime))}</span>`;
+  });
+  return fareFamilyBadge(o) + " " + (flights.length ? flights.join("<br>") : "<span>航班信息缺失</span>");
 }
 function moneyText(v) {
   if (v == null) return "—";
@@ -325,13 +343,15 @@ async function fetchOrder(p, signal) {
   r = await apiPost(p, PATHS.order, { lastName: p.lastName, rloc: p.rloc, entryLanguage: "en", entryCountry: "HK" }, true, signal);
   printDetails("retrieve-rebook-order", r, p.verbose);
   requireSuccess("retrieve-rebook-order", r);
+  const itineraryType = r.json.data.itineraryType;
+  if (itineraryType !== "RT" && itineraryType !== "CI") throw new Error(`不支持的 itineraryType: ${itineraryType || "(缺失)"}`);
   state.tspId = r.json.data.tspId;
   logLine("  tspId: " + state.tspId, "l-ok");
 
   const bounds = r.json.data.air.bounds;
   if (!bounds || !bounds.length) throw new Error("订单里没有 air bounds");
   state.order = {
-    tspId: state.tspId, traceId: trace,
+    tspId: state.tspId, traceId: trace, itineraryType,
     bounds: bounds.map((b, i) => ({
       index: i, boundId: String(b.airBoundId), airBoundId: b.airBoundId,
       departureDate: b.flights[0].flightInfo.departure.dateTime.slice(0, 10), raw: b,
@@ -353,7 +373,10 @@ async function fetchOrder(p, signal) {
 function renderOrder() {
   const o = state.order;
   $("orderMeta").classList.remove("hidden");
-  $("orderTspId").textContent = "tspId: " + o.tspId;
+  $("orderTspId").textContent = `${o.itineraryType} · tspId: ${o.tspId}`;
+  $("offersFlowHint").textContent = `${orderPaths().airBound}（只搜改动的 bound）`;
+  $("runFlowHint").textContent = `${orderPaths().start} → polling（${o.itineraryType === "RT" ? "原始 airBoundId；请求强制 body 包装" : "airBoundIds 使用 brandCode"}）`;
+  $("optStartWrapped").disabled = o.itineraryType === "RT";
   $("orderTrace").textContent = "trace: " + o.traceId;
   const box = $("orderResult");
   box.classList.remove("hidden");
@@ -392,7 +415,7 @@ function renderOrder() {
 
 /* 每个 bound：勾「不更改此航班」= 保持该航班；取消勾选 = 要更改（日期可选新的，也可保持原日期） */
 function updatePlan() {
-  if (!state.order) return;
+  if (!state.order || state.running) return;
   const picked = [];
   state.order.bounds.forEach(b => {
     const notChange = $("nchg-" + b.index).checked;
@@ -410,12 +433,15 @@ function updatePlan() {
 
   const note = $("planNote");
   if (!picked.length) {
-    note.innerHTML = '所有 bound 都勾选了「不更改此航班」→ 保持航班不变，<b>不调用</b> <code>rebook-complex-air-bound</code>，流程到 Step 1 结束。';
+    note.innerHTML = `所有 bound 都勾选了「不更改此航班」→ 保持航班不变，<b>不调用</b> <code>${orderPaths().airBound}</code>，流程到 Step 1 结束。`;
     $("btnOffers").disabled = true;
   } else {
     note.innerHTML = '要更改 <b>' + picked.length + '</b> 个 bound：' +
       picked.map(c => `Bound${c.index + 1} → <code>${escapeHtml(c.date)}</code>${c.date === c.original ? '（原日期）' : ''}`).join("、") +
-      '。<br>→ 依次查询所选 bound；每次 <code>itineraries</code> 只传改动的 bound，当前项加 <code>isRequestedBound</code>，前面已查询的项加 <code>selectedBoundId</code>；未更改的 bound 不传。';
+      '。<br>→ 依次查询所选 bound；每次 <code>itineraries</code> 只传改动的 bound；' +
+      (state.order.itineraryType === "RT" ? '两班都改时标记当前 <code>isRequestedBound</code>，第二次查询在 body 顶层带第一班首个报价的原始 <code>selectedBoundId</code>。' :
+        '当前项加 <code>isRequestedBound</code>，前面已查询的项加 <code>selectedBoundId</code>。') +
+      '未更改的 bound 不传；全部报价做笛卡尔积。';
     $("btnOffers").disabled = false;
   }
   // 选择变了 → 旧报价/组合已过期，清空并等重新查询
@@ -444,13 +470,25 @@ function boundIdentifier(flight, offer) {
 function selectedBoundIdentifier(flight, offer) {
   return flight.flightDetails.flightSegments.map(seg => { const i = seg.flightInfo; return [i.departure.airportCode, i.arrival.airportCode, departureDate(seg), `${i.marketingAirlineCode}${i.marketingFlightNumber}`, offer.fareFamilyName].join(","); }).join("|");
 }
-function optionsFromResponse(res) {
+function optionsFromResponse(res, itineraryType) {
   const out = [];
   for (const flight of (res.data.flightList || [])) {
     for (const offer of (flight.flightOffers || [])) {
+      if (itineraryType === "RT" && (typeof offer.airBoundId !== "string" || !offer.airBoundId.trim())) throw new Error("RT 报价缺少 flightOffers[].airBoundId");
       out.push({
-        airBoundId: boundIdentifier(flight, offer), selectedBoundId: selectedBoundIdentifier(flight, offer),
+        airBoundId: itineraryType === "RT" ? offer.airBoundId : boundIdentifier(flight, offer),
+        selectedBoundId: itineraryType === "RT" ? offer.airBoundId : selectedBoundIdentifier(flight, offer),
         fareFamilyName: offer.fareFamilyName, cabinClass: offer.cabinClass, totalPrice: offer.totalPrice,
+        flights: ((flight.flightDetails && flight.flightDetails.flightSegments) || []).map(seg => {
+          const info = seg.flightInfo || {};
+          return {
+            flightNumber: `${info.marketingAirlineCode || ""}${info.marketingFlightNumber || ""}`,
+            depCode: info.departure && info.departure.airportCode,
+            depTime: info.departure && info.departure.dateTime,
+            arrCode: info.arrival && info.arrival.airportCode,
+            arrTime: info.arrival && info.arrival.dateTime,
+          };
+        }),
       });
     }
   }
@@ -460,15 +498,15 @@ function cartesian(lists) { return lists.reduce((acc, l) => acc.flatMap(a => l.m
 
 async function searchOffers(p, signal) {
   const o = state.order;
-  const changed = state.changedBounds.slice().sort((a, b) => a.index - b.index);
+  const paths = orderPaths(), isRT = o.itineraryType === "RT";
+  const changed = state.changedBounds.map(c => ({ ...c })).sort((a, b) => a.index - b.index);
   const offersByChanged = [];
   const selected = new Map();
 
   for (const [position, cb] of changed.entries()) {
     const idx = cb.index;
     setStatus("offersStatus", `查询第 ${position + 1}/${changed.length} 班 · Bound ${idx + 1}`, "run");
-    const onlyChanged = changed.map(c => ({ departureDate: c.date, boundId: c.boundId }));
-    $("offersProgress").textContent = `已完成 ${position}/${changed.length} 班；正在查询 Bound ${idx + 1}（boundId=${cb.boundId}，${cb.date}）。itineraries 仅传改动的 bound，已查过的 bound 带 selectedBoundId。`;
+    $("offersProgress").textContent = `已完成 ${position}/${changed.length} 班；正在查询 Bound ${idx + 1}（boundId=${cb.boundId}，${cb.date}）。${paths.airBound}，itineraries 仅传改动的 bound。`;
     logLine(`查询第 ${position + 1}/${changed.length} 班：Bound ${idx + 1}（boundId=${cb.boundId}）`, "l-head");
     const baseDate = cb.date;
     const base = new Date(baseDate + "T00:00:00Z");
@@ -478,32 +516,33 @@ async function searchOffers(p, signal) {
       const searchDate = new Date(base.getTime() + offset * 86400000).toISOString().slice(0, 10);
       // itineraries 只包含改动的 bound（未勾选“不更改此航班”的 bound），每项都带各自的出发日期
       const itineraries = changed.map(c => ({ departureDate: c.date, boundId: c.boundId }));
-      for (const [previousIndex, selectedId] of selected) {
-        const pos = itineraries.findIndex(x => x.boundId === changed[previousIndex].boundId);
-        if (pos >= 0) itineraries[pos].selectedBoundId = selectedId;
+      for (const [boundId, selectedId] of selected) {
+        const pos = itineraries.findIndex(x => x.boundId === boundId);
+        if (!isRT && pos >= 0) itineraries[pos].selectedBoundId = selectedId;
       }
       const curPos = itineraries.findIndex(x => x.boundId === cb.boundId);
       itineraries[curPos].departureDate = searchDate;
-      itineraries[curPos].isRequestedBound = true;
+      if (!isRT || changed.length > 1) itineraries[curPos].isRequestedBound = true;
       const request = {
         rloc: p.rloc, lastName: p.lastName,
         entryLanguage: "en", entryCountry: "HK",
         itineraries, tspId: o.tspId,
       };
+      if (isRT && selected.size) request.selectedBoundId = selected.values().next().value;
       logLine(`  → air-bound itineraries（本次实际发送 ${itineraries.length} 项）: ` + JSON.stringify(itineraries), "l-dim");
-      resp = await apiPost(p, PATHS.airBound, request, true, signal);
-      printDetails(`rebook-complex-air-bound Bound${idx + 1} (boundId=${cb.boundId}, ${searchDate}) attempt ${offset + 1}/${p.dateRetries}`, resp, p.verbose);
+      resp = await apiPost(p, paths.airBound, request, true, signal);
+      printDetails(`${paths.airBound} Bound${idx + 1} (boundId=${cb.boundId}, ${searchDate}) attempt ${offset + 1}/${p.dateRetries}`, resp, p.verbose);
       const has = !!(resp.json && resp.json.data && resp.json.data.flightList && resp.json.data.flightList.length);
-      if (resp.status != null && resp.status >= 200 && resp.status < 300 && has) { if (offset) logLine(`  Bound${idx + 1} 用 ${searchDate} 才拿到报价`, "l-warn"); break; }
+      if (resp.status != null && resp.status >= 200 && resp.status < 300 && has) { cb.date = searchDate; if (offset) logLine(`  Bound${idx + 1} 用 ${searchDate} 才拿到报价`, "l-warn"); break; }
       if (resp.status != null && resp.status >= 200 && resp.status < 300) logLine(`  Bound${idx + 1} 该日期无报价，尝试下一个日期`, "l-dim");
     }
-    requireSuccess(`rebook-complex-air-bound Bound${idx + 1}`, resp);
-    const options = optionsFromResponse(resp.json);
+    requireSuccess(`${paths.airBound} Bound${idx + 1}`, resp);
+    const options = optionsFromResponse(resp.json, o.itineraryType);
     logLine(`  Bound${idx + 1} (boundId=${cb.boundId}) offers: ${options.length}`, "l-ok");
     if (!options.length) throw new Error(`Bound${idx + 1} 没有可用报价`);
     offersByChanged.push(options);
     // 用第一个报价作为后续 bound 查询的上下文；最终组合仍覆盖全部报价。
-    selected.set(idx, options[0].selectedBoundId);
+    selected.set(cb.boundId, options[0].selectedBoundId);
     $("offersProgress").textContent = `已完成 ${position + 1}/${changed.length} 班；Bound ${idx + 1} 获得 ${options.length} 个报价。${position + 1 < changed.length ? `下一班：Bound ${changed[position + 1].index + 1}。` : "全部报价到齐，正在生成组合。"}`;
   }
   // 组合维度 = 各“改动 bound”的 offers（不改的 bound 不参与变化）
@@ -518,7 +557,7 @@ function renderCombos() {
   if (!state.combinations.length) { box.style.display = "none"; box.innerHTML = ""; return; }
   box.style.display = "block";
   box.innerHTML = state.combinations.map((opts, i) =>
-    `<div>#${i + 1} &nbsp; ${opts.map(o => fareFamilyBadge(o) + " <span>" + escapeHtml(o.airBoundId) + "</span>").join(" &nbsp;⟂&nbsp; ")}</div>`).join("");
+    `<div>#${i + 1} &nbsp; ${opts.map(offerFlightHtml).join(" &nbsp;⟂&nbsp; ")}</div>`).join("");
 }
 
 /* ---------------- Step 3: 执行 + 轮询 ---------------- */
@@ -528,15 +567,16 @@ function pollingStatus(resp) {
   const s = data.status; return typeof s === "string" ? s.toLowerCase() : null;
 }
 async function runCombination(p, options, signal) {
+  const paths = orderPaths();
   const request = { tspId: p.tspId, airBoundIds: options.map(o => o.airBoundId), rloc: p.rloc, lastName: p.lastName };
-  const start = await apiPost(p, PATHS.start, request, p.startWrapped, signal);
+  const start = await apiPost(p, paths.start, request, state.order.itineraryType === "RT" || p.startWrapped, signal);
   if (start.status == null || !(start.status >= 200 && start.status < 300)) return { result: "start_failed", details: { start: start.json || start.error }, request };
   const polls = [];
   const pollingRequest = { tspId: p.tspId, rloc: p.rloc, lastName: p.lastName };
   for (let i = 0; i < p.maxPolls; i++) {
     if (signal && signal.aborted) throw new DOMException("aborted", "AbortError");
     await sleep(p.pollInterval * 1000, signal);
-    const pr = await apiPost(p, PATHS.polling, pollingRequest, true, signal);
+    const pr = await apiPost(p, paths.polling, pollingRequest, true, signal);
     polls.push({ httpStatus: pr.status, body: pr.json });
     const st = pollingStatus(pr.json);
     if (st === "success") return { result: "success", details: { start: start.json, polls }, request };
@@ -545,10 +585,10 @@ async function runCombination(p, options, signal) {
   return { result: "timeout", details: { start: start.json, polls }, request };
 }
 
-/* 改单后的价格：/rebook-complex-order-change?flow=complexRebook
+/* CI 价格查询带 flow=complexRebook，RT 不带 query。
    body: {body:{lastName,tspId,rloc}}；响应里有 airOffer → prices → exchangePrices */
 async function queryChangePrice(p, signal) {
-  const r = await apiPost(p, PATHS.price + "?flow=complexRebook", { lastName: p.lastName, tspId: p.tspId, rloc: p.rloc }, true, signal);
+  const r = await apiPost(p, orderPaths().price, { lastName: p.lastName, tspId: p.tspId, rloc: p.rloc }, true, signal);
   const out = { httpStatus: r.status, ok: r.status != null && r.status >= 200 && r.status < 300, raw: r.json };
   const ex = deepFind(r.json, "exchangePrices");
   if (ex && typeof ex === "object") {
@@ -653,6 +693,7 @@ async function onRun() {
   $("filterBar").style.display = "none";
   refreshRunButtons(); $("btnStop").disabled = false; $("btnOrder").disabled = true; $("btnOffers").disabled = true;
   $("btnExportResults").classList.add("hidden"); setStatus("runStatus", "运行中", "run");
+  state.order.bounds.forEach(b => { $("nchg-" + b.index).disabled = true; $("date-" + b.index).disabled = true; });
   controller = new AbortController();
   let processed = 0; const total = state.combinations.length;
   try {
@@ -673,7 +714,7 @@ async function onRun() {
         bounds: opts, details,
       };
       if (result === "success") {
-        logLine("  成功后查询改单价格：/rebook-complex-order-change?flow=complexRebook", "l-dim");
+        logLine("  成功后查询改单价格：/" + orderPaths().price, "l-dim");
         try { record.price = await queryChangePrice(p, controller.signal); } catch (e) { record.price = { error: e.message }; }
         if (record.price) logLine(`  additionalCollection = ${moneyText(record.price.additionalCollection)}${moneyIsZero(record.price.additionalCollection) ? "  ✅ 0 元" : ""}   refund = ${moneyText(record.price.refund)}`,
           moneyIsZero(record.price.additionalCollection) ? "l-ok" : "l-warn");
@@ -693,6 +734,7 @@ async function onRun() {
     else { setStatus("runStatus", "出错", "stop"); showError(e.message); logLine("ERROR: " + e.message, "l-err"); }
   } finally {
     state.running = false; controller = null;
+    state.order.bounds.forEach(b => { $("nchg-" + b.index).disabled = false; $("date-" + b.index).disabled = $("nchg-" + b.index).checked; });
     $("btnStop").disabled = true; $("btnOrder").disabled = false; refreshRunButtons();
     $("btnOffers").disabled = !state.changedBounds.length;
     $("btnExportResults").classList.toggle("hidden", state.results.length === 0);
@@ -742,8 +784,7 @@ function priceCell(price) {
 function addResultRow(n, record) {
   const tr = document.createElement("tr");
   tr.setAttribute("data-result", record.result);
-  const combo = (record.bounds || []).map(o => fareFamilyBadge(o) + ' <span class="k">' + escapeHtml(o.airBoundId) + "</span>").join("<br>")
-    || '<span class="k">' + escapeHtml(record.combinationKey) + "</span>";
+  const combo = (record.bounds || []).map(offerFlightHtml).join("<br>") || "航班信息缺失";
   const failReason = record.result === "success" ? "" : `<span class="k" style="color:var(--err);">${escapeHtml(extractFailureReason(record))}</span>`;
   tr.innerHTML = `
     <td>${n}</td>
@@ -819,8 +860,8 @@ $("btnExportResults").addEventListener("click", () => download("rebook-results.j
 
 logLine("就绪。分步流程：", "l-dim");
 logLine("  ① 获取订单：check-rebook-eligible → retrieve-rebook-order → 显示航班（每 bound 有「不更改此航班」勾选框）", "l-dim");
-logLine("  ② 取消勾选的 bound → rebook-complex-air-bound（只搜这些 bound，带 x-trace-id）→ 组合", "l-dim");
-logLine("  ③ 执行：order-change-start（airBoundIds 只放改动的 bound；每航段格式：出发机场,到达机场,日期,航班号,brandCode）→ polling", "l-dim");
+logLine("  ② 按 mini order 的 itineraryType 分流：RT → rebook-air-bound；CI → rebook-complex-air-bound（带 x-trace-id）→ 组合", "l-dim");
+logLine("  ③ 执行对应 order-change-start → polling → 价格查询；airBoundIds 只放改动的 bound，RT 使用原始报价 ID，CI 使用 brandCode 拼接。", "l-dim");
 </script>
 </body>
 </html>
