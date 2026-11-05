@@ -785,11 +785,15 @@ function addResultRow(n, record) {
   const tr = document.createElement("tr");
   tr.setAttribute("data-result", record.result);
   const combo = (record.bounds || []).map(offerFlightHtml).join("<br>") || "航班信息缺失";
+  const startIds = record.startRequest && record.startRequest.airBoundIds;
+  const requestIds = Array.isArray(startIds)
+    ? `<div class="k" style="margin-top:6px;white-space:pre-wrap;overflow-wrap:anywhere;">${escapeHtml(JSON.stringify({ airBoundIds: startIds }).slice(1, -1))}</div>`
+    : "";
   const failReason = record.result === "success" ? "" : `<span class="k" style="color:var(--err);">${escapeHtml(extractFailureReason(record))}</span>`;
   tr.innerHTML = `
     <td>${n}</td>
     <td><span class="tag ${record.result}">${record.result}</span></td>
-    <td>${combo}</td>
+    <td>${combo}${requestIds}</td>
     <td>${failReason}</td>
     <td>${(record.details.polls || []).length}</td>
     <td>${priceCell(record.price)}</td>

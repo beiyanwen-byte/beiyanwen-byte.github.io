@@ -214,6 +214,23 @@ for (const type of ['RT', 'CI']) {
       'HKG,SIN,2026-12-01,CX123,ECONLIGHT|SIN,NRT,2026-12-01,CX<456>,ECONLIGHT');
   });
 }
+for (const ids of [
+  ['SYD,HKG,2026-12-01,CX110,ECONLIGHT', 'HKG,MAN,2026-12-14,CX219,ECONLIGHT'],
+  ['opaque+/<id>=='],
+]) {
+  test(`result combination cell displays actual start IDs: ${ids.length} bound(s)`, () => {
+    const h = harness('CI');
+    h.run(`addResultRow(1,{result:'success',details:{},bounds:[],
+      airBoundIds:['NOT-THE-REQUEST'],startRequest:{airBoundIds:${JSON.stringify(ids)}}})`);
+    const cell = h.element('resultsBody').child.innerHTML.split('<td>')[3].split('</td>')[0];
+    const expected = JSON.stringify({ airBoundIds: ids }).slice(1, -1)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    assert.ok(cell.includes(expected), cell);
+    assert.ok(!cell.includes('NOT-THE-REQUEST'));
+    assert.ok(!cell.includes('<id>'));
+    assert.equal(h.calls.length, 0);
+  });
+}
 test('execution locks itinerary controls and restores them', async () => {
   const h = harness('RT'); await h.load();
   h.run("state.combinations=[[{airBoundId:'ID'}]]; globalThis.locked=false; runCombination=async()=>{locked=$('nchg-0').disabled && $('date-0').disabled; updatePlan(); if(state.combinations.length!==1) throw Error('Plan cleared while running'); return {result:'failed',details:{}}}; readParams=()=>({...p,execute:true}); addResultRow=()=>{}; filterResults=()=>{}");
