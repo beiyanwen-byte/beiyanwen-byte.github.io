@@ -231,6 +231,58 @@ for (const ids of [
     assert.equal(h.calls.length, 0);
   });
 }
+test('combination selection defaults to all and searches readable flight fields', () => {
+  const h = harness('RT');
+  h.run(`state.combinations=[
+    [{airBoundId:'ONE',fareFamilyName:'ECONLIGHT',flights:[{flightNumber:'CX110',depCode:'SYD',arrCode:'HKG',depTime:'2026-12-01T08:45'}]}],
+    [{airBoundId:'TWO',fareFamilyName:'BIZFLEX',flights:[{flightNumber:'CX219',depCode:'HKG',arrCode:'MAN'}]}]
+  ];`);
+  assert.equal(h.run('selectedCombos().length'), 2);
+  h.element('comboSearch').value = 'Economy Light CX110';
+  assert.equal(h.run('selectedCombos().length'), 1);
+  h.element('comboSearch').value = 'Economy   Light CX110 · SYD → HKG · 2026-12-01 08:45 → —';
+  assert.equal(h.run('selectedCombos().length'), 1);
+  h.element('comboSearch').value = 'CX110 Light';
+  assert.equal(h.run('selectedCombos().length'), 0);
+  h.element('comboSearch').value = 'Economy Light CX110';
+  h.run('state.excludedCombos.add(0)');
+  assert.equal(h.run('selectedCombos().length'), 0);
+  h.element('comboSearch').value = '';
+  assert.deepEqual(plain(h.run('selectedCombos().map(c=>c.index)')), [1]);
+  h.element('comboSearch').value = 'no match';
+  assert.equal(h.run('selectedCombos().length'), 0);
+});
+test('runner excludes hidden and unchecked combinations and honors limit', async () => {
+  const h = harness('RT'); await h.load();
+  h.run(`state.combinations=['HIDDEN','MATCH-1','MATCH-2','MATCH-3'].map(id=>[{airBoundId:id,flights:[{flightNumber:id}]}]);
+    state.excludedCombos.add(1); globalThis.executed=[];
+    runCombination=async(p,opts)=>{executed.push(opts[0].airBoundId); return {result:'failed',details:{}}};
+    readParams=()=>({...p,execute:true,limit:1}); addResultRow=()=>{}; filterResults=()=>{};`);
+  h.element('comboSearch').value = 'match';
+  await h.run('onRun()');
+  assert.deepEqual(plain(h.run('executed')), ['MATCH-2']);
+  h.element('comboSearch').value = 'missing';
+  await h.run('onRun()');
+  assert.deepEqual(plain(h.run('executed')), ['MATCH-2']);
+});
+test('bulk selection affects visible results only, dry run matches selection and running locks edits', () => {
+  const h = harness('RT');
+  h.run("state.combinations=['ONE','TWO'].map(id=>[{airBoundId:id,flights:[{flightNumber:id}]}]);");
+  h.element('comboSearch').value = 'one';
+  h.run('selectVisibleCombos(false)');
+  h.element('comboSearch').value = '';
+  assert.deepEqual(plain(h.run('selectedCombos().map(c=>c.index)')), [1]);
+  h.run("globalThis.lines=[]; logLine=t=>lines.push(t); dryRun()");
+  assert.ok(h.run("lines.some(t=>t.includes('TWO'))"));
+  assert.ok(!h.run("lines.some(t=>t.includes('ONE'))"));
+  h.element('comboSearch').value = 'one';
+  h.run('selectVisibleCombos(true)');
+  h.element('comboSearch').value = '';
+  assert.equal(h.run('selectedCombos().length'), 2);
+  h.run('state.running=true; selectVisibleCombos(false); refreshRunButtons()');
+  assert.equal(h.run('selectedCombos().length'), 2);
+  assert.equal(h.element('comboSearch').disabled, true);
+});
 test('execution locks itinerary controls and restores them', async () => {
   const h = harness('RT'); await h.load();
   h.run("state.combinations=[[{airBoundId:'ID'}]]; globalThis.locked=false; runCombination=async()=>{locked=$('nchg-0').disabled && $('date-0').disabled; updatePlan(); if(state.combinations.length!==1) throw Error('Plan cleared while running'); return {result:'failed',details:{}}}; readParams=()=>({...p,execute:true}); addResultRow=()=>{}; filterResults=()=>{}");

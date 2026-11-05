@@ -154,6 +154,13 @@
       <button id="btnExportCombos" class="secondary hidden">导出组合列表</button>
     </div>
     <div id="offersProgress" class="note hidden" role="status" aria-live="polite"></div>
+    <div id="comboControls" class="row hidden" style="margin-top:14px;">
+      <label>搜索组合 <input id="comboSearch" type="search" placeholder="粘贴航班文字或输入连续片段" /></label>
+      <button id="btnSelectCombos" class="secondary">全选当前结果</button>
+      <button id="btnDeselectCombos" class="secondary">取消选择当前结果</button>
+      <span id="comboSelectionStatus" role="status" aria-live="polite"></span>
+      <span class="hint">按显示文字整段包含匹配，忽略大小写及多余空白；只执行当前结果中已勾选的组合，limit 仍生效。</span>
+    </div>
     <div style="margin-top:14px;"><div class="combos" id="combos" style="display:none;"></div></div>
   </div>
 
@@ -217,7 +224,7 @@ function orderPaths() {
 }
 const $ = (id) => document.getElementById(id);
 const state = {
-  order: null, combinations: [], changedBounds: [], tspId: "", traceId: "",
+  order: null, combinations: [], excludedCombos: new Set(), changedBounds: [], tspId: "", traceId: "",
   results: [], running: false, stopRequested: false, completed: new Set(), filter: "all",
 };
 let controller = null;
@@ -255,11 +262,17 @@ function fareFamilyBadge(o) {
   return `<span class="ff" title="cabinClass=${escapeHtml(o.cabinClass || "")}">${escapeHtml(label)}</span>` +
     (label && !label.startsWith(cabin) && cabin !== "—" ? ` <span class="cabin">${escapeHtml(cabin)}</span>` : "");
 }
+function flightDisplayText(f) {
+  const time = value => value ? value.slice(0, 16).replace("T", " ") : "—";
+  return `${f.flightNumber || "—"} · ${f.depCode || "—"} → ${f.arrCode || "—"} · ${time(f.depTime)} → ${time(f.arrTime)}`;
+}
+function offerDisplayText(o) {
+  const label = fareFamilyLabel(o.fareFamilyName || o.brandCode), cabin = cabinLabel(o.cabinClass);
+  return [label, label && !label.startsWith(cabin) && cabin !== "—" ? cabin : "",
+    (o.flights || []).map(flightDisplayText).join(" ") || "航班信息缺失"].filter(Boolean).join(" ");
+}
 function offerFlightHtml(o) {
-  const flights = (o.flights || []).map(f => {
-    const time = value => value ? value.slice(0, 16).replace("T", " ") : "—";
-    return `<span class="k">${escapeHtml(f.flightNumber || "—")} · ${escapeHtml(f.depCode || "—")} → ${escapeHtml(f.arrCode || "—")} · ${escapeHtml(time(f.depTime))} → ${escapeHtml(time(f.arrTime))}</span>`;
-  });
+  const flights = (o.flights || []).map(f => `<span class="k">${escapeHtml(flightDisplayText(f))}</span>`);
   return fareFamilyBadge(o) + " " + (flights.length ? flights.join("<br>") : "<span>航班信息缺失</span>");
 }
 function moneyText(v) {
@@ -447,6 +460,9 @@ function updatePlan() {
   // 选择变了 → 旧报价/组合已过期，清空并等重新查询
   if (state.combinations.length) {
     state.combinations = [];
+    state.excludedCombos.clear();
+    $("comboSearch").value = "";
+    renderCombos();
     $("combos").style.display = "none"; $("combos").innerHTML = "";
     $("comboCount").classList.add("hidden"); $("btnExportCombos").classList.add("hidden");
   }
@@ -549,15 +565,38 @@ async function searchOffers(p, signal) {
   return { combos: cartesian(offersByChanged), changedOrder: changed.map(c => c.index) };
 }
 
+function visibleCombos() {
+  const normalize = text => text.replace(/\s+/g, " ").trim().toLowerCase();
+  const query = normalize($("comboSearch").value);
+  return state.combinations.map((options, index) => ({ options, index })).filter(({ options, index }) => {
+    const text = `#${index + 1} ${options.map(offerDisplayText).join(" ⟂ ")}`;
+    return normalize(text).includes(query);
+  });
+}
+function selectedCombos() {
+  return visibleCombos().filter(c => !state.excludedCombos.has(c.index));
+}
+function selectVisibleCombos(selected) {
+  if (state.running) return;
+  visibleCombos().forEach(c => {
+    if (selected) state.excludedCombos.delete(c.index);
+    else state.excludedCombos.add(c.index);
+  });
+  renderCombos();
+  refreshRunButtons();
+}
 function renderCombos() {
   const box = $("combos");
+  const visible = visibleCombos();
+  $("comboControls").classList.toggle("hidden", !state.combinations.length);
+  $("comboSelectionStatus").textContent = `显示 ${visible.length} / ${state.combinations.length}；当前已选 ${visible.filter(c => !state.excludedCombos.has(c.index)).length}`;
   $("comboCount").classList.remove("hidden");
   $("comboCountNum").textContent = state.combinations.length;
   $("btnExportCombos").classList.toggle("hidden", state.combinations.length === 0);
   if (!state.combinations.length) { box.style.display = "none"; box.innerHTML = ""; return; }
   box.style.display = "block";
-  box.innerHTML = state.combinations.map((opts, i) =>
-    `<div>#${i + 1} &nbsp; ${opts.map(offerFlightHtml).join(" &nbsp;⟂&nbsp; ")}</div>`).join("");
+  box.innerHTML = visible.map(({ options, index }) =>
+    `<div><label><input type="checkbox" data-combo-index="${index}" aria-label="选择组合 ${index + 1}" ${state.excludedCombos.has(index) ? "" : "checked"} ${state.running ? "disabled" : ""} /> #${index + 1}</label> &nbsp; ${options.map(offerFlightHtml).join(" &nbsp;⟂&nbsp; ")}</div>`).join("") || "没有匹配的组合";
 }
 
 /* ---------------- Step 3: 执行 + 轮询 ---------------- */
@@ -610,6 +649,7 @@ async function onOrder() {
   $("btnOrder").disabled = true; setStatus("orderStatus", "获取中…", "run");
   $("orderResult").classList.add("hidden"); $("dateControls").classList.add("hidden"); $("orderMeta").classList.add("hidden");
   state.order = null; state.combinations = []; state.changedBounds = []; state.completed.clear();
+  state.excludedCombos.clear(); $("comboSearch").value = ""; renderCombos();
   $("offersProgress").classList.add("hidden");
   $("btnOffers").disabled = true; refreshRunButtons(); setStatus("offersStatus", "待 Step 1");
   $("combos").style.display = "none"; $("comboCount").classList.add("hidden");
@@ -637,6 +677,7 @@ async function onOffers() {
   $("offersProgress").textContent = `准备依次查询 ${state.changedBounds.length} 班…`;
   setStatus("offersStatus", "查询中…", "run"); refreshRunButtons();
   state.combinations = [];
+  renderCombos();
   refreshRunButtons();
   controller = new AbortController();
   try {
@@ -644,6 +685,7 @@ async function onOffers() {
     logLine(`  tspId=${p.tspId}   x-trace-id=${p.traceId || "(空)"}`, "l-dim");
     const { combos } = await searchOffers(p, controller.signal);
     state.combinations = combos;
+    state.excludedCombos.clear(); $("comboSearch").value = "";
     renderCombos();
     setStatus("offersStatus", `完成 · ${combos.length} 个组合`, "done");
     $("offersProgress").textContent = `${state.changedBounds.length} 班报价均已查询完成，组合数 ${combos.length}。现在可勾选 execute 并开始执行 order-change-start → polling。`;
@@ -663,14 +705,16 @@ async function logCookies() { /* 预留：如需打印 cookie 可在此实现 */
 
 function dryRun() {
   clearError();
-  if (!state.combinations.length) { showError("还没有组合，请先点「查询报价」。"); return; }
-  logHead(`只列组合（未发请求，共 ${state.combinations.length} 个）`);
-  state.combinations.forEach((opts, i) => logLine(`${i + 1}: ` + JSON.stringify({ airBoundIds: opts.map(o => o.airBoundId) })));
+  const chosen = selectedCombos();
+  if (!chosen.length) { showError("当前搜索结果没有已勾选的组合。"); return; }
+  logHead(`只列当前已选组合（未发请求，共 ${chosen.length} 个）`);
+  chosen.forEach(({ options, index }) => logLine(`${index + 1}: ` + JSON.stringify({ airBoundIds: options.map(o => o.airBoundId) })));
   setStatus("runStatus", "已列组合 · 未执行", "run");
 }
 
 function refreshRunButtons() {
-  const hasCombos = state.combinations.length > 0;
+  const hasCombos = selectedCombos().length > 0;
+  ["comboSearch", "btnSelectCombos", "btnDeselectCombos"].forEach(id => { $(id).disabled = state.running; });
   $("btnRun").disabled = !($("optExecute").checked && hasCombos && !state.running);
   $("btnDryRun").disabled = !hasCombos || state.running;
   $("execHint").classList.toggle("hidden", $("optExecute").checked);
@@ -684,22 +728,24 @@ async function onRun() {
     return;
   }
   if (!state.combinations.length) { showError("还没有组合，请先点「查询报价」。"); return; }
+  const chosen = selectedCombos();
+  if (!chosen.length) { showError("当前搜索结果没有已勾选的组合。"); return; }
   p.tspId = state.order ? state.order.tspId : "";
   p.traceId = p.traceId || state.traceId;
   if (!p.tspId) { showError("缺少 tspId，请先执行 Step 1。"); return; }
 
   state.running = true; state.stopRequested = false; state.results = []; state.filter = "all";
+  renderCombos();
   $("resultsBody").innerHTML = ""; $("resultsTable").classList.remove("hidden");
   $("filterBar").style.display = "none";
   refreshRunButtons(); $("btnStop").disabled = false; $("btnOrder").disabled = true; $("btnOffers").disabled = true;
   $("btnExportResults").classList.add("hidden"); setStatus("runStatus", "运行中", "run");
   state.order.bounds.forEach(b => { $("nchg-" + b.index).disabled = true; $("date-" + b.index).disabled = true; });
   controller = new AbortController();
-  let processed = 0; const total = state.combinations.length;
+  let processed = 0; const total = chosen.length;
   try {
-    for (let i = 0; i < state.combinations.length; i++) {
+    for (const { options: opts, index: i } of chosen) {
       if (state.stopRequested) break;
-      const opts = state.combinations[i];
       const key = opts.map(o => o.airBoundId).join("||");
       if (state.completed.has(key)) continue;
       if (p.limit != null && processed >= p.limit) break;
@@ -734,6 +780,7 @@ async function onRun() {
     else { setStatus("runStatus", "出错", "stop"); showError(e.message); logLine("ERROR: " + e.message, "l-err"); }
   } finally {
     state.running = false; controller = null;
+    renderCombos();
     state.order.bounds.forEach(b => { $("nchg-" + b.index).disabled = false; $("date-" + b.index).disabled = $("nchg-" + b.index).checked; });
     $("btnStop").disabled = true; $("btnOrder").disabled = false; refreshRunButtons();
     $("btnOffers").disabled = !state.changedBounds.length;
@@ -846,6 +893,17 @@ $("btnOrder").addEventListener("click", onOrder);
 $("btnOffers").addEventListener("click", onOffers);
 $("btnRun").addEventListener("click", onRun);
 $("btnDryRun").addEventListener("click", dryRun);
+$("comboSearch").addEventListener("input", () => { if (!state.running) { renderCombos(); refreshRunButtons(); } });
+$("btnSelectCombos").addEventListener("click", () => selectVisibleCombos(true));
+$("btnDeselectCombos").addEventListener("click", () => selectVisibleCombos(false));
+$("combos").addEventListener("change", e => {
+  if (state.running || !e.target.matches("input[data-combo-index]")) return;
+  const index = Number(e.target.dataset.comboIndex);
+  if (e.target.checked) state.excludedCombos.delete(index);
+  else state.excludedCombos.add(index);
+  $("comboSelectionStatus").textContent = `显示 ${visibleCombos().length} / ${state.combinations.length}；当前已选 ${selectedCombos().length}`;
+  refreshRunButtons();
+});
 $("optExecute").addEventListener("change", refreshRunButtons);
 $("btnStop").addEventListener("click", () => { state.stopRequested = true; if (controller) controller.abort(); });
 $("btnClearLog").addEventListener("click", () => { $("log").innerHTML = ""; });
