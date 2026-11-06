@@ -299,9 +299,23 @@ test('CI paths use their own upstream selections and retain partial paths at req
   assert.equal(secondCalls[1].body.body.itineraries[0].selectedBoundId, 'AAA,BBB,2026-12-01,CX1,ECONFLEX');
   assert.equal(result.combos[2][0].fareFamilyName, 'ECONFLEX');
   const capped = harness('CI'); await capped.load(); capped.select([1, 2]);
-  await assert.rejects(() => capped.run('searchOffers({...p,quoteLimit:2})'), /上限/);
+  const partial = await capped.run('searchOffers({...p,quoteLimit:2})');
+  assert.equal(partial.limitReached, true);
   assert.equal(capped.run('state.combinations.length'), 2);
   assert.equal(capped.run('state.discoveryComplete'), false);
+  capped.element('optExecute').checked = true;
+  capped.run('refreshRunButtons()');
+  assert.equal(capped.element('btnRun').disabled, false);
+  capped.run("globalThis.executed=[]; readParams=()=>({...p,execute:true,limit:1}); runCombination=async(p,opts)=>{executed.push(opts);return {result:'failed',details:{}}}; addResultRow=()=>{};filterResults=()=>{};");
+  await capped.run('onRun()');
+  assert.equal(capped.run('executed.length'), 1);
+});
+test('CI cap before any complete path does not enable execution', async () => {
+  const h = harness('CI'); await h.load(); h.select([1, 2]);
+  await h.run('searchOffers({...p,quoteLimit:1})');
+  h.element('optExecute').checked = true; h.run('refreshRunButtons()');
+  assert.equal(h.element('btnRun').disabled, true);
+  assert.equal(h.run('state.combinations.length'), 0);
 });
 for (const mode of ['empty', 'error', 'abort']) {
   test(`CI ${mode} path handling preserves completed paths and execution safety`, async () => {

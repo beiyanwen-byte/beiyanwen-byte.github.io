@@ -226,7 +226,7 @@ function orderPaths() {
 const $ = (id) => document.getElementById(id);
 const state = {
   order: null, combinations: [], excludedCombos: new Set(), changedBounds: [], tspId: "", traceId: "",
-  results: [], running: false, searching: false, discoveryComplete: true, stopRequested: false, completed: new Set(), filter: "all",
+  results: [], running: false, searching: false, discoveryComplete: true, quoteLimitReached: false, stopRequested: false, completed: new Set(), filter: "all",
 };
 let controller = null;
 
@@ -463,6 +463,7 @@ function updatePlan() {
   if (state.combinations.length) {
     state.combinations = [];
     state.discoveryComplete = false;
+    state.quoteLimitReached = false;
     state.excludedCombos.clear();
     $("comboSearch").value = "";
     renderCombos();
@@ -524,6 +525,7 @@ async function searchCIOfferPaths(p, signal) {
   const combos = [];
   let requests = 0, skipped = 0;
   state.discoveryComplete = false;
+  state.quoteLimitReached = false;
   state.combinations = combos;
   async function expand(position, choices) {
     if (signal && signal.aborted) throw new DOMException("aborted", "AbortError");
@@ -535,7 +537,7 @@ async function searchCIOfferPaths(p, signal) {
     const base = new Date(cb.date + "T00:00:00Z");
     for (let offset = 0; offset < p.dateRetries; offset++) {
       if (signal && signal.aborted) throw new DOMException("aborted", "AbortError");
-      if (requests >= (p.quoteLimit || 100)) throw new Error(`CI 报价请求达到上限 ${p.quoteLimit || 100} 次；查询未完成，不能执行 start。`);
+      if (requests >= (p.quoteLimit || 100)) { state.quoteLimitReached = true; return; }
       const date = new Date(base.getTime() + offset * 86400000).toISOString().slice(0, 10);
       const itineraries = changed.map((c, i) => {
         if (i < choices.length) return { boundId: c.boundId, departureDate: choices[i].date, selectedBoundId: choices[i].option.selectedBoundId };
@@ -553,15 +555,18 @@ async function searchCIOfferPaths(p, signal) {
       if (!r.json.data || !Array.isArray(r.json.data.flightList)) throw new Error("CI 报价响应缺少 data.flightList");
       const options = optionsFromResponse(r.json, "CI");
       if (!options.length) continue;
-      for (const option of options) await expand(position + 1, choices.concat({ option, date }));
+      for (const option of options) {
+        await expand(position + 1, choices.concat({ option, date }));
+        if (state.quoteLimitReached) return;
+      }
       return;
     }
     skipped++;
     logLine(`CI Bound ${cb.index + 1} 日期重试后无报价，跳过该路径`, "l-warn");
   }
   await expand(0, []);
-  state.discoveryComplete = true;
-  return { combos, changedOrder: changed.map(c => c.index) };
+  state.discoveryComplete = !state.quoteLimitReached;
+  return { combos, changedOrder: changed.map(c => c.index), limitReached: state.quoteLimitReached };
 }
 async function searchRTOffers(p, signal) {
   const o = state.order;
@@ -701,6 +706,7 @@ async function onOrder() {
   $("orderResult").classList.add("hidden"); $("dateControls").classList.add("hidden"); $("orderMeta").classList.add("hidden");
   state.order = null; state.combinations = []; state.changedBounds = []; state.completed.clear();
   state.discoveryComplete = false;
+  state.quoteLimitReached = false;
   state.excludedCombos.clear(); $("comboSearch").value = ""; renderCombos();
   $("offersProgress").classList.add("hidden");
   $("btnOffers").disabled = true; refreshRunButtons(); setStatus("offersStatus", "待 Step 1");
@@ -729,7 +735,7 @@ async function onOffers() {
   $("offersProgress").textContent = `准备依次查询 ${state.changedBounds.length} 班…`;
   setStatus("offersStatus", "查询中…", "run"); refreshRunButtons();
   state.combinations = [];
-  state.discoveryComplete = false; state.searching = true;
+  state.discoveryComplete = false; state.quoteLimitReached = false; state.searching = true;
   $("btnStopOffers").disabled = false; $("quoteLimit").disabled = true;
   renderCombos();
   refreshRunButtons();
@@ -737,13 +743,13 @@ async function onOffers() {
   try {
     logHead("Step 3/4: retrieving offers（只搜改动的 bound）");
     logLine(`  tspId=${p.tspId}   x-trace-id=${p.traceId || "(空)"}`, "l-dim");
-    const { combos } = await searchOffers(p, controller.signal);
+    const { combos, limitReached = false } = await searchOffers(p, controller.signal);
     state.combinations = combos;
-    state.discoveryComplete = true;
+    state.discoveryComplete = !limitReached;
     state.excludedCombos.clear(); $("comboSearch").value = "";
     renderCombos();
-    setStatus("offersStatus", `完成 · ${combos.length} 个组合`, "done");
-    $("offersProgress").textContent = `${state.changedBounds.length} 班报价查询完成，完整组合数 ${combos.length}。${combos.length ? "可勾选 execute 并开始执行。" : "全部路径无报价，不能执行。"}`;
+    setStatus("offersStatus", `${limitReached ? "达到上限 · 结果不完整" : "完成"} · ${combos.length} 个完整组合`, limitReached ? "stop" : "done");
+    $("offersProgress").textContent = `${limitReached ? "达到报价请求上限，剩余路径未查询" : "报价查询完成"}；完整组合数 ${combos.length}。${combos.length ? "可勾选并执行这些完整组合。" : "没有完整组合，不能执行。"}`;
     refreshRunButtons();
     await logCookies(p);
   } catch (e) {
@@ -770,7 +776,7 @@ function dryRun() {
 }
 
 function refreshRunButtons() {
-  const hasCombos = selectedCombos().length > 0 && state.discoveryComplete && !state.searching;
+  const hasCombos = selectedCombos().length > 0 && (state.discoveryComplete || state.quoteLimitReached) && !state.searching;
   ["comboSearch", "btnSelectCombos", "btnDeselectCombos"].forEach(id => { $(id).disabled = state.running; });
   $("btnRun").disabled = !($("optExecute").checked && hasCombos && !state.running);
   $("btnDryRun").disabled = !hasCombos || state.running;
@@ -785,7 +791,7 @@ async function onRun() {
     return;
   }
   if (!state.combinations.length) { showError("还没有组合，请先点「查询报价」。"); return; }
-  if (!state.discoveryComplete || state.searching) { showError("报价查询未完成，不能执行 start。"); return; }
+  if ((!state.discoveryComplete && !state.quoteLimitReached) || state.searching) { showError("报价查询未完成，不能执行 start。"); return; }
   const chosen = selectedCombos();
   if (!chosen.length) { showError("当前搜索结果没有已勾选的组合。"); return; }
   p.tspId = state.order ? state.order.tspId : "";
