@@ -90,7 +90,7 @@ for (const type of ['RT', 'CI']) {
       assert.deepEqual(plain(result.changedOrder), ids.map(id => id - 1));
       const prefix = type === 'RT' ? 'rebook-' : 'rebook-complex-';
       const searches = h.calls.slice(2);
-      assert.equal(searches.length, ids.length);
+      assert.equal(searches.length, type === 'CI' && ids.length === 2 ? 3 : ids.length);
       searches.forEach(c => {
         assert.equal(c.url, 'https://test/' + prefix + 'air-bound');
         assert.deepEqual(c.body.body.itineraries.map(i => i.boundId), ids.map(String));
@@ -142,7 +142,7 @@ for (const type of ['RT', 'CI']) {
     const h = harness(type, { retry: true }); await h.load(); h.select([2, 3]);
     await h.run('searchOffers(p)');
     const searches = h.calls.slice(2);
-    assert.equal(searches.length, 4);
+    assert.equal(searches.length, type === 'CI' ? 6 : 4);
     assert.equal(searches[2].body.body.itineraries[0].departureDate, '2026-12-02');
     const b = searches[2].body.body;
     assert.ok(type === 'RT' ? b.selectedBoundId : b.itineraries[0].selectedBoundId);
@@ -168,11 +168,11 @@ test('CI: four-bound Cartesian product retains all previous contexts', async () 
   const h = harness('CI'); await h.load(); h.select([1, 2, 3, 4]);
   const result = await h.run('searchOffers(p)');
   assert.equal(result.combos.length, 16);
-  assert.equal(h.calls.length, 6);
+  assert.equal(h.calls.length, 17);
   const it = h.calls.at(-1).body.body.itineraries;
   assert.equal(it[3].isRequestedBound, true);
   for (let i = 0; i < 3; i++) {
-    assert.equal(it[i].selectedBoundId, `AAA,BBB,2026-12-01,CX${i + 1},ECONLIGHT`);
+    assert.equal(it[i].selectedBoundId, `AAA,BBB,2026-12-01,CX${i + 1},ECONFLEX`);
   }
 });
 test('RT opaque ID is preserved without CI fare metadata', () => {
@@ -290,3 +290,45 @@ test('execution locks itinerary controls and restores them', async () => {
   assert.equal(h.run('locked'), true);
   assert.equal(h.element('nchg-0').disabled, false);
 });
+test('CI paths use their own upstream selections and retain partial paths at request cap', async () => {
+  const h = harness('CI'); await h.load(); h.select([1, 2]);
+  const result = await h.run('searchOffers({...p,quoteLimit:100})');
+  assert.equal(result.combos.length, 4);
+  const secondCalls = h.calls.slice(3);
+  assert.equal(secondCalls[0].body.body.itineraries[0].selectedBoundId, 'AAA,BBB,2026-12-01,CX1,ECONLIGHT');
+  assert.equal(secondCalls[1].body.body.itineraries[0].selectedBoundId, 'AAA,BBB,2026-12-01,CX1,ECONFLEX');
+  assert.equal(result.combos[2][0].fareFamilyName, 'ECONFLEX');
+  const capped = harness('CI'); await capped.load(); capped.select([1, 2]);
+  await assert.rejects(() => capped.run('searchOffers({...p,quoteLimit:2})'), /上限/);
+  assert.equal(capped.run('state.combinations.length'), 2);
+  assert.equal(capped.run('state.discoveryComplete'), false);
+});
+for (const mode of ['empty', 'error', 'abort']) {
+  test(`CI ${mode} path handling preserves completed paths and execution safety`, async () => {
+    const h = harness('CI'); await h.load(); h.select([1, 2]);
+    h.run(`globalThis.originalFetch=fetch; globalThis.aborter=new AbortController();
+      fetch=async(url,opts)=>{
+        const b=JSON.parse(opts.body).body;
+        if(b.itineraries && b.itineraries[0].selectedBoundId?.endsWith('ECONFLEX')){
+          if('${mode}'==='abort'){aborter.abort();throw new DOMException('aborted','AbortError')}
+          return {status:'${mode}'==='error'?500:200,headers:new Map(),text:async()=>JSON.stringify('${mode}'==='error'?{errors:[{code:'FAIL'}]}:{data:{flightList:[]}})};
+        }
+        return originalFetch(url,opts);
+      };`);
+    if (mode === 'empty') {
+      const r = await h.run('searchOffers(p,aborter.signal)');
+      assert.equal(r.combos.length, 2);
+      assert.equal(h.run('state.discoveryComplete'), true);
+    } else {
+      await assert.rejects(() => h.run('searchOffers(p,aborter.signal)'));
+      assert.equal(h.run('state.combinations.length'), 2);
+      assert.equal(h.run('state.discoveryComplete'), false);
+      h.element('optExecute').checked = true;
+      h.run('refreshRunButtons()');
+      assert.equal(h.element('btnRun').disabled, true);
+      const count = h.calls.length;
+      await h.run('onRun()');
+      assert.equal(h.calls.length, count);
+    }
+  });
+}

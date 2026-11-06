@@ -154,6 +154,7 @@
       <button id="btnExportCombos" class="secondary hidden">导出组合列表</button>
     </div>
     <div id="offersProgress" class="note hidden" role="status" aria-live="polite"></div>
+    <div class="row"><label>CI 报价请求上限（含日期重试） <input id="quoteLimit" type="number" value="100" min="1" /></label><button id="btnStopOffers" class="danger" disabled>停止报价查询</button></div>
     <div id="comboControls" class="row hidden" style="margin-top:14px;">
       <label>搜索组合 <input id="comboSearch" type="search" placeholder="粘贴航班文字或输入连续片段" /></label>
       <button id="btnSelectCombos" class="secondary">全选当前结果</button>
@@ -225,7 +226,7 @@ function orderPaths() {
 const $ = (id) => document.getElementById(id);
 const state = {
   order: null, combinations: [], excludedCombos: new Set(), changedBounds: [], tspId: "", traceId: "",
-  results: [], running: false, stopRequested: false, completed: new Set(), filter: "all",
+  results: [], running: false, searching: false, discoveryComplete: true, stopRequested: false, completed: new Set(), filter: "all",
 };
 let controller = null;
 
@@ -306,6 +307,7 @@ function readParams() {
     rloc: $("rloc").value.trim(), lastName: $("lastName").value.trim(),
     channel: $("channel").value.trim(), traceId: $("traceId").value.trim(), cookie: $("cookie").value.trim(),
     dateRetries: Math.max(1, parseInt($("dateRetries").value, 10) || 1),
+    quoteLimit: Math.max(1, parseInt($("quoteLimit").value, 10) || 100),
     pollInterval: Math.max(0.2, parseFloat($("pollInterval").value) || 2),
     maxPolls: Math.max(1, parseInt($("maxPolls").value, 10) || 30),
     limit: lim === "" ? null : Math.max(1, parseInt(lim, 10)),
@@ -454,12 +456,13 @@ function updatePlan() {
       '。<br>→ 依次查询所选 bound；每次 <code>itineraries</code> 只传改动的 bound；' +
       (state.order.itineraryType === "RT" ? '两班都改时标记当前 <code>isRequestedBound</code>，第二次查询在 body 顶层带第一班首个报价的原始 <code>selectedBoundId</code>。' :
         '当前项加 <code>isRequestedBound</code>，前面已查询的项加 <code>selectedBoundId</code>。') +
-      '未更改的 bound 不传；全部报价做笛卡尔积。';
+      (state.order.itineraryType === "CI" ? '未更改的 bound 不传；遍历每个报价逐层查询，仅列完整有效路径。' : '未更改的 bound 不传；全部报价做笛卡尔积。');
     $("btnOffers").disabled = false;
   }
   // 选择变了 → 旧报价/组合已过期，清空并等重新查询
   if (state.combinations.length) {
     state.combinations = [];
+    state.discoveryComplete = false;
     state.excludedCombos.clear();
     $("comboSearch").value = "";
     renderCombos();
@@ -513,6 +516,54 @@ function optionsFromResponse(res, itineraryType) {
 function cartesian(lists) { return lists.reduce((acc, l) => acc.flatMap(a => l.map(b => a.concat([b]))), [[]]); }
 
 async function searchOffers(p, signal) {
+  if (state.order.itineraryType === "CI") return searchCIOfferPaths(p, signal);
+  return searchRTOffers(p, signal);
+}
+async function searchCIOfferPaths(p, signal) {
+  const changed = state.changedBounds.map(c => ({ ...c })).sort((a, b) => a.index - b.index);
+  const combos = [];
+  let requests = 0, skipped = 0;
+  state.discoveryComplete = false;
+  state.combinations = combos;
+  async function expand(position, choices) {
+    if (signal && signal.aborted) throw new DOMException("aborted", "AbortError");
+    if (position === changed.length) {
+      if (choices.length) combos.push(choices.map(c => c.option));
+      return;
+    }
+    const cb = changed[position];
+    const base = new Date(cb.date + "T00:00:00Z");
+    for (let offset = 0; offset < p.dateRetries; offset++) {
+      if (signal && signal.aborted) throw new DOMException("aborted", "AbortError");
+      if (requests >= (p.quoteLimit || 100)) throw new Error(`CI 报价请求达到上限 ${p.quoteLimit || 100} 次；查询未完成，不能执行 start。`);
+      const date = new Date(base.getTime() + offset * 86400000).toISOString().slice(0, 10);
+      const itineraries = changed.map((c, i) => {
+        if (i < choices.length) return { boundId: c.boundId, departureDate: choices[i].date, selectedBoundId: choices[i].option.selectedBoundId };
+        return { boundId: c.boundId, departureDate: i === position ? date : c.date, ...(i === position ? { isRequestedBound: true } : {}) };
+      });
+      requests++;
+      $("offersProgress").textContent = `CI 路径查询 ${requests}/${p.quoteLimit || 100} 次；Bound ${cb.index + 1} · ${date}；完整组合 ${combos.length}，跳过无报价路径 ${skipped}`;
+      const r = await apiPost(p, PATHS.CI.airBound, {
+        rloc: p.rloc, lastName: p.lastName, tspId: state.order.tspId,
+        entryLanguage: "en", entryCountry: "HK", itineraries,
+      }, true, signal);
+      printDetails(`CI Bound ${cb.index + 1} · ${date} · request ${requests}`, r, p.verbose);
+      requireSuccess("CI 报价", r);
+      if (r.json.errors && r.json.errors.length) throw new Error("CI 报价业务错误: " + JSON.stringify(r.json.errors));
+      if (!r.json.data || !Array.isArray(r.json.data.flightList)) throw new Error("CI 报价响应缺少 data.flightList");
+      const options = optionsFromResponse(r.json, "CI");
+      if (!options.length) continue;
+      for (const option of options) await expand(position + 1, choices.concat({ option, date }));
+      return;
+    }
+    skipped++;
+    logLine(`CI Bound ${cb.index + 1} 日期重试后无报价，跳过该路径`, "l-warn");
+  }
+  await expand(0, []);
+  state.discoveryComplete = true;
+  return { combos, changedOrder: changed.map(c => c.index) };
+}
+async function searchRTOffers(p, signal) {
   const o = state.order;
   const paths = orderPaths(), isRT = o.itineraryType === "RT";
   const changed = state.changedBounds.map(c => ({ ...c })).sort((a, b) => a.index - b.index);
@@ -649,6 +700,7 @@ async function onOrder() {
   $("btnOrder").disabled = true; setStatus("orderStatus", "获取中…", "run");
   $("orderResult").classList.add("hidden"); $("dateControls").classList.add("hidden"); $("orderMeta").classList.add("hidden");
   state.order = null; state.combinations = []; state.changedBounds = []; state.completed.clear();
+  state.discoveryComplete = false;
   state.excludedCombos.clear(); $("comboSearch").value = ""; renderCombos();
   $("offersProgress").classList.add("hidden");
   $("btnOffers").disabled = true; refreshRunButtons(); setStatus("offersStatus", "待 Step 1");
@@ -677,6 +729,8 @@ async function onOffers() {
   $("offersProgress").textContent = `准备依次查询 ${state.changedBounds.length} 班…`;
   setStatus("offersStatus", "查询中…", "run"); refreshRunButtons();
   state.combinations = [];
+  state.discoveryComplete = false; state.searching = true;
+  $("btnStopOffers").disabled = false; $("quoteLimit").disabled = true;
   renderCombos();
   refreshRunButtons();
   controller = new AbortController();
@@ -685,17 +739,20 @@ async function onOffers() {
     logLine(`  tspId=${p.tspId}   x-trace-id=${p.traceId || "(空)"}`, "l-dim");
     const { combos } = await searchOffers(p, controller.signal);
     state.combinations = combos;
+    state.discoveryComplete = true;
     state.excludedCombos.clear(); $("comboSearch").value = "";
     renderCombos();
     setStatus("offersStatus", `完成 · ${combos.length} 个组合`, "done");
-    $("offersProgress").textContent = `${state.changedBounds.length} 班报价均已查询完成，组合数 ${combos.length}。现在可勾选 execute 并开始执行 order-change-start → polling。`;
+    $("offersProgress").textContent = `${state.changedBounds.length} 班报价查询完成，完整组合数 ${combos.length}。${combos.length ? "可勾选 execute 并开始执行。" : "全部路径无报价，不能执行。"}`;
     refreshRunButtons();
     await logCookies(p);
   } catch (e) {
-    if (e.name === "AbortError") { setStatus("offersStatus", "已取消", "stop"); return; }
-    setStatus("offersStatus", "失败", "stop"); showError(e.message); logLine("ERROR: " + e.message, "l-err");
+    if (e.name === "AbortError") { setStatus("offersStatus", "已停止 · 查询未完成，禁止执行", "stop"); return; }
+    setStatus("offersStatus", "失败 · 查询未完成，禁止执行", "stop"); showError(e.message); logLine("ERROR: " + e.message, "l-err");
   } finally {
     controller = null;
+    state.searching = false; $("btnStopOffers").disabled = true; $("quoteLimit").disabled = false;
+    renderCombos(); refreshRunButtons();
     $("btnOrder").disabled = false;
     state.order.bounds.forEach(b => { $("nchg-" + b.index).disabled = false; $("date-" + b.index).disabled = $("nchg-" + b.index).checked; });
     $("btnOffers").disabled = !state.changedBounds.length;
@@ -713,7 +770,7 @@ function dryRun() {
 }
 
 function refreshRunButtons() {
-  const hasCombos = selectedCombos().length > 0;
+  const hasCombos = selectedCombos().length > 0 && state.discoveryComplete && !state.searching;
   ["comboSearch", "btnSelectCombos", "btnDeselectCombos"].forEach(id => { $(id).disabled = state.running; });
   $("btnRun").disabled = !($("optExecute").checked && hasCombos && !state.running);
   $("btnDryRun").disabled = !hasCombos || state.running;
@@ -728,6 +785,7 @@ async function onRun() {
     return;
   }
   if (!state.combinations.length) { showError("还没有组合，请先点「查询报价」。"); return; }
+  if (!state.discoveryComplete || state.searching) { showError("报价查询未完成，不能执行 start。"); return; }
   const chosen = selectedCombos();
   if (!chosen.length) { showError("当前搜索结果没有已勾选的组合。"); return; }
   p.tspId = state.order ? state.order.tspId : "";
@@ -891,6 +949,7 @@ restoreParams();
 refreshRunButtons();
 $("btnOrder").addEventListener("click", onOrder);
 $("btnOffers").addEventListener("click", onOffers);
+$("btnStopOffers").addEventListener("click", () => { if (state.searching && controller) controller.abort(); });
 $("btnRun").addEventListener("click", onRun);
 $("btnDryRun").addEventListener("click", dryRun);
 $("comboSearch").addEventListener("input", () => { if (!state.running) { renderCombos(); refreshRunButtons(); } });
