@@ -1,7 +1,8 @@
 :root { color-scheme: light; font-family: system-ui, sans-serif; }
+html { scroll-behavior: smooth; }
 body { margin: 0; background: #f5f7fb; color: #202124; line-height: 1.65; }
 main { max-width: 980px; margin: 2rem auto; padding: 2rem; background: #fff; box-shadow: 0 8px 30px #0001; }
-h1, h2, h3 { line-height: 1.25; }
+h1, h2, h3 { line-height: 1.25; scroll-margin-top: 1rem; }
 a { color: #1769aa; }
 table { width: 100%; border-collapse: collapse; margin: 1rem 0; display: block; overflow-x: auto; }
 th, td { border: 1px solid #d8dee9; padding: .55rem .7rem; text-align: left; min-width: 10rem; vertical-align: top; }
