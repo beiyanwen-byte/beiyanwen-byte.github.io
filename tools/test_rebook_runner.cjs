@@ -78,6 +78,11 @@ function harness(type, { retry = false, status = 'SUCCESS', http = 200 } = {}) {
 }
 const plain = value => JSON.parse(JSON.stringify(value));
 
+async function selectedSearch(h) {
+  const first = await h.run('searchOffers(p)');
+  return first.awaitingSecond ? h.run('searchOffers(p, undefined, true)') : first;
+}
+
 for (const type of ['RT', 'CI']) {
   for (const ids of [[1], [2], [1, 2]]) {
     test(`${type}: selection ${ids}, session, offers, start, polling and price`, async () => {
@@ -85,12 +90,12 @@ for (const type of ['RT', 'CI']) {
       await h.load();
       assert.equal(h.run('state.order.itineraryType'), type);
       h.select(ids);
-      const result = await h.run('searchOffers(p)');
-      assert.equal(result.combos.length, ids.length === 2 ? 4 : 2);
+      const result = await selectedSearch(h);
+      assert.equal(result.combos.length, ids.length === 2 && type === 'RT' ? 4 : 2);
       assert.deepEqual(plain(result.changedOrder), ids.map(id => id - 1));
       const prefix = type === 'RT' ? 'rebook-' : 'rebook-complex-';
       const searches = h.calls.slice(2);
-      assert.equal(searches.length, type === 'CI' && ids.length === 2 ? 3 : ids.length);
+      assert.equal(searches.length, ids.length);
       searches.forEach(c => {
         assert.equal(c.url, 'https://test/' + prefix + 'air-bound');
         assert.deepEqual(c.body.body.itineraries.map(i => i.boundId), ids.map(String));
@@ -135,14 +140,14 @@ for (const type of ['RT', 'CI']) {
   }
   test(`${type}: unchanged bounds make no offer requests`, async () => {
     const h = harness(type); await h.load(); h.select([]);
-    await h.run('searchOffers(p)');
+    await selectedSearch(h);
     assert.equal(h.calls.length, 2);
   });
   test(`${type}: noncontiguous selection and retried dates preserve context`, async () => {
     const h = harness(type, { retry: true }); await h.load(); h.select([2, 3]);
-    await h.run('searchOffers(p)');
+    await selectedSearch(h);
     const searches = h.calls.slice(2);
-    assert.equal(searches.length, type === 'CI' ? 6 : 4);
+    assert.equal(searches.length, 4);
     assert.equal(searches[2].body.body.itineraries[0].departureDate, '2026-12-02');
     const b = searches[2].body.body;
     assert.ok(type === 'RT' ? b.selectedBoundId : b.itineraries[0].selectedBoundId);
@@ -292,14 +297,14 @@ test('execution locks itinerary controls and restores them', async () => {
 });
 test('CI paths use their own upstream selections and retain partial paths at request cap', async () => {
   const h = harness('CI'); await h.load(); h.select([1, 2]);
-  const result = await h.run('searchOffers({...p,quoteLimit:100})');
+  const result = await h.run('searchCIOfferPaths({...p,quoteLimit:100})');
   assert.equal(result.combos.length, 4);
   const secondCalls = h.calls.slice(3);
   assert.equal(secondCalls[0].body.body.itineraries[0].selectedBoundId, 'AAA,BBB,2026-12-01,CX1,ECONLIGHT');
   assert.equal(secondCalls[1].body.body.itineraries[0].selectedBoundId, 'AAA,BBB,2026-12-01,CX1,ECONFLEX');
   assert.equal(result.combos[2][0].fareFamilyName, 'ECONFLEX');
   const capped = harness('CI'); await capped.load(); capped.select([1, 2]);
-  const partial = await capped.run('searchOffers({...p,quoteLimit:2})');
+  const partial = await capped.run('searchCIOfferPaths({...p,quoteLimit:2})');
   assert.equal(partial.limitReached, true);
   assert.equal(capped.run('state.combinations.length'), 2);
   assert.equal(capped.run('state.discoveryComplete'), false);
@@ -330,11 +335,11 @@ for (const mode of ['empty', 'error', 'abort']) {
         return originalFetch(url,opts);
       };`);
     if (mode === 'empty') {
-      const r = await h.run('searchOffers(p,aborter.signal)');
+      const r = await h.run('searchCIOfferPaths(p,aborter.signal)');
       assert.equal(r.combos.length, 2);
       assert.equal(h.run('state.discoveryComplete'), true);
     } else {
-      await assert.rejects(() => h.run('searchOffers(p,aborter.signal)'));
+      await assert.rejects(() => h.run('searchCIOfferPaths(p,aborter.signal)'));
       assert.equal(h.run('state.combinations.length'), 2);
       assert.equal(h.run('state.discoveryComplete'), false);
       h.element('optExecute').checked = true;
@@ -346,3 +351,133 @@ for (const mode of ['empty', 'error', 'abort']) {
     }
   });
 }
+
+test('CI two-bound discovery waits for selectable first flight and fare, without start', async () => {
+  const h = harness('CI'); await h.load(); h.select([1, 2]);
+  const first = await h.run('searchOffers(p)');
+  assert.equal(first.awaitingSecond, true);
+  assert.equal(first.combos.length, 0);
+  assert.equal(h.calls.length, 3);
+  assert.equal(h.run('state.ciFirst.options.length'), 2);
+  assert.equal(h.element('ciFirstOption').value, '0');
+  assert.match(h.element('ciFirstOption').innerHTML, /Economy Light.*CX1/);
+  h.element('optExecute').checked = true; h.run('refreshRunButtons()');
+  assert.equal(h.element('btnRun').disabled, true);
+  h.element('ciFirstOption').value = '1';
+  h.run('onCIFirstChange()');
+  const second = await h.run('searchOffers(p, undefined, true)');
+  assert.equal(h.calls.length, 4);
+  assert.equal(second.combos.length, 2);
+  assert.ok(second.combos.every(c => c[0].fareFamilyName === 'ECONFLEX'));
+  const body = h.calls.at(-1).body.body;
+  assert.deepEqual(body.itineraries, [
+    { boundId: '1', departureDate: '2026-12-01', selectedBoundId: 'AAA,BBB,2026-12-01,CX1,ECONFLEX' },
+    { boundId: '2', departureDate: '2026-12-01', isRequestedBound: true },
+  ]);
+  assert.equal(h.calls.some(c => c.url.includes('order-change')), false);
+  h.run('state.combinations = ' + JSON.stringify(second.combos) + '; refreshRunButtons()');
+  assert.equal(h.element('btnRun').disabled, false);
+  h.element('ciFirstOption').value = '0'; h.run('onCIFirstChange()');
+  assert.equal(h.run('state.combinations.length'), 0);
+  assert.equal(h.element('btnRun').disabled, true);
+});
+
+test('CI two-bound UI stages preserve retry dates, context, selection and execution limit', async () => {
+  const h = harness('CI', { retry: true }); await h.load(); h.select([2, 3]);
+  h.run('readParams=()=>({...p,execute:true,limit:1,quoteLimit:10})');
+  await h.run('onOffers()');
+  assert.match(h.element('offersStatus').textContent, /第一班/);
+  assert.equal(h.element('btnCISecond').disabled, false);
+  await h.run('onOffers({ciSecond:true})');
+  assert.equal(h.calls.length, 6);
+  assert.equal(h.calls.at(-1).body.body.itineraries[0].departureDate, '2026-12-02');
+  assert.equal(h.calls.at(-1).body.body.itineraries[1].departureDate, '2026-12-02');
+  h.run('state.excludedCombos.add(0); addResultRow=()=>{}; filterResults=()=>{};');
+  await h.run('onRun()');
+  const starts = h.calls.filter(c => c.url.endsWith('order-change-start'));
+  assert.equal(starts.length, 1);
+  assert.deepEqual(starts[0].body.airBoundIds, [
+    'AAA,BBB,2026-12-02,CX2,ECONLIGHT', 'AAA,BBB,2026-12-02,CX3,ECONFLEX',
+  ]);
+  assert.equal(starts[0].headers['x-trace-id'], 'NEW-TRACE');
+  assert.equal(starts[0].body.tspId, 'NEW-TSP');
+  assert.equal(h.element('ciFirstOption').disabled, false);
+});
+
+for (const mode of ['empty', 'error', 'abort', 'business', 'malformed']) {
+  test(`CI two-bound second query ${mode} never produces executable stale combinations`, async () => {
+    const h = harness('CI'); await h.load(); h.select([1, 2]);
+    await h.run('searchOffers(p)');
+    h.run(`state.combinations=[[state.ciFirst.options[0]]]; fetch=async()=>{
+      if('${mode}'==='abort') throw new DOMException('aborted','AbortError');
+      return {status:'${mode}'==='error'?500:200,headers:new Map(),text:async()=>JSON.stringify(
+        '${mode}'==='business'?{errors:[{code:'FAIL'}]}:
+        '${mode}'==='malformed'?{data:{}}:{data:{flightList:[]}})};
+    }; readParams=()=>({...p,execute:true});`);
+    await h.run('onOffers({ciSecond:true})');
+    assert.equal(h.run('state.combinations.length'), 0);
+    h.element('optExecute').checked = true; h.run('refreshRunButtons()');
+    assert.equal(h.element('btnRun').disabled, true);
+    if (mode !== 'empty') assert.match(h.element('offersStatus').textContent, /失败|停止/);
+  });
+}
+
+test('CI two-bound cap includes first query retries and never enables start without second offers', async () => {
+  const h = harness('CI'); await h.load(); h.select([1, 2]);
+  await h.run('searchOffers({...p,quoteLimit:1})');
+  const second = await h.run('searchOffers({...p,quoteLimit:1}, undefined, true)');
+  assert.equal(second.limitReached, true);
+  assert.equal(h.calls.length, 3);
+  assert.equal(h.run('state.combinations.length'), 0);
+});
+
+test('CI two-bound selection is invalidated on plan changes and locked while busy', async () => {
+  const h = harness('CI'); await h.load(); h.select([1, 2]);
+  await h.run('searchOffers(p)');
+  h.run('state.running=true; refreshRunButtons()');
+  assert.equal(h.element('ciFirstOption').disabled, true);
+  assert.equal(h.element('btnCISecond').disabled, true);
+  h.run('state.running=false; state.searching=true; refreshRunButtons()');
+  assert.equal(h.element('ciFirstOption').disabled, true);
+  h.run(`state.searching=false;
+    state.order.bounds.forEach(b=>{$('nchg-'+b.index).checked=b.index>1;
+      $('date-'+b.index).value='2026-12-01';$('date-'+b.index).dataset.orig='2026-12-01'});
+    updatePlan();`);
+  assert.equal(h.run('state.ciFirst'), null);
+  assert.equal(h.element('btnCISecond').disabled, true);
+});
+
+test('CI two-bound prevents reuse after request context changes', async () => {
+  const h = harness('CI'); await h.load(); h.select([1, 2]);
+  await h.run('searchOffers(p)');
+  const count = h.calls.length;
+  await assert.rejects(() => h.run("searchOffers({...p,traceId:'OTHER'},undefined,true)"), /上下文/);
+  assert.equal(h.calls.length, count);
+  await h.run('searchOffers(p,undefined,true)');
+  h.run("readParams=()=>({...p,baseUrl:'https://other.invalid',execute:true})");
+  await h.run('onRun()');
+  assert.equal(h.calls.length, count + 1);
+  assert.match(h.element('errorBanner').textContent, /上下文/);
+});
+
+for (const selection of ['all', 'none']) {
+  test(`CI two-bound ${selection} selections respect manual execution`, async () => {
+    const h = harness('CI'); await h.load(); h.select([1, 2]);
+    await selectedSearch(h);
+    h.run(`readParams=()=>({...p,execute:true}); addResultRow=()=>{};filterResults=()=>{};
+      selectVisibleCombos(${selection === 'all'});`);
+    await h.run('onRun()');
+    assert.equal(h.calls.filter(c=>c.url.endsWith('order-change-start')).length, selection === 'all' ? 2 : 0);
+  });
+}
+
+test('CI two-bound failed first refresh clears old choices and combinations', async () => {
+  const h = harness('CI'); await h.load(); h.select([1, 2]);
+  await selectedSearch(h);
+  h.run(`fetch=async()=>({status:500,headers:new Map(),text:async()=>JSON.stringify({errors:[{code:'FAIL'}]})});
+    readParams=()=>({...p,execute:true});`);
+  await h.run('onOffers()');
+  assert.equal(h.run('state.ciFirst'), null);
+  assert.equal(h.run('state.combinations.length'), 0);
+  assert.equal(h.element('btnCISecond').disabled, true);
+});

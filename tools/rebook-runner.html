@@ -93,6 +93,7 @@
   .filterbar .chip.active.timeout { background:var(--warn); border-color:var(--warn); }
   .filterbar .chip.active.start_failed { background:#a33; border-color:#a33; }
   .plan code { font-family: var(--mono); font-size: .78rem; }
+  #ciFirstOption { max-width: 100%; padding: 7px 9px; border: 1px solid var(--border-color); border-radius: 5px; font-size: .82rem; }
 </style>
 </head>
 <body>
@@ -155,6 +156,14 @@
     </div>
     <div id="offersProgress" class="note hidden" role="status" aria-live="polite"></div>
     <div class="row"><label>CI 报价请求上限（含日期重试） <input id="quoteLimit" type="number" value="100" min="1" /></label><button id="btnStopOffers" class="danger" disabled>停止报价查询</button></div>
+    <div id="ciFirstControls" class="note hidden">
+      <div class="row">
+        <label id="ciFirstLabel" for="ciFirstOption">固定第一班 / First-bound offer</label>
+        <select id="ciFirstOption"></select>
+        <button id="btnCISecond" class="secondary" disabled>查询第二班并列出组合 / Search second bound</button>
+      </div>
+      <span class="hint">CI 两班改动：默认选择第一条航班＋品牌，可改选；只查询该选项对应的第二班。改选后需重新查询第二班。此操作不清理后端旧 session 数据，不能保证解决 45012。</span>
+    </div>
     <div id="comboControls" class="row hidden" style="margin-top:14px;">
       <label>搜索组合 <input id="comboSearch" type="search" placeholder="粘贴航班文字或输入连续片段" /></label>
       <button id="btnSelectCombos" class="secondary">全选当前结果</button>
@@ -227,6 +236,7 @@ const $ = (id) => document.getElementById(id);
 const state = {
   order: null, combinations: [], excludedCombos: new Set(), changedBounds: [], tspId: "", traceId: "",
   results: [], running: false, searching: false, discoveryComplete: true, quoteLimitReached: false, stopRequested: false, completed: new Set(), filter: "all",
+  ciFirst: null,
 };
 let controller = null;
 
@@ -456,20 +466,12 @@ function updatePlan() {
       '。<br>→ 依次查询所选 bound；每次 <code>itineraries</code> 只传改动的 bound；' +
       (state.order.itineraryType === "RT" ? '两班都改时标记当前 <code>isRequestedBound</code>，第二次查询在 body 顶层带第一班首个报价的原始 <code>selectedBoundId</code>。' :
         '当前项加 <code>isRequestedBound</code>，前面已查询的项加 <code>selectedBoundId</code>。') +
-      (state.order.itineraryType === "CI" ? '未更改的 bound 不传；遍历每个报价逐层查询，仅列完整有效路径。' : '未更改的 bound 不传；全部报价做笛卡尔积。');
+      (state.order.itineraryType === "CI" ? (picked.length === 2 ?
+        '未更改的 bound 不传；先选择第一班的航班＋品牌，再查询第二班并列出可勾选组合。' :
+        '未更改的 bound 不传；遍历每个报价逐层查询，仅列完整有效路径。') : '未更改的 bound 不传；全部报价做笛卡尔积。');
     $("btnOffers").disabled = false;
   }
-  // 选择变了 → 旧报价/组合已过期，清空并等重新查询
-  if (state.combinations.length) {
-    state.combinations = [];
-    state.discoveryComplete = false;
-    state.quoteLimitReached = false;
-    state.excludedCombos.clear();
-    $("comboSearch").value = "";
-    renderCombos();
-    $("combos").style.display = "none"; $("combos").innerHTML = "";
-    $("comboCount").classList.add("hidden"); $("btnExportCombos").classList.add("hidden");
-  }
+  clearOfferSelection(true);
   refreshRunButtons();
   setStatus("offersStatus", picked.length ? "已选要更改的航班，可查询报价" : "未更改航班");
 }
@@ -516,9 +518,90 @@ function optionsFromResponse(res, itineraryType) {
 }
 function cartesian(lists) { return lists.reduce((acc, l) => acc.flatMap(a => l.map(b => a.concat([b]))), [[]]); }
 
-async function searchOffers(p, signal) {
-  if (state.order.itineraryType === "CI") return searchCIOfferPaths(p, signal);
+function clearOfferSelection(resetFirst) {
+  state.combinations = [];
+  state.discoveryComplete = false;
+  state.quoteLimitReached = false;
+  state.completed.clear();
+  state.excludedCombos.clear();
+  $("comboSearch").value = "";
+  if (resetFirst) {
+    state.ciFirst = null;
+    $("ciFirstControls").classList.add("hidden");
+    $("ciFirstOption").innerHTML = "";
+  }
+  renderCombos();
+  refreshRunButtons();
+}
+function onCIFirstChange() {
+  if (state.running || state.searching || !state.ciFirst) return;
+  clearOfferSelection(false);
+  setStatus("offersStatus", "已改选第一班，请重新查询第二班");
+  $("offersProgress").textContent = "旧组合已失效；点击「查询第二班并列出组合」。";
+}
+async function requestCIOptions(p, itineraries, signal, label) {
+  const r = await apiPost(p, PATHS.CI.airBound, {
+    rloc: p.rloc, lastName: p.lastName, tspId: state.order.tspId,
+    entryLanguage: "en", entryCountry: "HK", itineraries,
+  }, true, signal);
+  printDetails(label, r, p.verbose);
+  requireSuccess("CI 报价", r);
+  if (r.json.errors && r.json.errors.length) throw new Error("CI 报价业务错误: " + JSON.stringify(r.json.errors));
+  if (!r.json.data || !Array.isArray(r.json.data.flightList)) throw new Error("CI 报价响应缺少 data.flightList");
+  return optionsFromResponse(r.json, "CI");
+}
+async function searchOffers(p, signal, ciSecond = false) {
+  if (state.order.itineraryType === "CI") return state.changedBounds.length === 2 ?
+    searchCITwoOffers(p, signal, ciSecond) : searchCIOfferPaths(p, signal);
   return searchRTOffers(p, signal);
+}
+function ciQuoteContext(p) {
+  return JSON.stringify([p.baseUrl, p.rloc, p.lastName, p.channel, p.cookie || "",
+    p.traceId || state.traceId, state.order.tspId, state.changedBounds]);
+}
+async function searchCITwoOffers(p, signal, ciSecond) {
+  const changed = state.changedBounds.map(c => ({ ...c })).sort((a, b) => a.index - b.index);
+  if (ciSecond && !state.ciFirst) throw new Error("请先查询并选择第一班报价");
+  if (ciSecond && state.ciFirst.context !== ciQuoteContext(p)) throw new Error("请求上下文已改变，请重新查询第一班报价");
+  const first = ciSecond ? state.ciFirst : { requests: 0 };
+  const index = Number($("ciFirstOption").value);
+  const selected = ciSecond && first.options[index];
+  if (ciSecond && !selected) throw new Error("第一班选项无效，请重新选择");
+  clearOfferSelection(!ciSecond);
+  const position = ciSecond ? 1 : 0;
+  const cb = changed[position];
+  const base = new Date(cb.date + "T00:00:00Z");
+  for (let offset = 0; offset < p.dateRetries; offset++) {
+    if (signal && signal.aborted) throw new DOMException("aborted", "AbortError");
+    if (first.requests >= (p.quoteLimit || 100)) {
+      state.quoteLimitReached = true;
+      return { combos: [], changedOrder: changed.map(c => c.index), limitReached: true };
+    }
+    const date = new Date(base.getTime() + offset * 86400000).toISOString().slice(0, 10);
+    const itineraries = changed.map((c, i) => i < position ?
+      { boundId: c.boundId, departureDate: first.date, selectedBoundId: selected.selectedBoundId } :
+      { boundId: c.boundId, departureDate: i === position ? date : c.date, ...(i === position ? { isRequestedBound: true } : {}) });
+    first.requests++;
+    $("offersProgress").textContent = `CI 查询 ${first.requests}/${p.quoteLimit || 100} 次；Bound ${cb.index + 1} · ${date}`;
+    const options = await requestCIOptions(p, itineraries, signal, `CI Bound ${cb.index + 1} · ${date} · request ${first.requests}`);
+    if (signal && signal.aborted) throw new DOMException("aborted", "AbortError");
+    if (!options.length) continue;
+    if (!ciSecond) {
+      state.ciFirst = { ...first, date, options, context: ciQuoteContext(p) };
+      $("ciFirstOption").innerHTML = options.map((o, i) => `<option value="${i}">${escapeHtml(offerDisplayText(o))}</option>`).join("");
+      $("ciFirstOption").value = "0";
+      $("ciFirstLabel").textContent = `固定第一班（Bound ${cb.index + 1}）/ First-bound offer`;
+      $("ciFirstControls").classList.remove("hidden");
+      refreshRunButtons();
+      return { combos: [], changedOrder: changed.map(c => c.index), awaitingSecond: true };
+    }
+    state.combinations = options.map(o => [selected, o]);
+    state.discoveryComplete = true;
+    return { combos: state.combinations, changedOrder: changed.map(c => c.index) };
+  }
+  state.discoveryComplete = true;
+  logLine(`CI Bound ${cb.index + 1} 日期重试后无报价`, "l-warn");
+  return { combos: [], changedOrder: changed.map(c => c.index) };
 }
 async function searchCIOfferPaths(p, signal) {
   const changed = state.changedBounds.map(c => ({ ...c })).sort((a, b) => a.index - b.index);
@@ -545,15 +628,7 @@ async function searchCIOfferPaths(p, signal) {
       });
       requests++;
       $("offersProgress").textContent = `CI 路径查询 ${requests}/${p.quoteLimit || 100} 次；Bound ${cb.index + 1} · ${date}；完整组合 ${combos.length}，跳过无报价路径 ${skipped}`;
-      const r = await apiPost(p, PATHS.CI.airBound, {
-        rloc: p.rloc, lastName: p.lastName, tspId: state.order.tspId,
-        entryLanguage: "en", entryCountry: "HK", itineraries,
-      }, true, signal);
-      printDetails(`CI Bound ${cb.index + 1} · ${date} · request ${requests}`, r, p.verbose);
-      requireSuccess("CI 报价", r);
-      if (r.json.errors && r.json.errors.length) throw new Error("CI 报价业务错误: " + JSON.stringify(r.json.errors));
-      if (!r.json.data || !Array.isArray(r.json.data.flightList)) throw new Error("CI 报价响应缺少 data.flightList");
-      const options = optionsFromResponse(r.json, "CI");
+      const options = await requestCIOptions(p, itineraries, signal, `CI Bound ${cb.index + 1} · ${date} · request ${requests}`);
       if (!options.length) continue;
       for (const option of options) {
         await expand(position + 1, choices.concat({ option, date }));
@@ -705,6 +780,7 @@ async function onOrder() {
   $("btnOrder").disabled = true; setStatus("orderStatus", "获取中…", "run");
   $("orderResult").classList.add("hidden"); $("dateControls").classList.add("hidden"); $("orderMeta").classList.add("hidden");
   state.order = null; state.combinations = []; state.changedBounds = []; state.completed.clear();
+  clearOfferSelection(true);
   state.discoveryComplete = false;
   state.quoteLimitReached = false;
   state.excludedCombos.clear(); $("comboSearch").value = ""; renderCombos();
@@ -722,11 +798,15 @@ async function onOrder() {
   } finally { controller = null; $("btnOrder").disabled = false; }
 }
 
-async function onOffers() {
+async function onOffers({ ciSecond = false } = {}) {
+  if (state.running || state.searching) return;
   clearError();
   const p = readParams();
   if (!state.order) { showError("请先执行 Step 1。"); return; }
   if (!state.changedBounds.length) { showError("所有航班都勾选了「不更改此航班」；要查询报价请先取消对应 bound 的勾选。"); return; }
+  if (ciSecond && (!state.ciFirst || state.order.itineraryType !== "CI" || state.changedBounds.length !== 2)) {
+    showError("请先查询第一班报价"); return;
+  }
   p.tspId = state.order.tspId;
   p.traceId = p.traceId || state.traceId;   // ← 补上 Step 1 拿到的 x-trace-id
   $("btnOffers").disabled = true; $("btnOrder").disabled = true;
@@ -734,8 +814,8 @@ async function onOffers() {
   $("offersProgress").classList.remove("hidden");
   $("offersProgress").textContent = `准备依次查询 ${state.changedBounds.length} 班…`;
   setStatus("offersStatus", "查询中…", "run"); refreshRunButtons();
-  state.combinations = [];
-  state.discoveryComplete = false; state.quoteLimitReached = false; state.searching = true;
+  clearOfferSelection(!ciSecond);
+  state.searching = true;
   $("btnStopOffers").disabled = false; $("quoteLimit").disabled = true;
   renderCombos();
   refreshRunButtons();
@@ -743,7 +823,12 @@ async function onOffers() {
   try {
     logHead("Step 3/4: retrieving offers（只搜改动的 bound）");
     logLine(`  tspId=${p.tspId}   x-trace-id=${p.traceId || "(空)"}`, "l-dim");
-    const { combos, limitReached = false } = await searchOffers(p, controller.signal);
+    const { combos, limitReached = false, awaitingSecond = false } = await searchOffers(p, controller.signal, ciSecond);
+    if (awaitingSecond) {
+      setStatus("offersStatus", `第一班 ${state.ciFirst.options.length} 个选项 · 待选择并查询第二班`);
+      $("offersProgress").textContent = "默认选择第一条航班＋品牌；可改选，然后点击「查询第二班并列出组合」。尚未调用 start。";
+      return;
+    }
     state.combinations = combos;
     state.discoveryComplete = !limitReached;
     state.excludedCombos.clear(); $("comboSearch").value = "";
@@ -776,6 +861,9 @@ function dryRun() {
 }
 
 function refreshRunButtons() {
+  const busy = state.running || state.searching;
+  $("ciFirstOption").disabled = busy || !state.ciFirst;
+  $("btnCISecond").disabled = busy || !state.ciFirst;
   const hasCombos = selectedCombos().length > 0 && (state.discoveryComplete || state.quoteLimitReached) && !state.searching;
   ["comboSearch", "btnSelectCombos", "btnDeselectCombos"].forEach(id => { $(id).disabled = state.running; });
   $("btnRun").disabled = !($("optExecute").checked && hasCombos && !state.running);
@@ -792,6 +880,9 @@ async function onRun() {
   }
   if (!state.combinations.length) { showError("还没有组合，请先点「查询报价」。"); return; }
   if ((!state.discoveryComplete && !state.quoteLimitReached) || state.searching) { showError("报价查询未完成，不能执行 start。"); return; }
+  if (state.ciFirst && state.ciFirst.context !== ciQuoteContext(p)) {
+    showError("请求上下文已改变，请重新查询第一班报价"); return;
+  }
   const chosen = selectedCombos();
   if (!chosen.length) { showError("当前搜索结果没有已勾选的组合。"); return; }
   p.tspId = state.order ? state.order.tspId : "";
@@ -955,6 +1046,8 @@ restoreParams();
 refreshRunButtons();
 $("btnOrder").addEventListener("click", onOrder);
 $("btnOffers").addEventListener("click", onOffers);
+$("ciFirstOption").addEventListener("change", onCIFirstChange);
+$("btnCISecond").addEventListener("click", () => onOffers({ ciSecond: true }));
 $("btnStopOffers").addEventListener("click", () => { if (state.searching && controller) controller.abort(); });
 $("btnRun").addEventListener("click", onRun);
 $("btnDryRun").addEventListener("click", dryRun);
@@ -988,6 +1081,7 @@ $("btnExportResults").addEventListener("click", () => download("rebook-results.j
 logLine("就绪。分步流程：", "l-dim");
 logLine("  ① 获取订单：check-rebook-eligible → retrieve-rebook-order → 显示航班（每 bound 有「不更改此航班」勾选框）", "l-dim");
 logLine("  ② 按 mini order 的 itineraryType 分流：RT → rebook-air-bound；CI → rebook-complex-air-bound（带 x-trace-id）→ 组合", "l-dim");
+logLine("     CI 两班改动：先选择第一班航班＋品牌，再查第二班；三班及以上保留逐层遍历。", "l-dim");
 logLine("  ③ 执行对应 order-change-start → polling → 价格查询；airBoundIds 只放改动的 bound，RT 使用原始报价 ID，CI 使用 brandCode 拼接。", "l-dim");
 </script>
 </body>
